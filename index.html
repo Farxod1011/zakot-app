@@ -278,6 +278,7 @@
       const payload = {
         action: "ADD_RECORD_FROM_APP",
         chatId: chatId,
+        username: user.username || "",
         senderInfo: senderInfo,
         recipientFio: document.getElementById('recipientFio').value.trim(),
         recipientPhone: validPhone,
