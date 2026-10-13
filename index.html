@@ -241,15 +241,25 @@
       .then(() => {
         btn.innerText = "Arizani yuborish";
         btn.disabled = false;
-        alert("✅ Ariza muvaffaqiyatli saqlandi!");
         document.getElementById('zakotForm').reset();
         document.getElementById('locDisplay').value = "";
         loadUserData();
+
+        // Telegramning o'zini toza popup oynasi (domen nomi chiqmaydi):
+        if (tg && tg.showAlert) {
+          tg.showAlert("✅ Ariza muvaffaqiyatli yuborildi!");
+        } else {
+          alert("✅ Ariza muvaffaqiyatli yuborildi!");
+        }
       })
       .catch((err) => {
         btn.innerText = "Arizani yuborish";
         btn.disabled = false;
-        alert("Xatolik yuz berdi: " + err);
+        if (tg && tg.showAlert) {
+          tg.showAlert("Xatolik yuz berdi: " + err);
+        } else {
+          alert("Xatolik yuz berdi: " + err);
+        }
       });
     }
 
