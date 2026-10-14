@@ -83,8 +83,9 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
     }
     .tab-btn.active {
       background: var(--accent-color);
@@ -92,6 +93,16 @@
       border-color: rgba(255, 255, 255, 0.25);
       box-shadow: 0 2px 8px rgba(82, 136, 193, 0.35);
     }
+
+    /* Admin, Boshqaruvchi va Maslahatchida "+" tugmasi noaktiv paytda kichkina yumaloq bo'lib turadi */
+    .tab-btn.compact-plus:not(.active) {
+      padding: 8px 11px;
+      gap: 0;
+    }
+    .tab-btn.compact-plus:not(.active) .add-tab-text {
+      display: none;
+    }
+
     .badge {
       background: rgba(255, 255, 255, 0.2);
       border-radius: 12px;
@@ -423,13 +434,13 @@
 
     <div class="tab-bar">
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
-        <i class="fi fi-rr-plus-small"></i> Ariza qo'shish
-      </button>
-      <button class="tab-btn" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
-        <i class="fi fi-rr-users-alt"></i> Xodimlar so'rovi <span class="badge" id="b-users">0</span>
+        <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
       <button class="tab-btn" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed"></i> <span id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
+      </button>
+      <button class="tab-btn" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
+        <i class="fi fi-rr-users-alt"></i> Xodimlar so'rovi <span class="badge" id="b-users">0</span>
       </button>
       <button class="tab-btn" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:#81c784"></i> Tasdiqlangan <span class="badge" id="b-approved">0</span>
@@ -543,6 +554,7 @@
     let advisorsList = [];
     let allRecords = [];
     let pendingRejectIdx = null;
+    let activeTabId = null;
 
     function showNotice(text) {
       document.getElementById('msgModalText').innerText = text;
@@ -581,11 +593,15 @@
     }
 
     function openTab(tabId, el) {
+      activeTabId = tabId;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
-      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      if (el) {
+        el.classList.add('active');
+        el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
     }
 
     function toggleRoleMenu() {
@@ -713,7 +729,7 @@
     }
 
     function initApp(switchToTabId) {
-      if (!switchToTabId) showScreen('screen-loading');
+      if (!switchToTabId && !activeTabId) showScreen('screen-loading');
       fetch(SCRIPT_URL + "?action=INIT_APP&chatId=" + encodeURIComponent(chatId) + "&t=" + Date.now())
         .then(res => res.json())
         .then(data => {
@@ -749,11 +765,7 @@
           } else if (currentUser.status === "Rad etilgan") {
             showScreen('screen-rejected');
           } else if (currentUser.status === "Tasdiqlangan") {
-            setupMainScreen(data);
-            if (switchToTabId) {
-              const targetBtn = document.getElementById('tabMyBtn');
-              if (targetBtn) openTab(switchToTabId, targetBtn);
-            }
+            setupMainScreen(data, switchToTabId);
           }
         })
         .catch(() => {
@@ -761,13 +773,17 @@
         });
     }
 
-    function setupMainScreen(data) {
+    function setupMainScreen(data, switchToTabId) {
       showScreen('screen-main');
       const role = isAdminUser ? "Admin" : currentUser.role;
       document.getElementById('userRoleBanner').innerHTML = `<i class="fi fi-rr-user"></i> ${currentUser.fio} (${role})`;
 
+      const tabAddBtn = document.getElementById('tabAddBtn');
+      const tabMyBtn = document.getElementById('tabMyBtn');
       const tabUsersBtn = document.getElementById('tabUsersBtn');
       const myTabLabel = document.getElementById('myTabLabel');
+
+      const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
 
       if (isAdminUser || currentUser.role === "Maslahatchi") {
         tabUsersBtn.style.display = "inline-flex";
@@ -776,10 +792,31 @@
         tabUsersBtn.style.display = "none";
       }
 
-      myTabLabel.innerText = "Mening arizalarim";
+      // Admin, Boshqaruvchi va Maslahatchi uchun:
+      // 1) "Mening arizalarim" o'rniga "Arizalar" yoziladi
+      // 2) "Ariza qo'shish" kichkina "+" bo'lib turadi (bosilganda kengayadi)
+      // 3) Birinchi oyna sifatida "Arizalar" oynasi ochilib turadi
+      if (isStaff) {
+        myTabLabel.innerText = "Arizalar";
+        tabAddBtn.classList.add('compact-plus');
+      } else {
+        myTabLabel.innerText = "Mening arizalarim";
+        tabAddBtn.classList.remove('compact-plus');
+      }
 
       allRecords = data.records || [];
       renderRecords(allRecords);
+
+      if (switchToTabId) {
+        const btn = (switchToTabId === 'tab-my') ? tabMyBtn : tabAddBtn;
+        openTab(switchToTabId, btn);
+      } else if (!activeTabId) {
+        if (isStaff) {
+          openTab('tab-my', tabMyBtn);
+        } else {
+          openTab('tab-add', tabAddBtn);
+        }
+      }
     }
 
     function submitRegistration(e) {
