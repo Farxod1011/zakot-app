@@ -18,7 +18,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
 
-    /* FLATICON IKONKALARNI TEKISLASH */
     i.fi {
       display: inline-flex;
       align-items: center;
@@ -43,7 +42,6 @@
     .status-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
     .status-desc { font-size: 14px; color: var(--hint-color); line-height: 1.5; max-width: 310px; }
 
-    /* YUQORI ROLE BAR */
     .role-banner {
       padding: 9px 14px;
       background: rgba(82, 136, 193, 0.15);
@@ -56,7 +54,6 @@
     }
     .role-banner span { display: inline-flex; align-items: center; gap: 6px; }
 
-    /* TAB BAR */
     .tab-bar {
       display: flex;
       gap: 8px;
@@ -106,7 +103,6 @@
     .tab-content { display: none; padding: 14px; }
     .tab-content.active { display: block; }
 
-    /* FORMA VA CUSTOM SELECT */
     .form-container { padding: 18px 14px; }
     .form-header { font-size: 18px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .form-sub { font-size: 13px; color: var(--hint-color); margin-bottom: 18px; }
@@ -124,7 +120,6 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
 
-    /* POZITSIYA TANLASH PANELI */
     .role-dropdown { position: relative; user-select: none; }
     .role-selected {
       width: 100%;
@@ -187,7 +182,6 @@
     }
     .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* ACCORDION KARTA */
     .acc-card {
       background: var(--card-bg);
       border-radius: 12px;
@@ -246,7 +240,6 @@
     .status-Yetqazilgan { background: rgba(33, 150, 243, 0.2); color: #64b5f6; }
     .status-Yangi { background: rgba(158, 158, 158, 0.2); color: #e0e0e0; }
 
-    /* TAHRIRLASH VA TASDIQLASH TUGMALARI */
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
@@ -273,7 +266,6 @@
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; }
 
-    /* MAXSUS MODAL OYNALAR */
     .custom-modal {
       display: none;
       position: fixed;
@@ -350,7 +342,6 @@
       <div class="form-sub">Pozitsiyangizni tanlang va ma'lumotlaringizni kiriting.</div>
 
       <form id="regForm" onsubmit="submitRegistration(event)">
-        <!-- POZITSIYA TANLASH -->
         <div class="form-group">
           <label>Pozitsiyangizni tanlang</label>
           <div class="role-dropdown" id="roleDropdown">
@@ -373,7 +364,6 @@
           <input type="hidden" id="regRole" value="Ko'ngilli">
         </div>
 
-        <!-- MASLAHATCHINI TANLASH (S.F) -->
         <div class="form-group" id="advisorGroup">
           <label>Maslahatchini tanlang</label>
           <select id="regAdvisor">
@@ -470,12 +460,12 @@
 
         <div class="form-group">
           <label>Tavsiya etuvchi manba</label>
-          <input type="text" id="manba" placeholder="Mahalla oqsoqoli, qo'shni...">
+          <input type="text" id="manba" required placeholder="Mahalla oqsoqoli, qo'shni...">
         </div>
 
         <div class="form-group">
           <label>Sababi</label>
-          <textarea id="reason" rows="2" placeholder="Nega aynan ushbu inson tanlandi?"></textarea>
+          <textarea id="reason" rows="2" required placeholder="Nega aynan ushbu inson tanlandi?"></textarea>
         </div>
 
         <div class="form-group">
@@ -492,9 +482,9 @@
         </div>
 
         <div class="form-group">
-          <label>Manzili</label>
-          <input type="text" id="locDisplay" placeholder="Manzilni yozing yoki lokatsiya oling">
-          <button type="button" class="submit-btn" style="background:#2b5278; margin-top:6px;" onclick="getLocation()">
+          <label>Manzili (majburiy)</label>
+          <input type="text" id="locDisplay" required placeholder="Manzilni yozing yoki lokatsiya oling">
+          <button type="button" id="locBtn" class="submit-btn" style="background:#2b5278; margin-top:6px;" onclick="getLocation()">
             <i class="fi fi-rr-marker"></i> Lokatsiyani olish
           </button>
         </div>
@@ -653,16 +643,78 @@
     }
 
     function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          document.getElementById('locDisplay').value = "https://maps.google.com/?q=" + pos.coords.latitude + "," + pos.coords.longitude;
-        }, () => showNotice("Lokatsiya ruxsati berilmadi"));
+      const btn = document.getElementById('locBtn');
+      const oldHtml = '<i class="fi fi-rr-marker"></i> Lokatsiyani olish';
+      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Aniqlanmoqda...';
+      btn.disabled = true;
+
+      function onSuccess(lat, lng) {
+        document.getElementById('locDisplay').value = "https://maps.google.com/?q=" + lat + "," + lng;
+        btn.innerHTML = '<i class="fi fi-rr-check"></i> Lokatsiya olindi';
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2500);
       }
+
+      function onFail(msg) {
+        btn.innerHTML = oldHtml;
+        btn.disabled = false;
+        showNotice(msg || "Geolokatsiyani aniqlab bo'lmadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
+      }
+
+      if (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) {
+        try {
+          tg.LocationManager.init(() => {
+            if (!tg.LocationManager.isLocationAvailable) {
+              fallbackBrowserGeo(onSuccess, onFail);
+              return;
+            }
+            tg.LocationManager.getLocation((locData) => {
+              if (locData && locData.latitude && locData.longitude) {
+                onSuccess(locData.latitude, locData.longitude);
+              } else {
+                if (tg.LocationManager.isAccessGranted === false && tg.LocationManager.openSettings) {
+                  tg.LocationManager.openSettings();
+                }
+                fallbackBrowserGeo(onSuccess, onFail);
+              }
+            });
+          });
+          return;
+        } catch (err) {
+          fallbackBrowserGeo(onSuccess, onFail);
+          return;
+        }
+      }
+
+      fallbackBrowserGeo(onSuccess, onFail);
     }
 
-    function initApp() {
-      showScreen('screen-loading');
-      fetch(SCRIPT_URL + "?action=INIT_APP&chatId=" + encodeURIComponent(chatId))
+    function fallbackBrowserGeo(onSuccess, onFail) {
+      if (!navigator.geolocation) {
+        onFail("Qurilmangiz geolokatsiyani qo'llab-quvvatlamaydi.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => onSuccess(pos.coords.latitude, pos.coords.longitude),
+        () => {
+          navigator.geolocation.getCurrentPosition(
+            (pos2) => onSuccess(pos2.coords.latitude, pos2.coords.longitude),
+            (err2) => {
+              let msg = "Joylashuvni olib bo'lmadi. Telefoningizda GPS yoqilganligiga ishonch hosil qiling yoki manzilni qo'lda yozing.";
+              if (err2.code === 1) msg = "Joylashuvga ruxsat berilmadi. Telefon sozlamalaridan Telegram uchun «Joylashuv» ruxsatini yoqing.";
+              onFail(msg);
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+          );
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    }
+
+    function initApp(switchToTabId) {
+      if (!switchToTabId) showScreen('screen-loading');
+      fetch(SCRIPT_URL + "?action=INIT_APP&chatId=" + encodeURIComponent(chatId) + "&t=" + Date.now())
         .then(res => res.json())
         .then(data => {
           isAdminUser = Boolean(data.isAdmin);
@@ -698,6 +750,10 @@
             showScreen('screen-rejected');
           } else if (currentUser.status === "Tasdiqlangan") {
             setupMainScreen(data);
+            if (switchToTabId) {
+              const targetBtn = document.getElementById('tabMyBtn');
+              if (targetBtn) openTab(switchToTabId, targetBtn);
+            }
           }
         })
         .catch(() => {
@@ -821,7 +877,7 @@
           decision: decision
         })
       }).then(() => {
-        setTimeout(() => initApp(), 1300);
+        setTimeout(() => initApp(), 1500);
       });
     }
 
@@ -845,6 +901,12 @@
         finalAmount = customVal + " so'm";
       }
 
+      const addressVal = document.getElementById('locDisplay').value.trim();
+      if (!addressVal) {
+        showNotice("Iltimos, manzilni yozing yoki «Lokatsiyani olish» tugmasini bosing!");
+        return;
+      }
+
       const btn = document.getElementById('submitBtn');
       btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
       btn.disabled = true;
@@ -859,7 +921,7 @@
         manba: document.getElementById('manba').value.trim(),
         reason: document.getElementById('reason').value.trim(),
         amount: finalAmount,
-        address: document.getElementById('locDisplay').value.trim()
+        address: addressVal
       };
 
       fetch(SCRIPT_URL, {
@@ -874,7 +936,7 @@
         document.getElementById('zakotForm').reset();
         document.getElementById('customAmount').style.display = "none";
         document.getElementById('locDisplay').value = "";
-        setTimeout(() => initApp(), 1200);
+        setTimeout(() => initApp('tab-my'), 1800);
       });
     }
 
@@ -1045,7 +1107,7 @@
         body: JSON.stringify(payload)
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
-        setTimeout(() => initApp(), 1100);
+        setTimeout(() => initApp(), 1500);
       });
     }
 
