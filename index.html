@@ -112,7 +112,7 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
 
-    /* POZITSIYA TANLASH PANELI (DROPDOWN) */
+    /* POZITSIYA TANLASH PANELI */
     .role-dropdown { position: relative; user-select: none; }
     .role-selected {
       width: 100%;
@@ -167,7 +167,7 @@
     }
     .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* ACCORDION KARTA (IXCHAM VA KENGAYADIGAN) */
+    /* ACCORDION KARTA */
     .acc-card {
       background: var(--card-bg);
       border-radius: 12px;
@@ -245,6 +245,60 @@
     .btn-deliver { background: #1565c0; }
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; }
+
+    /* MAXSUS MODAL OYNALAR (farxod1011.github.io chiqmasligi uchun) */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .custom-modal.show { display: flex; }
+    .modal-box {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 22px 20px;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-color);
+    }
+    .modal-text {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 18px;
+      color: var(--text-color);
+      line-height: 1.4;
+    }
+    .modal-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      background: var(--accent-color);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
   </style>
 </head>
 <body>
@@ -274,15 +328,15 @@
               <span>▼</span>
             </div>
             <div class="role-options" id="roleOptions">
-              <div class="role-option selected" onclick="selectRole('Ko\'ngilli', '🤝 Ko\'ngilli')">🤝 Ko'ngilli</div>
-              <div class="role-option" onclick="selectRole('Maslahatchi', '🧭 Maslahatchi')">🧭 Maslahatchi</div>
-              <div class="role-option" id="optBoshqaruvchi" onclick="selectRole('Boshqaruvchi', '🏛 Boshqaruvchi')">🏛 Boshqaruvchi</div>
+              <div class="role-option selected" onclick="selectRole('Ko\'ngilli', '🤝 Ko\'ngilli', this)">🤝 Ko'ngilli</div>
+              <div class="role-option" onclick="selectRole('Maslahatchi', '🧭 Maslahatchi', this)">🧭 Maslahatchi</div>
+              <div class="role-option" id="optBoshqaruvchi" onclick="selectRole('Boshqaruvchi', '🏛 Boshqaruvchi', this)">🏛 Boshqaruvchi</div>
             </div>
           </div>
           <input type="hidden" id="regRole" value="Ko'ngilli">
         </div>
 
-        <!-- MASLAHATCHINI TANLASH (FAQAT KO'NGILLI UCHUN) -->
+        <!-- MASLAHATCHINI TANLASH (Bosh harflar: S.F ko'rinishida) -->
         <div class="form-group" id="advisorGroup">
           <label>Maslahatchini tanlang</label>
           <select id="regAdvisor">
@@ -315,7 +369,7 @@
     <div class="center-box">
       <div class="status-icon">🕒</div>
       <div class="status-title">Arizangiz ko'rib chiqilmoqda</div>
-      <div class="status-desc" id="pendingDesc">So'rovingiz mas'ul shaxsga yuborildi. Tasdiqlangach sizga bot orqali xabar boradi.</div>
+      <div class="status-desc">So'rovingiz mas'ul shaxsga yuborildi. Tasdiqlangach sizga bot orqali xabar boradi.</div>
       <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp()">🔄 Yangilash</button>
     </div>
   </div>
@@ -392,7 +446,7 @@
       </form>
     </div>
 
-    <!-- XODIMLARNI TASDIQLASH TABI (ADMIN VA MASLAHATCHI UCHUN) -->
+    <!-- XODIMLARNI TASDIQLASH TABI -->
     <div id="tab-users" class="tab-content">
       <div id="list-users"></div>
     </div>
@@ -403,6 +457,26 @@
     <div id="tab-rejected" class="tab-content"><div id="list-rejected"></div></div>
     <div id="tab-dispatched" class="tab-content"><div id="list-dispatched"></div></div>
     <div id="tab-delivered" class="tab-content"><div id="list-delivered"></div></div>
+  </div>
+
+  <!-- 1-MODAL: XABAR OYNASI (farxod1011.github.io chiqmasligi uchun) -->
+  <div id="msgModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-text" id="msgModalText">✅ Ma'lumot yangilandi!</div>
+      <button type="button" class="modal-btn" onclick="closeMsgModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- 2-MODAL: RAD ETISH SABABINI YOZISH OYNASI -->
+  <div id="rejectModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-title">❌ Rad etish</div>
+      <textarea id="rejectReasonInput" rows="3" placeholder="Sababini yozing..."></textarea>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeRejectModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" style="background:#c62828;" onclick="confirmReject()">OK</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -419,6 +493,40 @@
     let isAdminUser = false;
     let advisorsList = [];
     let allRecords = [];
+    let pendingRejectIdx = null;
+
+    // Toza modal xabar chiqarish funksiyasi
+    function showNotice(text) {
+      document.getElementById('msgModalText').innerText = text;
+      document.getElementById('msgModal').classList.add('show');
+    }
+
+    function closeMsgModal() {
+      document.getElementById('msgModal').classList.remove('show');
+    }
+
+    // Rad etish oynasini ochish va yopish
+    function openRejectPrompt(idx) {
+      pendingRejectIdx = idx;
+      document.getElementById('rejectReasonInput').value = "";
+      document.getElementById('rejectModal').classList.add('show');
+    }
+
+    function closeRejectModal() {
+      pendingRejectIdx = null;
+      document.getElementById('rejectModal').classList.remove('show');
+    }
+
+    function confirmReject() {
+      const reason = document.getElementById('rejectReasonInput').value.trim();
+      if (!reason) {
+        showNotice("⚠️ Iltimos, rad etish sababini yozing!");
+        return;
+      }
+      const idx = pendingRejectIdx;
+      closeRejectModal();
+      saveRecordUpdate(idx, 'Rad etilgan', reason);
+    }
 
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -433,36 +541,35 @@
       el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    // Ro'yxatdan o'tishda Pozitsiya tanlash menyusi
     function toggleRoleMenu() {
       document.getElementById('roleOptions').classList.toggle('open');
     }
 
-    function selectRole(roleVal, labelText) {
+    function selectRole(roleVal, labelText, el) {
       document.getElementById('regRole').value = roleVal;
       document.getElementById('selectedRoleText').innerText = labelText;
       document.getElementById('roleOptions').classList.remove('open');
 
       document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
-      event.target.classList.add('selected');
+      if (el) el.classList.add('selected');
 
       const advGroup = document.getElementById('advisorGroup');
-      if (roleVal === "Ko'ngilli") {
-        advGroup.style.display = "block";
-      } else {
-        advGroup.style.display = "none";
-      }
+      advGroup.style.display = (roleVal === "Ko'ngilli") ? "block" : "none";
     }
 
-    // F.I.O faqat harflardan iborat bo'lishi
     function validateLettersOnly(input) {
       input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁўқғҳЎҚҒҲ\s'\`ʼ]/g, '');
     }
 
-    // So'zlarning birinchi harfini katta qilish (Title Case)
     function toTitleCaseJS(str) {
       if (!str) return "";
       return str.toLowerCase().trim().replace(/\s+/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+    }
+
+    // F.I.O dan faqat Bosh harflarni olish (Sayfiddinov Farxod -> S.F)
+    function getInitialsJS(fio) {
+      if (!fio) return "";
+      return fio.trim().split(/\s+/).filter(Boolean).map(w => w.charAt(0).toUpperCase()).join('.');
     }
 
     function toggleCustomAmount(val) {
@@ -493,11 +600,10 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((pos) => {
           document.getElementById('locDisplay').value = "https://maps.google.com/?q=" + pos.coords.latitude + "," + pos.coords.longitude;
-        }, () => alert("Lokatsiya ruxsati berilmadi"));
+        }, () => showNotice("Lokatsiya ruxsati berilmadi"));
       }
     }
 
-    // Ilovani ishga tushirish
     function initApp() {
       showScreen('screen-loading');
       fetch(SCRIPT_URL + "?action=INIT_APP&chatId=" + encodeURIComponent(chatId))
@@ -506,15 +612,15 @@
           isAdminUser = Boolean(data.isAdmin);
           advisorsList = data.advisors || [];
 
-          // Maslahatchilar ro'yxatini select'ga joylash (F.I.O Bosh harflar bilan)
+          // Maslahatchilar ro'yxati: faqat Bosh harflari (S.F) ko'rinadi
           const advSelect = document.getElementById('regAdvisor');
           advSelect.innerHTML = '<option value="">-- Maslahatchini tanlang --</option>';
           advisorsList.forEach(adv => {
-            const formattedName = toTitleCaseJS(adv.fio);
-            advSelect.innerHTML += `<option value="${adv.chatId}" data-fio="${formattedName}">${formattedName}</option>`;
+            const fullFio = toTitleCaseJS(adv.fio);
+            const shortInitials = adv.initials || getInitialsJS(fullFio);
+            advSelect.innerHTML += `<option value="${adv.chatId}" data-fio="${fullFio}">${shortInitials}</option>`;
           });
 
-          // Agar Boshqaruvchi allaqachon mavjud bo'lsa, ro'yxatdan o'tishda yopib qo'yiladi
           const optBosh = document.getElementById('optBoshqaruvchi');
           if (data.hasBoshqaruvchi) {
             optBosh.classList.add('disabled');
@@ -550,10 +656,8 @@
       document.getElementById('userRoleBanner').innerText = `👤 ${currentUser.fio} (${role})`;
 
       const tabUsersBtn = document.getElementById('tabUsersBtn');
-      const tabAddBtn = document.getElementById('tabAddBtn');
       const myTabLabel = document.getElementById('myTabLabel');
 
-      // Admin va Maslahatchida yangi xodimlarni tasdiqlash tabi ko'rinadi
       if (isAdminUser || currentUser.role === "Maslahatchi") {
         tabUsersBtn.style.display = "inline-flex";
         renderPendingUsers(data.pendingUsers || []);
@@ -561,9 +665,8 @@
         tabUsersBtn.style.display = "none";
       }
 
-      // Maslahatchi va Boshqaruvchida asosiy e'tibor kelgan arizalarda bo'ladi
       if (currentUser.role === "Maslahatchi" || currentUser.role === "Boshqaruvchi") {
-        myTabLabel.innerText = "📥 Yangi arizalar";
+        myTabLabel.innerText = "📋 Mening arizalarim";
       } else {
         myTabLabel.innerText = "📋 Mening arizalarim";
       }
@@ -572,7 +675,6 @@
       renderRecords(allRecords);
     }
 
-    // Ro'yxatdan o'tish
     function submitRegistration(e) {
       e.preventDefault();
       const role = document.getElementById('regRole').value;
@@ -584,13 +686,13 @@
       const advisorFio = advSelect.options[advSelect.selectedIndex]?.getAttribute('data-fio') || "";
 
       if (role === "Ko'ngilli" && !advisorId) {
-        alert("⚠️ Iltimos, Maslahatchini tanlang!");
+        showNotice("⚠️ Iltimos, Maslahatchini tanlang!");
         return;
       }
 
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        alert("⚠️ Telefon raqami noto'g'ri! Misol: +998901234567 yoki 901234567");
+        showNotice("⚠️ Telefon raqami noto'g'ri!\nMisol: +998901234567 yoki 901234567");
         return;
       }
 
@@ -622,7 +724,6 @@
       });
     }
 
-    // Admin yoki Maslahatchi uchun xodim so'rovlarini chiqarish
     function renderPendingUsers(users) {
       document.getElementById('b-users').innerText = users.length;
       const container = document.getElementById('list-users');
@@ -673,14 +774,13 @@
       });
     }
 
-    // Yangi zakot arizasini yuborish
     function submitForm(e) {
       e.preventDefault();
 
       const rawPhone = document.getElementById('recipientPhone').value.trim();
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        alert("⚠️ Noto'g'ri raqam kiritildi!\nMisol: +998901234567 yoki 901234567");
+        showNotice("⚠️ Noto'g'ri raqam kiritildi!\nMisol: +998901234567 yoki 901234567");
         return;
       }
 
@@ -688,7 +788,7 @@
       if (finalAmount === "Boshqa") {
         const customVal = document.getElementById('customAmount').value.trim();
         if (!customVal) {
-          alert("Iltimos, summani kiriting!");
+          showNotice("Iltimos, summani kiriting!");
           return;
         }
         finalAmount = customVal + " so'm";
@@ -719,21 +819,20 @@
       }).then(() => {
         btn.innerText = "Arizani yuborish";
         btn.disabled = false;
-        alert("✅ Ariza muvaffaqiyatli yuborildi!");
+        showNotice("✅ Ariza muvaffaqiyatli yuborildi!");
         document.getElementById('zakotForm').reset();
         document.getElementById('customAmount').style.display = "none";
         document.getElementById('locDisplay').value = "";
-        setTimeout(() => initApp(), 1000);
+        setTimeout(() => initApp(), 1200);
       });
     }
 
-    // Kartani kengaytirish yoki yopish
     function toggleCard(cardId) {
       const el = document.getElementById(cardId);
       if (el) el.classList.toggle('expanded');
     }
 
-    // Arizalarni bo'limlarga ajratib chiroyli Accordion shaklida chiqarish
+    // Arizalarni bo'limlarga ajratib chiqarish
     function renderRecords(records) {
       let counts = { newRecs: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
       let htmls = { newRecs: "", approved: "", rejected: "", dispatched: "", delivered: "" };
@@ -742,7 +841,6 @@
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
 
       records.forEach((r, idx) => {
-        // Boshqaruvchiga faqat Maslahatchi tasdiqlagan (yoki undan keyingi) arizalar ko'rinadi
         if (currentUser && currentUser.role === "Boshqaruvchi" && !isAdminUser && r.status === "Yangi") {
           return;
         }
@@ -751,23 +849,73 @@
         const addrText = String(r.address || "");
         const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
 
+        // Qaysi tabga tushishini aniqlash:
+        let category = "newRecs";
+        if (r.status === "Tasdiqlangan" || (!isManager && r.status === "Maslahatchi tasdiqladi")) {
+          category = "approved";
+        } else if (r.status === "Rad etilgan") {
+          category = "rejected";
+        } else if (r.status === "Berib yuborilgan") {
+          category = "dispatched";
+        } else if (r.status === "Yetqazilgan") {
+          category = "delivered";
+        }
+
         let bodyContent = "";
 
         if (!canEdit) {
-          // KO'NGILLI UCHUN (Faqat ko'rish, ustiga bosganda kengayadi)
+          // TOPUVCHI (KO'NGILLI) PANELI: Summa ham aniq ko'rsatiladi
           bodyContent = `
+            <div class="detail-row"><span class="detail-label">💰 Summa:</span> <b>${r.amount || '-'}</b></div>
             <div class="detail-row"><span class="detail-label">📞 Telefon:</span> ${r.phone}</div>
             <div class="detail-row"><span class="detail-label">📌 Manba:</span> ${r.manba}</div>
             <div class="detail-row"><span class="detail-label">📝 Sababi:</span> ${r.reason || '-'}</div>
             <div class="detail-row"><span class="detail-label">📍 Manzili:</span> ${addrLink}</div>
             <div class="detail-row"><span class="detail-label">📊 Holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${r.status}</span></div>
+            ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label">❌ Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
           `;
         } else {
-          // MASLAHATCHI VA BOSHQARUVCHI UCHUN (Tahrirlash + Tasdiqlash/Rad etish)
+          // ADMIN, BOSHQARUVCHI VA MASLAHATCHI UCHUN HAR BIR TABGA MOS TUGMALAR:
           const approveStatus = isManager ? "Tasdiqlangan" : "Maslahatchi tasdiqladi";
+          let statusButtonsHtml = "";
+
+          if (category === "newRecs") {
+            // 1) Mening arizalarim (Yangi) ichida: faqat Tasdiqlash va Rad etish
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, '${approveStatus}', '')">✅ Tasdiqlash</button>
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})">❌ Rad etish</button>
+              </div>
+            `;
+          } else if (category === "approved") {
+            // 2) Tasdiqlangan ichida: faqat Rad etish va Berib yuborish
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})">❌ Rad etish</button>
+                ${isManager ? `<button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')">🚚 Berib yuborish</button>` : ''}
+              </div>
+            `;
+          } else if (category === "rejected") {
+            // 3) Rad etilgan ichida: Tasdiqlash va Berib yuborish
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, '${approveStatus}', '')">✅ Tasdiqlash</button>
+                ${isManager ? `<button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')">🚚 Berib yuborish</button>` : ''}
+              </div>
+            `;
+          } else if (category === "dispatched") {
+            // 4) Berib yuborilgan ichida: faqatgina Yetqazildi
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')">✅ Yetqazildi</button>
+              </div>
+            `;
+          }
+
           bodyContent = `
             <div class="detail-row"><span class="detail-label">👤 Topuvchi (Ko'ngilli):</span> ${r.sender}</div>
             <div class="detail-row"><span class="detail-label">📊 Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${r.status}</span></div>
+            ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label">❌ Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
               <input type="text" id="efio-${idx}" value="${r.fio}" oninput="validateLettersOnly(this)">
@@ -779,21 +927,13 @@
               <textarea id="ereason-${idx}" rows="2">${r.reason || ''}</textarea>
               <label>Miqdor</label>
               <input type="text" id="eamount-${idx}" value="${r.amount}">
-              <label>Manzil (${addrLink})</label>
+              <label>Manzil ${addrLink ? `(${addrLink})` : ''}</label>
               <input type="text" id="eaddr-${idx}" value="${r.address}">
 
               <div class="action-row">
                 <button class="btn-act btn-save" onclick="saveRecordUpdate(${idx}, '${r.status}')">💾 O'zgarishni saqlash</button>
               </div>
-              <div class="action-row">
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, '${approveStatus}')">✅ Tasdiqlash</button>
-                <button class="btn-act btn-reject" onclick="saveRecordUpdate(${idx}, 'Rad etilgan')">❌ Rad etish</button>
-              </div>
-              ${isManager ? `
-              <div class="action-row">
-                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan')">🚚 Berib yuborilgan</button>
-                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan')">✅ Yetqazilgan</button>
-              </div>` : ''}
+              ${statusButtonsHtml}
             </div>
           `;
         }
@@ -806,7 +946,7 @@
                 <div class="acc-date">🗓 Sana: ${r.date || '-'}</div>
               </div>
               <div class="acc-right">
-                <div class="acc-amount">💰 ${r.amount}</div>
+                <div class="acc-amount">💰 ${r.amount || '0 so\'m'}</div>
                 <span class="acc-arrow">▼ Batafsil</span>
               </div>
             </div>
@@ -816,24 +956,8 @@
           </div>
         `;
 
-        // Holatiga qarab tegishli tablarga taqsimlash:
-        if (r.status === "Tasdiqlangan" || (!isManager && r.status === "Maslahatchi tasdiqladi")) {
-          counts.approved++;
-          htmls.approved += cardHtml;
-        } else if (r.status === "Rad etilgan") {
-          counts.rejected++;
-          htmls.rejected += cardHtml;
-        } else if (r.status === "Berib yuborilgan") {
-          counts.dispatched++;
-          htmls.dispatched += cardHtml;
-        } else if (r.status === "Yetqazilgan") {
-          counts.delivered++;
-          htmls.delivered += cardHtml;
-        } else {
-          // "Yangi" (yoki Boshqaruvchi uchun "Maslahatchi tasdiqladi") -> Mening arizalarim / Yangi arizalar tabiga tushadi
-          counts.newRecs++;
-          htmls.newRecs += cardHtml;
-        }
+        counts[category]++;
+        htmls[category] += cardHtml;
       });
 
       document.getElementById('b-all').innerText = counts.newRecs;
@@ -849,8 +973,7 @@
       document.getElementById('list-delivered').innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
     }
 
-    // Maslahatchi va Boshqaruvchi tahririni/tasdiqlashini saqlash
-    function saveRecordUpdate(idx, newStatus) {
+    function saveRecordUpdate(idx, newStatus, rejectReason) {
       const rec = allRecords[idx];
       if (!rec) return;
 
@@ -868,7 +991,8 @@
         reason: document.getElementById(`ereason-${idx}`).value.trim(),
         amount: document.getElementById(`eamount-${idx}`).value.trim(),
         address: document.getElementById(`eaddr-${idx}`).value.trim(),
-        newStatus: newStatus
+        newStatus: newStatus,
+        rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       };
 
       fetch(SCRIPT_URL, {
@@ -877,8 +1001,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       }).then(() => {
-        alert("✅ Ma'lumot yangilandi!");
-        setTimeout(() => initApp(), 1000);
+        showNotice("✅ Ma'lumot yangilandi!");
+        setTimeout(() => initApp(), 1100);
       });
     }
 
