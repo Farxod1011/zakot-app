@@ -1012,7 +1012,6 @@
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
       const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
       const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
-      const canEdit = isManager || isAdvisor;
 
       records.forEach((r, idx) => {
         // Boshqaruvchi va Adminga Maslahatchi hali "Yuborish" qilmagan ("Yangi") arizalar ko'rinmaydi
@@ -1027,9 +1026,6 @@
         // Ariza qaysi bo'limga (tabga) tushishini aniqlash:
         let category = "newRecs";
         if (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi") {
-          // Maslahatchida -> "Yuborilganlar" (sent) bo'limiga o'tadi
-          // Ko'ngillida -> "Mening arizalarim" (newRecs) ichida qoladi!
-          // Boshqaruvchi va Adminda -> "Arizalar" (newRecs) ichiga tushadi
           category = isAdvisor ? "sent" : "newRecs";
         } else if (r.status === "Tasdiqlangan") {
           category = "approved";
@@ -1044,90 +1040,85 @@
         }
 
         // Ko'ngillining "Mening arizalarim" bo'limida Sana tagida mayda yashil yozuv:
-        // "Holati: Maslahatchida" -> keyin "Holati: Boshqaruvchida"
         let subStatusHtml = "";
-        let volunteerStatusLabel = r.status;
+        let displayStatusText = r.status;
         if (isVolunteer && category === "newRecs") {
           const stageName = (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi")
             ? "Boshqaruvchida"
             : "Maslahatchida";
           subStatusHtml = `<div class="acc-substatus">Holati: ${stageName}</div>`;
-          volunteerStatusLabel = stageName;
+          displayStatusText = stageName;
+        }
+
+        // KIM QAYSI BOSQICHDA "O'ZGARISHNI SAQLASH" (TAHRIRLASH) QILA OLADI:
+        // 1) Topuvchi (Ko'ngilli): Maslahatchi hali tasdiqlab Boshqaruvchiga yubormaguncha (r.status === "Yangi")
+        // 2) Maslahatchi: Boshqaruvchi hali tasdiqlamaguncha (newRecs va sent bo'limlarida, ya'ni "Yangi" va "Yuborilgan" holatida)
+        // 3) Boshqaruvchi va Admin: "Arizalar", "Tasdiqlangan" va "Rad etilgan" bo'limlarida (Berib yuborilgan va Yetqazilgan bo'lganda chiqmaydi!)
+        let canEditRecord = false;
+        if (isVolunteer) {
+          if (r.status === "Yangi") canEditRecord = true;
+        } else if (isAdvisor) {
+          if (category === "newRecs" || category === "sent") canEditRecord = true;
+        } else if (isManager) {
+          if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
+        }
+
+        // HOLATNI O'ZGARTIRUVCHI TUGMALAR (Yuborish, Tasdiqlash, Rad etish, Berib yuborish, Yetqazildi)
+        let statusButtonsHtml = "";
+
+        if (isAdvisor) {
+          if (category === "newRecs") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+              </div>
+            `;
+          } else if (category === "sent") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+              </div>
+            `;
+          }
+        } else if (isManager) {
+          if (category === "newRecs") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+              </div>
+            `;
+          } else if (category === "approved") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+              </div>
+            `;
+          } else if (category === "rejected") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+              </div>
+            `;
+          } else if (category === "dispatched") {
+            statusButtonsHtml = `
+              <div class="action-row" onclick="event.stopPropagation()">
+                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
+              </div>
+            `;
+          }
         }
 
         let bodyContent = "";
 
-        if (!canEdit) {
-          // KO'NGILLI (TOPUVCHI)
+        if (canEditRecord) {
+          // Tahrirlash va "O'zgarishni saqlash" ruxsat etilgan holat
           bodyContent = `
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-Tasdiqlangan">${volunteerStatusLabel}</span></div>
-            ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
-          `;
-        } else {
-          let statusButtonsHtml = "";
-
-          if (isAdvisor) {
-            // MASLAHATCHI UCHUN: "Yuborish" va "Rad etish"
-            if (category === "newRecs") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
-                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                </div>
-              `;
-            } else if (category === "sent") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                </div>
-              `;
-            } else if (category === "rejected") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
-                </div>
-              `;
-            }
-          } else if (isManager) {
-            // BOSHQARUVCHI VA ADMIN UCHUN:
-            if (category === "newRecs") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                </div>
-              `;
-            } else if (category === "approved") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                  <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
-                </div>
-              `;
-            } else if (category === "rejected") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                  <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
-                </div>
-              `;
-            } else if (category === "dispatched") {
-              statusButtonsHtml = `
-                <div class="action-row">
-                  <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
-                </div>
-              `;
-            }
-          }
-
-          bodyContent = `
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${r.status}</span></div>
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
@@ -1148,6 +1139,19 @@
               </div>
               ${statusButtonsHtml}
             </div>
+          `;
+        } else {
+          // Faqat ko'rish rejimi (O'zgarishni saqlash tugmasi va inputlar chiqmaydi)
+          bodyContent = `
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
+            ${statusButtonsHtml}
           `;
         }
 
@@ -1196,17 +1200,24 @@
       const card = document.getElementById(`rec-card-${idx}`);
       if (card) card.style.opacity = "0.5";
 
+      const fioInput = document.getElementById(`efio-${idx}`);
+      const phoneInput = document.getElementById(`ephone-${idx}`);
+      const manbaInput = document.getElementById(`emanba-${idx}`);
+      const reasonInput = document.getElementById(`ereason-${idx}`);
+      const amountInput = document.getElementById(`eamount-${idx}`);
+      const addrInput = document.getElementById(`eaddr-${idx}`);
+
       const payload = {
         action: "UPDATE_RECORD",
         sheetName: rec.sheetName,
         ownerChatId: rec.ownerChatId,
         rowIndex: rec.rowIndex,
-        fio: toTitleCaseJS(document.getElementById(`efio-${idx}`).value.trim()),
-        phone: document.getElementById(`ephone-${idx}`).value.trim(),
-        manba: document.getElementById(`emanba-${idx}`).value.trim(),
-        reason: document.getElementById(`ereason-${idx}`).value.trim(),
-        amount: document.getElementById(`eamount-${idx}`).value.trim(),
-        address: document.getElementById(`eaddr-${idx}`).value.trim(),
+        fio: fioInput ? toTitleCaseJS(fioInput.value.trim()) : rec.fio,
+        phone: phoneInput ? phoneInput.value.trim() : rec.phone,
+        manba: manbaInput ? manbaInput.value.trim() : rec.manba,
+        reason: reasonInput ? reasonInput.value.trim() : rec.reason,
+        amount: amountInput ? amountInput.value.trim() : rec.amount,
+        address: addrInput ? addrInput.value.trim() : rec.address,
         newStatus: newStatus,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       };
