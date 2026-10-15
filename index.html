@@ -208,9 +208,19 @@
       align-items: center;
       cursor: pointer;
     }
-    .acc-left { display: flex; flex-direction: column; gap: 5px; }
+    .acc-left { display: flex; flex-direction: column; gap: 4px; }
     .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
     .acc-date { font-size: 12px; color: var(--hint-color); display: flex; align-items: center; gap: 6px; }
+    /* Sana tagidagi mayda yashil yozuv */
+    .acc-substatus {
+      font-size: 11px;
+      color: #81c784;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 1px;
+    }
     .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
     .acc-amount {
       font-size: 13px;
@@ -245,7 +255,8 @@
       font-size: 11px;
       font-weight: 500;
     }
-    .status-Tasdiqlangan, .status-Maslahatchi-tasdiqladi { background: rgba(76, 175, 80, 0.2); color: #81c784; }
+    .status-Tasdiqlangan { background: rgba(76, 175, 80, 0.2); color: #81c784; }
+    .status-Yuborilgan, .status-Maslahatchi-tasdiqladi { background: rgba(138, 180, 248, 0.2); color: #8ab4f8; }
     .status-Rad-etilgan { background: rgba(244, 67, 54, 0.2); color: #e57373; }
     .status-Berib-yuborilgan { background: rgba(255, 152, 0, 0.2); color: #ffb74d; }
     .status-Yetqazilgan { background: rgba(33, 150, 243, 0.2); color: #64b5f6; }
@@ -271,6 +282,7 @@
     }
     .btn-save { background: #3b6998; }
     .btn-approve { background: #2e7d32; }
+    .btn-send { background: #0277bd; }
     .btn-reject { background: #c62828; }
     .btn-dispatch { background: #ef6c00; }
     .btn-deliver { background: #1565c0; }
@@ -439,6 +451,10 @@
       <button class="tab-btn" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed"></i> <span id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
+      <!-- YUBORILGANLAR TABI (Faqat Maslahatchi uchun) -->
+      <button class="tab-btn" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
+        <i class="fi fi-rr-paper-plane" style="color:#8ab4f8"></i> Yuborilganlar <span class="badge" id="b-sent">0</span>
+      </button>
       <button class="tab-btn" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> Xodimlar so'rovi <span class="badge" id="b-users">0</span>
       </button>
@@ -513,6 +529,7 @@
 
     <!-- ARIZALAR TABLARI -->
     <div id="tab-my" class="tab-content"><div id="list-all"></div></div>
+    <div id="tab-sent" class="tab-content"><div id="list-sent"></div></div>
     <div id="tab-approved" class="tab-content"><div id="list-approved"></div></div>
     <div id="tab-rejected" class="tab-content"><div id="list-rejected"></div></div>
     <div id="tab-dispatched" class="tab-content"><div id="list-dispatched"></div></div>
@@ -780,11 +797,21 @@
 
       const tabAddBtn = document.getElementById('tabAddBtn');
       const tabMyBtn = document.getElementById('tabMyBtn');
+      const tabSentBtn = document.getElementById('tabSentBtn');
       const tabUsersBtn = document.getElementById('tabUsersBtn');
       const myTabLabel = document.getElementById('myTabLabel');
 
       const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
+      const isOnlyAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
 
+      // "Yuborilganlar" menyusi faqat Maslahatchida ko'rinadi
+      if (isOnlyAdvisor) {
+        tabSentBtn.style.display = "inline-flex";
+      } else {
+        tabSentBtn.style.display = "none";
+      }
+
+      // "Xodimlar so'rovi" faqat Admin va Maslahatchida ko'rinadi
       if (isAdminUser || currentUser.role === "Maslahatchi") {
         tabUsersBtn.style.display = "inline-flex";
         renderPendingUsers(data.pendingUsers || []);
@@ -792,10 +819,6 @@
         tabUsersBtn.style.display = "none";
       }
 
-      // Admin, Boshqaruvchi va Maslahatchi uchun:
-      // 1) "Mening arizalarim" o'rniga "Arizalar" yoziladi
-      // 2) "Ariza qo'shish" kichkina "+" bo'lib turadi (bosilganda kengayadi)
-      // 3) Birinchi oyna sifatida "Arizalar" oynasi ochilib turadi
       if (isStaff) {
         myTabLabel.innerText = "Arizalar";
         tabAddBtn.classList.add('compact-plus');
@@ -983,14 +1006,17 @@
     }
 
     function renderRecords(records) {
-      let counts = { newRecs: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
-      let htmls = { newRecs: "", approved: "", rejected: "", dispatched: "", delivered: "" };
+      let counts = { newRecs: 0, sent: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
+      let htmls = { newRecs: "", sent: "", approved: "", rejected: "", dispatched: "", delivered: "" };
 
-      const canEdit = isAdminUser || (currentUser && (currentUser.role === "Maslahatchi" || currentUser.role === "Boshqaruvchi"));
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
+      const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
+      const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
+      const canEdit = isManager || isAdvisor;
 
       records.forEach((r, idx) => {
-        if (currentUser && currentUser.role === "Boshqaruvchi" && !isAdminUser && r.status === "Yangi") {
+        // Boshqaruvchi va Adminga Maslahatchi hali "Yuborish" qilmagan ("Yangi") arizalar ko'rinmaydi
+        if (isManager && r.status === "Yangi") {
           return;
         }
 
@@ -998,8 +1024,14 @@
         const addrText = String(r.address || "");
         const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
 
+        // Ariza qaysi bo'limga (tabga) tushishini aniqlash:
         let category = "newRecs";
-        if (r.status === "Tasdiqlangan" || (!isManager && r.status === "Maslahatchi tasdiqladi")) {
+        if (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi") {
+          // Maslahatchida -> "Yuborilganlar" (sent) bo'limiga o'tadi
+          // Ko'ngillida -> "Mening arizalarim" (newRecs) ichida qoladi!
+          // Boshqaruvchi va Adminda -> "Arizalar" (newRecs) ichiga tushadi
+          category = isAdvisor ? "sent" : "newRecs";
+        } else if (r.status === "Tasdiqlangan") {
           category = "approved";
         } else if (r.status === "Rad etilgan") {
           category = "rejected";
@@ -1007,51 +1039,90 @@
           category = "dispatched";
         } else if (r.status === "Yetqazilgan") {
           category = "delivered";
+        } else {
+          category = "newRecs";
+        }
+
+        // Ko'ngillining "Mening arizalarim" bo'limida Sana tagida mayda yashil yozuv:
+        // "Holati: Maslahatchida" -> keyin "Holati: Boshqaruvchida"
+        let subStatusHtml = "";
+        let volunteerStatusLabel = r.status;
+        if (isVolunteer && category === "newRecs") {
+          const stageName = (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi")
+            ? "Boshqaruvchida"
+            : "Maslahatchida";
+          subStatusHtml = `<div class="acc-substatus">Holati: ${stageName}</div>`;
+          volunteerStatusLabel = stageName;
         }
 
         let bodyContent = "";
 
         if (!canEdit) {
+          // KO'NGILLI (TOPUVCHI)
           bodyContent = `
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${r.status}</span></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-Tasdiqlangan">${volunteerStatusLabel}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
           `;
         } else {
-          const approveStatus = isManager ? "Tasdiqlangan" : "Maslahatchi tasdiqladi";
           let statusButtonsHtml = "";
 
-          if (category === "newRecs") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, '${approveStatus}', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-              </div>
-            `;
-          } else if (category === "approved") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                ${isManager ? `<button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>` : ''}
-              </div>
-            `;
-          } else if (category === "rejected") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, '${approveStatus}', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                ${isManager ? `<button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>` : ''}
-              </div>
-            `;
-          } else if (category === "dispatched") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
-              </div>
-            `;
+          if (isAdvisor) {
+            // MASLAHATCHI UCHUN: "Yuborish" va "Rad etish"
+            if (category === "newRecs") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                </div>
+              `;
+            } else if (category === "sent") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                </div>
+              `;
+            } else if (category === "rejected") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                </div>
+              `;
+            }
+          } else if (isManager) {
+            // BOSHQARUVCHI VA ADMIN UCHUN:
+            if (category === "newRecs") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                </div>
+              `;
+            } else if (category === "approved") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                  <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+                </div>
+              `;
+            } else if (category === "rejected") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                  <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+                </div>
+              `;
+            } else if (category === "dispatched") {
+              statusButtonsHtml = `
+                <div class="action-row">
+                  <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
+                </div>
+              `;
+            }
           }
 
           bodyContent = `
@@ -1086,6 +1157,7 @@
               <div class="acc-left">
                 <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${r.fio}</div>
                 <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${r.date || '-'}</div>
+                ${subStatusHtml}
               </div>
               <div class="acc-right">
                 <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${r.amount || '0 so\'m'}</div>
@@ -1103,12 +1175,14 @@
       });
 
       document.getElementById('b-all').innerText = counts.newRecs;
+      document.getElementById('b-sent').innerText = counts.sent;
       document.getElementById('b-approved').innerText = counts.approved;
       document.getElementById('b-rejected').innerText = counts.rejected;
       document.getElementById('b-dispatched').innerText = counts.dispatched;
       document.getElementById('b-delivered').innerText = counts.delivered;
 
       document.getElementById('list-all').innerHTML = htmls.newRecs || '<div class="empty-state">Yangi arizalar mavjud emas</div>';
+      document.getElementById('list-sent').innerHTML = htmls.sent || '<div class="empty-state">Yuborilgan arizalar mavjud emas</div>';
       document.getElementById('list-approved').innerHTML = htmls.approved || '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
       document.getElementById('list-rejected').innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
       document.getElementById('list-dispatched').innerHTML = htmls.dispatched || '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
