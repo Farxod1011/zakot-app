@@ -94,7 +94,6 @@
       box-shadow: 0 2px 8px rgba(82, 136, 193, 0.35);
     }
 
-    /* Admin, Boshqaruvchi va Maslahatchida "+" tugmasi noaktiv paytda kichkina yumaloq bo'lib turadi */
     .tab-btn.compact-plus:not(.active) {
       padding: 8px 11px;
       gap: 0;
@@ -103,7 +102,6 @@
       display: none;
     }
 
-    /* "Xodimlar so'rovi" tugmasi noaktiv paytda faqat emblema va son bo'lib kichkina turadi */
     .tab-btn.compact-users:not(.active) {
       padding: 8px 11px;
       gap: 5px;
@@ -112,7 +110,6 @@
       display: none;
     }
 
-    /* So'rovlar soni 0 dan katta bo'lganda qizarib turishi */
     .tab-btn.has-requests:not(.active) {
       background: rgba(244, 67, 54, 0.22);
       border-color: rgba(244, 67, 54, 0.55);
@@ -308,6 +305,7 @@
     .btn-approve { background: #2e7d32; }
     .btn-send { background: #0277bd; }
     .btn-reject { background: #c62828; }
+    .btn-delete { background: #b71c1c; }
     .btn-dispatch { background: #ef6c00; }
     .btn-deliver { background: #1565c0; }
 
@@ -473,7 +471,7 @@
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
-      <!-- 2. XODIMLAR SO'ROVI ("+" dan keyin kichkina emblema va raqam bo'lib turadi, bosilsa kengayadi) -->
+      <!-- 2. XODIMLAR SO'ROVI -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
@@ -925,7 +923,6 @@
       document.getElementById('b-users').innerText = count;
       const tabUsersBtn = document.getElementById('tabUsersBtn');
 
-      // Agar so'rovlar soni 0 dan katta bo'lsa, tugma qizaribroq turadi
       if (count > 0) {
         tabUsersBtn.classList.add('has-requests');
       } else {
@@ -1111,6 +1108,13 @@
                 <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
               </div>
             `;
+          } else if (category === "rejected") {
+            statusButtonsHtml = `
+              <div class="action-row" onclick="event.stopPropagation()">
+                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
+              </div>
+            `;
           }
         } else if (isManager) {
           if (category === "newRecs") {
@@ -1128,10 +1132,11 @@
               </div>
             `;
           } else if (category === "rejected") {
+            // Rad etilgan ichida: Berib yuborish chiqmaydi, o'rniga O'chirish tugmasi chiqadi
             statusButtonsHtml = `
               <div class="action-row">
                 <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
               </div>
             `;
           } else if (category === "dispatched") {
@@ -1259,6 +1264,32 @@
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
         setTimeout(() => initApp(), 1500);
+      });
+    }
+
+    // Rad etilgan arizani o'chirib yuborish funksiyasi
+    function deleteRecord(idx) {
+      const rec = allRecords[idx];
+      if (!rec) return;
+
+      const card = document.getElementById(`rec-card-${idx}`);
+      if (card) card.style.opacity = "0.4";
+
+      const payload = {
+        action: "DELETE_RECORD",
+        sheetName: rec.sheetName,
+        ownerChatId: rec.ownerChatId,
+        rowIndex: rec.rowIndex
+      };
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        showNotice("Ariza o'chirib yuborildi!");
+        setTimeout(() => initApp(), 1400);
       });
     }
 
