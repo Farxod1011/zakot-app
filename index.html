@@ -42,7 +42,7 @@
     .status-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
     .status-desc { font-size: 14px; color: var(--hint-color); line-height: 1.5; max-width: 310px; }
 
-    /* YUQORI BAR VA 3-NUQTA MENYUSI */
+    /* YUQORI BAR VA 3-NUQTA (RAZMERIGA TEGILMASDAN FON ENI KICHRAYTIRILDI) */
     .role-banner {
       padding: 9px 14px;
       background: rgba(82, 136, 193, 0.15);
@@ -62,14 +62,15 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: #fff;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      border-radius: 6px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       transition: all 0.2s;
     }
     .dots-btn:active, .dots-btn.open {
@@ -265,6 +266,14 @@
       gap: 5px;
     }
     .tab-btn.compact-users:not(.active) .users-tab-text {
+      display: none;
+    }
+
+    .tab-btn.compact-tab:not(.active) {
+      padding: 8px 11px;
+      gap: 5px;
+    }
+    .tab-btn.compact-tab:not(.active) .tab-text-label {
       display: none;
     }
 
@@ -622,7 +631,7 @@
       <div class="status-icon"><i class="fi fi-rr-time-forward"></i></div>
       <div class="status-title">Arizangiz ko'rib chiqilmoqda</div>
       <div class="status-desc">So'rovingiz mas'ul shaxsga yuborildi. Tasdiqlangach sizga bot orqali xabar boradi.</div>
-      <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp()">
+      <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp(activeTabId)">
         <i class="fi fi-rr-refresh"></i> Yangilash
       </button>
     </div>
@@ -639,7 +648,7 @@
 
   <!-- 5. ASOSIY EKRAN -->
   <div id="screen-main" class="screen">
-    <!-- YUQORI PANEL (Chap tarafda 3-nuqta bilan) -->
+    <!-- YUQORI PANEL (Tuzatilgan Yangilash va 3-nuqta) -->
     <div class="role-banner">
       <div class="role-banner-left">
         <button type="button" class="dots-btn" id="dotsMenuBtn" onclick="toggleTopDrawer()">
@@ -647,7 +656,7 @@
         </button>
         <span id="userRoleBanner"><i class="fi fi-rr-user"></i> Pozitsiya: Ko'ngilli</span>
       </div>
-      <span onclick="initApp()" style="cursor:pointer;"><i class="fi fi-rr-refresh"></i> Yangilash</span>
+      <span onclick="initApp(activeTabId)" style="cursor:pointer;"><i class="fi fi-rr-refresh"></i> Yangilash</span>
     </div>
 
     <!-- 3-NUQTA BOSILGANDA KENGAYADIGAN RO'YXAT OYNA -->
@@ -656,29 +665,37 @@
     </div>
 
     <div class="tab-bar">
+      <!-- 1. "+" ARIZA QO'SHISH -->
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
+      <!-- 2. XODIMLAR SO'ROVI -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
-      <button class="tab-btn" id="tabMyBtn" onclick="openTab('tab-my', this)">
-        <i class="fi fi-rr-document-signed"></i> <span id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
+      <!-- 3. ARIZALAR / MENING ARIZALARIM -->
+      <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
+        <i class="fi fi-rr-document-signed"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <button class="tab-btn" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
-        <i class="fi fi-rr-paper-plane" style="color:#8ab4f8"></i> Yuborilganlar <span class="badge" id="b-sent">0</span>
+      <!-- 4. YUBORILGANLAR -->
+      <button class="tab-btn compact-tab" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
+        <i class="fi fi-rr-paper-plane" style="color:#8ab4f8"></i> <span class="tab-text-label">Yuborilganlar</span> <span class="badge" id="b-sent">0</span>
       </button>
-      <button class="tab-btn" onclick="openTab('tab-approved', this)">
-        <i class="fi fi-rr-check-circle" style="color:#81c784"></i> Tasdiqlangan <span class="badge" id="b-approved">0</span>
+      <!-- 5. TASDIQLANGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
+        <i class="fi fi-rr-check-circle" style="color:#81c784"></i> <span class="tab-text-label">Tasdiqlangan</span> <span class="badge" id="b-approved">0</span>
       </button>
-      <button class="tab-btn" onclick="openTab('tab-rejected', this)">
-        <i class="fi fi-rr-cross-circle" style="color:#e57373"></i> Rad etilgan <span class="badge" id="b-rejected">0</span>
+      <!-- 6. RAD ETILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-rejected', this)">
+        <i class="fi fi-rr-cross-circle" style="color:#e57373"></i> <span class="tab-text-label">Rad etilgan</span> <span class="badge" id="b-rejected">0</span>
       </button>
-      <button class="tab-btn" onclick="openTab('tab-dispatched', this)">
-        <i class="fi fi-rr-truck-side" style="color:#ffb74d"></i> Berib yuborilgan <span class="badge" id="b-dispatched">0</span>
+      <!-- 7. BERIB YUBORILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-dispatched', this)">
+        <i class="fi fi-rr-truck-side" style="color:#ffb74d"></i> <span class="tab-text-label">Berib yuborilgan</span> <span class="badge" id="b-dispatched">0</span>
       </button>
-      <button class="tab-btn" onclick="openTab('tab-delivered', this)">
-        <i class="fi fi-rr-badge-check" style="color:#64b5f6"></i> Yetqazilgan <span class="badge" id="b-delivered">0</span>
+      <!-- 8. YETQAZILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-delivered', this)">
+        <i class="fi fi-rr-badge-check" style="color:#64b5f6"></i> <span class="tab-text-label">Yetqazilgan</span> <span class="badge" id="b-delivered">0</span>
       </button>
     </div>
 
@@ -822,7 +839,6 @@
     let activeTabId = null;
     let deletingAdvisorObj = null;
 
-    // Username bor yoki yo'qligini tekshirish ("Mavjud emas" bo'lsa ko'rsatmaydi)
     function hasValidUsername(u) {
       if (!u) return false;
       const s = String(u).trim();
@@ -877,7 +893,6 @@
 
       let html = "";
 
-      // 1) KO'NGILLI (TOPUVCHI)
       if (isVolunteer) {
         html = `
           <button type="button" class="logout-btn" onclick="logoutCurrentUser()">
@@ -888,7 +903,6 @@
         return;
       }
 
-      // 2) MASLAHATCHI
       if (isAdvisor) {
         html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
         if (!directoryData.myVolunteers.length) {
@@ -902,7 +916,6 @@
         return;
       }
 
-      // 3) ADMIN VA BOSHQARUVCHI
       if (isAdminUser) {
         html += `<div class="dir-section-title">Boshqaruvchi</div>`;
         if (directoryData.boshqaruvchi) {
@@ -1026,7 +1039,7 @@
         }]
       }).then(() => {
         showNotice("Topuvchi boshqa Maslahatchiga biriktirildi!");
-        setTimeout(() => initApp(), 1200);
+        setTimeout(() => initApp(activeTabId), 1200);
       });
     }
 
@@ -1052,7 +1065,7 @@
           targetChatId: targetId
         }).then(() => {
           showNotice(`${targetFio} o'chirildi!`);
-          setTimeout(() => initApp(), 1300);
+          setTimeout(() => initApp(activeTabId), 1300);
         });
       });
     }
@@ -1141,7 +1154,7 @@
         reassignments: reassignments
       }).then(() => {
         showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi!`);
-        setTimeout(() => initApp(), 1400);
+        setTimeout(() => initApp(activeTabId), 1400);
       });
     }
 
@@ -1395,8 +1408,8 @@
       renderRecords(allRecords);
 
       if (switchToTabId) {
-        const btn = (switchToTabId === 'tab-my') ? tabMyBtn : tabAddBtn;
-        openTab(switchToTabId, btn);
+        const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
+        openTab(switchToTabId, targetBtnObj);
       } else if (!activeTabId) {
         if (isStaff) {
           openTab('tab-my', tabMyBtn);
@@ -1498,7 +1511,7 @@
         targetChatId: targetChatId,
         decision: decision
       }).then(() => {
-        setTimeout(() => initApp(), 1500);
+        setTimeout(() => initApp(activeTabId), 1500);
       });
     }
 
@@ -1700,7 +1713,7 @@
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:#e57373;"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
             ${statusButtonsHtml}
           `;
@@ -1776,7 +1789,7 @@
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
-        setTimeout(() => initApp(), 1500);
+        setTimeout(() => initApp(activeTabId), 1500);
       });
     }
 
@@ -1801,7 +1814,7 @@
       }).then(() => {
         if (card) card.remove();
         showNotice("Ariza o'chirib yuborildi!");
-        setTimeout(() => initApp(), 1500);
+        setTimeout(() => initApp(activeTabId), 1500);
       });
     }
 
