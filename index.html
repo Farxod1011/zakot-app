@@ -42,6 +42,7 @@
     .status-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
     .status-desc { font-size: 14px; color: var(--hint-color); line-height: 1.5; max-width: 310px; }
 
+    /* YUQORI BAR VA 3-NUQTA MENYUSI */
     .role-banner {
       padding: 9px 14px;
       background: rgba(82, 136, 193, 0.15);
@@ -52,8 +53,164 @@
       justify-content: space-between;
       align-items: center;
     }
-    .role-banner span { display: inline-flex; align-items: center; gap: 6px; }
+    .role-banner-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dots-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .dots-btn:active, .dots-btn.open {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+    }
 
+    /* KENGAYADIGON XODIMLAR / PROFIL PANELI */
+    .top-menu-drawer {
+      display: none;
+      background: rgba(20, 29, 38, 0.98);
+      border-bottom: 2px solid rgba(82, 136, 193, 0.35);
+      padding: 12px 14px;
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+    .top-menu-drawer.open { display: block; }
+
+    .dir-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--hint-color);
+      margin: 10px 0 6px;
+      font-weight: 600;
+    }
+    .dir-section-title:first-child { margin-top: 0; }
+
+    .dir-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .dir-card-header {
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .dir-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .dir-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dir-sub {
+      font-size: 12px;
+      color: var(--hint-color);
+    }
+    .dir-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .trash-icon-btn {
+      background: rgba(229, 57, 53, 0.18);
+      border: 1px solid rgba(229, 57, 53, 0.4);
+      color: #ff8a80;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .trash-icon-btn:active { background: #e53935; color: #fff; }
+
+    .dir-volunteers-list {
+      display: none;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.18);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .dir-card.expanded .dir-volunteers-list { display: block; }
+
+    .vol-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+    .vol-item:last-child { margin-bottom: 0; }
+    .vol-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .vol-details {
+      font-size: 12px;
+      color: var(--hint-color);
+      line-height: 1.45;
+      margin-top: 3px;
+    }
+    .vol-transfer-row {
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .vol-transfer-row select {
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 7px;
+      flex: 1;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      background: rgba(229, 57, 53, 0.2);
+      border: 1px solid rgba(229, 57, 53, 0.45);
+      color: #ff8a80;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* TAB BAR */
     .tab-bar {
       display: flex;
       gap: 8px;
@@ -302,11 +459,10 @@
       gap: 6px;
     }
     .btn-save { background: #3b6998; }
-    /* Ochartirilgan Tasdiqlash va Rad etish ranglari */
     .btn-approve { background: #43a047; }
     .btn-send { background: #039be5; }
     .btn-reject { background: #e53935; }
-    .btn-delete { background: #d32f2f; }
+    .btn-delete { background: #e53935; }
     .btn-dispatch { background: #fb8c00; }
     .btn-deliver { background: #1e88e5; }
 
@@ -330,10 +486,12 @@
       border-radius: 16px;
       padding: 22px 20px;
       width: 100%;
-      max-width: 320px;
+      max-width: 340px;
       text-align: center;
       box-shadow: 0 12px 30px rgba(0,0,0,0.55);
       border: 1px solid rgba(255, 255, 255, 0.12);
+      max-height: 85vh;
+      overflow-y: auto;
     }
     .modal-title {
       font-size: 16px;
@@ -346,11 +504,11 @@
       gap: 6px;
     }
     .modal-text {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       margin-bottom: 18px;
       color: var(--text-color);
-      line-height: 1.4;
+      line-height: 1.45;
     }
     .modal-btn {
       width: 100%;
@@ -367,6 +525,24 @@
       display: flex;
       gap: 8px;
       margin-top: 14px;
+    }
+
+    .reassign-item {
+      text-align: left;
+      background: rgba(0,0,0,0.2);
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .reassign-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .reassign-item select {
+      padding: 7px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -462,41 +638,44 @@
 
   <!-- 5. ASOSIY EKRAN -->
   <div id="screen-main" class="screen">
+    <!-- YUQORI PANEL (Chap tarafda 3-nuqta bilan) -->
     <div class="role-banner">
-      <span id="userRoleBanner"><i class="fi fi-rr-user"></i> Pozitsiya: Ko'ngilli</span>
+      <div class="role-banner-left">
+        <button type="button" class="dots-btn" id="dotsMenuBtn" onclick="toggleTopDrawer()">
+          <i class="fi fi-rr-menu-dots-vertical"></i>
+        </button>
+        <span id="userRoleBanner"><i class="fi fi-rr-user"></i> Pozitsiya: Ko'ngilli</span>
+      </div>
       <span onclick="initApp()" style="cursor:pointer;"><i class="fi fi-rr-refresh"></i> Yangilash</span>
     </div>
 
+    <!-- 3-NUQTA BOSILGANDA KENGAYADIGAN RO'YXAT OYNA -->
+    <div id="topMenuDrawer" class="top-menu-drawer">
+      <div id="topDrawerContent"></div>
+    </div>
+
     <div class="tab-bar">
-      <!-- 1. "+" ARIZA QO'SHISH -->
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
-      <!-- 2. XODIMLAR SO'ROVI -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
-      <!-- 3. ARIZALAR / MENING ARIZALARIM -->
       <button class="tab-btn" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed"></i> <span id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <!-- 4. YUBORILGANLAR (Faqat Maslahatchi uchun) -->
       <button class="tab-btn" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
         <i class="fi fi-rr-paper-plane" style="color:#8ab4f8"></i> Yuborilganlar <span class="badge" id="b-sent">0</span>
       </button>
-      <!-- 5. TASDIQLANGAN -->
       <button class="tab-btn" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:#81c784"></i> Tasdiqlangan <span class="badge" id="b-approved">0</span>
       </button>
-      <!-- 6. RAD ETILGAN -->
       <button class="tab-btn" onclick="openTab('tab-rejected', this)">
         <i class="fi fi-rr-cross-circle" style="color:#e57373"></i> Rad etilgan <span class="badge" id="b-rejected">0</span>
       </button>
-      <!-- 7. BERIB YUBORILGAN -->
       <button class="tab-btn" onclick="openTab('tab-dispatched', this)">
         <i class="fi fi-rr-truck-side" style="color:#ffb74d"></i> Berib yuborilgan <span class="badge" id="b-dispatched">0</span>
       </button>
-      <!-- 8. YETQAZILGAN -->
       <button class="tab-btn" onclick="openTab('tab-delivered', this)">
         <i class="fi fi-rr-badge-check" style="color:#64b5f6"></i> Yetqazilgan <span class="badge" id="b-delivered">0</span>
       </button>
@@ -586,6 +765,45 @@
     </div>
   </div>
 
+  <!-- 3-MODAL: HA / YO'Q TASDIQLASH OYNASI (O'chirish va Tizimdan chiqish uchun) -->
+  <div id="confirmModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fi fi-rr-exclamation" style="color:#ffb74d"></i> Tasdiqlash</div>
+      <div class="modal-text" id="confirmModalText">Haqiqatan ham o'chirmoqchimisiz?</div>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeConfirmModal()">Yo'q</button>
+        <button type="button" class="modal-btn" style="background:#e53935;" id="confirmYesBtn">Ha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-MODAL: MASLAHATCHINI O'CHIRISHDA TOPUVCHILARNI BOSHQA MASLAHATCHIGA BIRIKTIRISH OYNASI -->
+  <div id="reassignModal" class="custom-modal">
+    <div class="modal-box" style="max-width:360px;">
+      <div class="modal-title"><i class="fi fi-rr-users-alt" style="color:#8ab4f8"></i> Topuvchilarni biriktirish</div>
+      <div class="modal-text" id="reassignModalDesc" style="margin-bottom:12px; font-size:13px;">
+        Ushbu Maslahatchiga biriktirilgan Topuvchilarni boshqa Maslahatchiga o'tkazing:
+      </div>
+
+      <!-- Barchasini bittaga o'tkazish -->
+      <div style="text-align:left; margin-bottom:12px; background:rgba(82,136,193,0.12); padding:9px; border-radius:8px;">
+        <label style="color:#8ab4f8; font-weight:600;">Barchasini bitta Maslahatchiga o'tkazish:</label>
+        <select id="bulkAdvisorSelect" onchange="applyBulkAdvisor(this.value)" style="padding:8px; font-size:13px; margin-top:4px;"></select>
+      </div>
+
+      <!-- Yoki har birini alohida tanlash -->
+      <div style="text-align:left; font-size:12px; color:var(--hint-color); margin-bottom:6px;">
+        Yoki har bir Topuvchini alohida Maslahatchiga biriktiring:
+      </div>
+      <div id="reassignVolunteersContainer" style="max-height:210px; overflow-y:auto; margin-bottom:10px;"></div>
+
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeReassignModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" style="background:#e53935;" onclick="confirmAdvisorTransferAndDelete()">Biriktirish va O'chirish</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
@@ -599,9 +817,20 @@
     let currentUser = null;
     let isAdminUser = false;
     let advisorsList = [];
+    let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
     let allRecords = [];
     let pendingRejectIdx = null;
     let activeTabId = null;
+    let deletingAdvisorObj = null;
+
+    function sendPost(payload) {
+      return fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+    }
 
     function showNotice(text) {
       document.getElementById('msgModalText').innerText = text;
@@ -610,6 +839,313 @@
 
     function closeMsgModal() {
       document.getElementById('msgModal').classList.remove('show');
+    }
+
+    // Ha / Yo'q tasdiqlash oynasi
+    function askConfirm(text, onYesCallback) {
+      document.getElementById('confirmModalText').innerText = text;
+      const yesBtn = document.getElementById('confirmYesBtn');
+      yesBtn.onclick = () => {
+        closeConfirmModal();
+        onYesCallback();
+      };
+      document.getElementById('confirmModal').classList.add('show');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('show');
+    }
+
+    // Yuqoridagi 3-nuqta menyusini ochish/yopish
+    function toggleTopDrawer() {
+      const drawer = document.getElementById('topMenuDrawer');
+      const btn = document.getElementById('dotsMenuBtn');
+      drawer.classList.toggle('open');
+      btn.classList.toggle('open');
+    }
+
+    // Yuqori 3-nuqta menyusi ichini rolga qarab chizish
+    function renderTopDrawer() {
+      const container = document.getElementById('topDrawerContent');
+      if (!currentUser) return;
+
+      const isManager = !isAdminUser && currentUser.role === "Boshqaruvchi";
+      const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+      const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
+
+      let html = "";
+
+      // 1) KO'NGILLI (TOPUVCHI): Faqat "Tizimdan chiqib ketish" tugmasi
+      if (isVolunteer) {
+        html = `
+          <button type="button" class="logout-btn" onclick="logoutCurrentUser()">
+            <i class="fi fi-rr-sign-out-alt"></i> Tizimdan chiqib ketish
+          </button>
+        `;
+        container.innerHTML = html;
+        return;
+      }
+
+      // 2) MASLAHATCHI: Faqat o'ziga biriktirilgan Topuvchilar ro'yxati
+      if (isAdvisor) {
+        html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
+        if (!directoryData.myVolunteers.length) {
+          html += `<div style="font-size:13px; color:var(--hint-color); padding:8px 0;">Hozircha biriktirilgan topuvchilar yo'q</div>`;
+        } else {
+          directoryData.myVolunteers.forEach(v => {
+            html += buildVolunteerItemHtml(v, false);
+          });
+        }
+        container.innerHTML = html;
+        return;
+      }
+
+      // 3) ADMIN VA BOSHQARUVCHI:
+      // Adminda birinchi Boshqaruvchi ko'rinadi
+      if (isAdminUser) {
+        html += `<div class="dir-section-title">Boshqaruvchi</div>`;
+        if (directoryData.boshqaruvchi) {
+          const b = directoryData.boshqaruvchi;
+          html += `
+            <div class="dir-card">
+              <div class="dir-card-header" style="cursor:default;">
+                <div class="dir-info">
+                  <div class="dir-name"><i class="fi fi-rr-building" style="color:#ffb74d"></i> ${b.fio}</div>
+                  <div class="dir-sub">📞 ${b.phone} | 📧 ${b.email} \vert{}${b.username}</div>
+                </div>
+                <div class="dir-actions">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${b.chatId}', '${b.fio}', 'Boshqaruvchi')">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `<div style="font-size:12px; color:var(--hint-color); margin-bottom:8px;">Boshqaruvchi ro'yxatdan o'tmagan</div>`;
+        }
+      }
+
+      // Admin va Boshqaruvchida Maslahatchilar va ularning ichida Topuvchilar
+      html += `<div class="dir-section-title">Maslahatchilar (${directoryData.advisors.length})</div>`;
+      if (!directoryData.advisors.length) {
+        html += `<div style="font-size:12px; color:var(--hint-color);">Maslahatchilar mavjud emas</div>`;
+      } else {
+        directoryData.advisors.forEach((adv, aIdx) => {
+          const dCardId = `dir-adv-${aIdx}`;
+          let volsHtml = "";
+          if (!adv.volunteers || !adv.volunteers.length) {
+            volsHtml = `<div style="font-size:12px; color:var(--hint-color);">Biriktirilgan topuvchilar yo'q</div>`;
+          } else {
+            adv.volunteers.forEach(v => {
+              volsHtml += buildVolunteerItemHtml(v, true);
+            });
+          }
+
+          html += `
+            <div class="dir-card" id="${dCardId}">
+              <div class="dir-card-header" onclick="document.getElementById('${dCardId}').classList.toggle('expanded')">
+                <div class="dir-info">
+                  <div class="dir-name">
+                    <i class="fi fi-rr-compass-alt" style="color:#8ab4f8"></i> ${adv.fio} (${adv.initials})
+                    <span class="badge">${adv.volunteers.length}</span>
+                  </div>
+                  <div class="dir-sub">📞 ${adv.phone} \vert{} 📧 ${adv.email}</div>
+                </div>
+                <div class="dir-actions" onclick="event.stopPropagation()">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteAdvisor(${aIdx})">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="dir-volunteers-list">
+                ${volsHtml}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Topuvchi (Ko'ngilli) kartochkasi (va boshqa Maslahatchiga o'tkazish select'i)
+    function buildVolunteerItemHtml(v, allowTransfer) {
+      let transferSelectHtml = "";
+      if (allowTransfer && directoryData.advisors.length > 1) {
+        let opts = "";
+        directoryData.advisors.forEach(a => {
+          const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
+          opts += `<option value="${a.chatId}" data-fio="${a.fio}" ${isCurrent ? 'selected' : ''}>${a.fio} (${a.initials})</option>`;
+        });
+        transferSelectHtml = `
+          <div class="vol-transfer-row">
+            <span style="color:var(--hint-color);"><i class="fi fi-rr-exchange"></i> Maslahatchi:</span>
+            <select onchange="changeSingleVolunteerAdvisor('${v.chatId}', this)">
+              ${opts}
+            </select>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="vol-item" id="vol-row-${v.chatId}">
+          <div class="vol-top">
+            <div>
+              <div style="font-size:13px; font-weight:600; color:var(--text-color);">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${v.fio}
+              </div>
+              <div class="vol-details">
+                📞 Tel: ${v.phone}<br>
+                📧 Email: ${v.email}<br>
+                🔗 Username: ${v.username} \vert{} 🗓 ${v.date}
+              </div>
+            </div>
+            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${v.chatId}', '${v.fio}', 'Topuvchi')">
+              <i class="fi fi-rr-trash"></i>
+            </button>
+          </div>
+          ${transferSelectHtml}
+        </div>
+      `;
+    }
+
+    // Istalgan vaqtda bitta Topuvchini boshqa Maslahatchiga o'tkazish
+    function changeSingleVolunteerAdvisor(volChatId, selectEl) {
+      const newAdvId = selectEl.value;
+      const newAdvFio = selectEl.options[selectEl.selectedIndex]?.getAttribute('data-fio') || "";
+
+      sendPost({
+        action: "REASSIGN_VOLUNTEERS",
+        reassignments: [{
+          volunteerChatId: volChatId,
+          newAdvisorId: newAdvId,
+          newAdvisorFio: newAdvFio
+        }]
+      }).then(() => {
+        showNotice("Topuvchi boshqa Maslahatchiga biriktirildi!");
+        setTimeout(() => initApp(), 1200);
+      });
+    }
+
+    // Topuvchi o'zi "Tizimdan chiqib ketish" tugmasini bosganda
+    function logoutCurrentUser() {
+      askConfirm("Haqiqatan ham tizimdan chiqib ketmoqchimisiz? Qayta kirish uchun boshqatdan ro'yxatdan o'tishingiz kerak bo'ladi.", () => {
+        sendPost({
+          action: "DELETE_USER_ACCOUNT",
+          targetChatId: chatId
+        }).then(() => {
+          document.getElementById('topMenuDrawer').classList.remove('open');
+          setTimeout(() => initApp(), 1200);
+        });
+      });
+    }
+
+    // Topuvchi yoki Boshqaruvchini savatcha orqali o'chirish
+    function promptDeleteUser(targetId, targetFio, roleLabel) {
+      askConfirm(`Haqiqatan ham ${roleLabel} «${targetFio}»ni o'chirib yubormoqchimisiz?\nUshbu akkaunt qaytadan ro'yxatdan o'tishi kerak bo'ladi.`, () => {
+        const rowEl = document.getElementById('vol-row-' + targetId);
+        if (rowEl) rowEl.style.opacity = "0.3";
+
+        sendPost({
+          action: "DELETE_USER_ACCOUNT",
+          targetChatId: targetId
+        }).then(() => {
+          showNotice(`${targetFio} o'chirildi!`);
+          setTimeout(() => initApp(), 1300);
+        });
+      });
+    }
+
+    // Maslahatchini o'chirish tugmasi bosilganda
+    function promptDeleteAdvisor(advIdx) {
+      const adv = directoryData.advisors[advIdx];
+      if (!adv) return;
+
+      // Agar unga biriktirilgan Topuvchilar bo'lmasa, oddiy Ha/Yo'q bilan o'chiramiz
+      if (!adv.volunteers || adv.volunteers.length === 0) {
+        promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi");
+        return;
+      }
+
+      // Agar Topuvchilari bo'lsa, boshqa Maslahatchilar bormi tekshiramiz
+      const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId));
+      if (otherAdvisors.length === 0) {
+        showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak.");
+        return;
+      }
+
+      deletingAdvisorObj = adv;
+      document.getElementById('reassignModalDesc').innerText =
+        `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
+
+      let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
+      otherAdvisors.forEach(oa => {
+        bulkOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+      });
+      document.getElementById('bulkAdvisorSelect').innerHTML = bulkOpts;
+
+      let vListHtml = "";
+      adv.volunteers.forEach(v => {
+        let singleOpts = "";
+        otherAdvisors.forEach(oa => {
+          singleOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+        });
+        vListHtml += `
+          <div class="reassign-item">
+            <div class="reassign-item-name">👤 ${v.fio} (${v.phone})</div>
+            <select class="indiv-reassign-select" data-vol-id="${v.chatId}">
+              ${singleOpts}
+            </select>
+          </div>
+        `;
+      });
+      document.getElementById('reassignVolunteersContainer').innerHTML = vListHtml;
+      document.getElementById('reassignModal').classList.add('show');
+    }
+
+    function applyBulkAdvisor(selectedAdvId) {
+      if (!selectedAdvId) return;
+      document.querySelectorAll('.indiv-reassign-select').forEach(sel => {
+        sel.value = selectedAdvId;
+      });
+    }
+
+    function closeReassignModal() {
+      deletingAdvisorObj = null;
+      document.getElementById('reassignModal').classList.remove('show');
+    }
+
+    function confirmAdvisorTransferAndDelete() {
+      if (!deletingAdvisorObj) return;
+      const selects = document.querySelectorAll('.indiv-reassign-select');
+      const reassignments = [];
+
+      selects.forEach(sel => {
+        const volId = sel.getAttribute('data-vol-id');
+        const newAdvId = sel.value;
+        const newAdvFio = sel.options[sel.selectedIndex]?.getAttribute('data-fio') || "";
+        if (volId && newAdvId) {
+          reassignments.push({
+            volunteerChatId: volId,
+            newAdvisorId: newAdvId,
+            newAdvisorFio: newAdvFio
+          });
+        }
+      });
+
+      const targetAdvId = deletingAdvisorObj.chatId;
+      const targetAdvFio = deletingAdvisorObj.fio;
+      closeReassignModal();
+
+      sendPost({
+        action: "DELETE_USER_ACCOUNT",
+        targetChatId: targetAdvId,
+        reassignments: reassignments
+      }).then(() => {
+        showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi!`);
+        setTimeout(() => initApp(), 1400);
+      });
     }
 
     function openRejectPrompt(idx) {
@@ -782,6 +1318,7 @@
         .then(data => {
           isAdminUser = Boolean(data.isAdmin);
           advisorsList = data.advisors || [];
+          directoryData = data.directory || { boshqaruvchi: null, advisors: [], myVolunteers: [] };
 
           const advSelect = document.getElementById('regAdvisor');
           advSelect.innerHTML = '<option value="">-- Maslahatchini tanlang --</option>';
@@ -824,6 +1361,8 @@
       showScreen('screen-main');
       const role = isAdminUser ? "Admin" : currentUser.role;
       document.getElementById('userRoleBanner').innerHTML = `<i class="fi fi-rr-user"></i> ${currentUser.fio} (${role})`;
+
+      renderTopDrawer();
 
       const tabAddBtn = document.getElementById('tabAddBtn');
       const tabMyBtn = document.getElementById('tabMyBtn');
@@ -895,7 +1434,7 @@
       btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
       btn.disabled = true;
 
-      const payload = {
+      sendPost({
         action: "REGISTER_USER",
         chatId: chatId,
         role: role,
@@ -905,13 +1444,6 @@
         username: username,
         advisorId: advisorId,
         advisorFio: advisorFio
-      };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
       }).then(() => {
         btn.innerHTML = '<i class="fi fi-rr-check"></i> Ro\'yxatdan o\'tish';
         btn.disabled = false;
@@ -964,15 +1496,10 @@
       const card = document.getElementById('ucard-' + targetChatId);
       if (card) card.style.opacity = "0.4";
 
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "USER_DECISION",
-          targetChatId: targetChatId,
-          decision: decision
-        })
+      sendPost({
+        action: "USER_DECISION",
+        targetChatId: targetChatId,
+        decision: decision
       }).then(() => {
         setTimeout(() => initApp(), 1500);
       });
@@ -1008,7 +1535,7 @@
       btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
       btn.disabled = true;
 
-      const payload = {
+      sendPost({
         action: "ADD_RECORD_FROM_APP",
         chatId: chatId,
         username: username,
@@ -1019,13 +1546,6 @@
         reason: document.getElementById('reason').value.trim(),
         amount: finalAmount,
         address: addressVal
-      };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
       }).then(() => {
         btn.innerHTML = '<i class="fi fi-rr-paper-plane"></i> Arizani yuborish';
         btn.disabled = false;
@@ -1241,11 +1761,14 @@
       const amountInput = document.getElementById(`eamount-${idx}`);
       const addrInput = document.getElementById(`eaddr-${idx}`);
 
-      const payload = {
+      sendPost({
         action: "UPDATE_RECORD",
         sheetName: rec.sheetName,
         ownerChatId: rec.ownerChatId,
         rowIndex: rec.rowIndex,
+        origFio: rec.fio,
+        origPhone: rec.phone,
+        sender: rec.sender,
         fio: fioInput ? toTitleCaseJS(fioInput.value.trim()) : rec.fio,
         phone: phoneInput ? phoneInput.value.trim() : rec.phone,
         manba: manbaInput ? manbaInput.value.trim() : rec.manba,
@@ -1254,13 +1777,6 @@
         address: addrInput ? addrInput.value.trim() : rec.address,
         newStatus: newStatus,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
-      };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
         setTimeout(() => initApp(), 1500);
@@ -1272,23 +1788,23 @@
       if (!rec) return;
 
       const card = document.getElementById(`rec-card-${idx}`);
-      if (card) card.style.opacity = "0.4";
+      if (card) {
+        card.style.opacity = "0.3";
+        card.style.pointerEvents = "none";
+      }
 
-      const payload = {
+      sendPost({
         action: "DELETE_RECORD",
         sheetName: rec.sheetName,
         ownerChatId: rec.ownerChatId,
-        rowIndex: rec.rowIndex
-      };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        rowIndex: rec.rowIndex,
+        fio: rec.fio,
+        phone: rec.phone,
+        sender: rec.sender
       }).then(() => {
+        if (card) card.remove();
         showNotice("Ariza o'chirib yuborildi!");
-        setTimeout(() => initApp(), 1400);
+        setTimeout(() => initApp(), 1500);
       });
     }
 
