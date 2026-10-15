@@ -103,6 +103,31 @@
       display: none;
     }
 
+    /* "Xodimlar so'rovi" tugmasi noaktiv paytda faqat emblema va son bo'lib kichkina turadi */
+    .tab-btn.compact-users:not(.active) {
+      padding: 8px 11px;
+      gap: 5px;
+    }
+    .tab-btn.compact-users:not(.active) .users-tab-text {
+      display: none;
+    }
+
+    /* So'rovlar soni 0 dan katta bo'lganda qizarib turishi */
+    .tab-btn.has-requests:not(.active) {
+      background: rgba(244, 67, 54, 0.22);
+      border-color: rgba(244, 67, 54, 0.55);
+      color: #ff8a80;
+    }
+    .tab-btn.has-requests:not(.active) .badge {
+      background: #e53935;
+      color: #ffffff;
+    }
+    .tab-btn.has-requests.active {
+      background: #d32f2f;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(211, 47, 47, 0.45);
+    }
+
     .badge {
       background: rgba(255, 255, 255, 0.2);
       border-radius: 12px;
@@ -211,7 +236,6 @@
     .acc-left { display: flex; flex-direction: column; gap: 4px; }
     .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
     .acc-date { font-size: 12px; color: var(--hint-color); display: flex; align-items: center; gap: 6px; }
-    /* Sana tagidagi mayda yashil yozuv */
     .acc-substatus {
       font-size: 11px;
       color: #81c784;
@@ -445,28 +469,35 @@
     </div>
 
     <div class="tab-bar">
+      <!-- 1. "+" ARIZA QO'SHISH -->
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
+      <!-- 2. XODIMLAR SO'ROVI ("+" dan keyin kichkina emblema va raqam bo'lib turadi, bosilsa kengayadi) -->
+      <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
+        <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
+      </button>
+      <!-- 3. ARIZALAR / MENING ARIZALARIM -->
       <button class="tab-btn" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed"></i> <span id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <!-- YUBORILGANLAR TABI (Faqat Maslahatchi uchun) -->
+      <!-- 4. YUBORILGANLAR (Faqat Maslahatchi uchun) -->
       <button class="tab-btn" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
         <i class="fi fi-rr-paper-plane" style="color:#8ab4f8"></i> Yuborilganlar <span class="badge" id="b-sent">0</span>
       </button>
-      <button class="tab-btn" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
-        <i class="fi fi-rr-users-alt"></i> Xodimlar so'rovi <span class="badge" id="b-users">0</span>
-      </button>
+      <!-- 5. TASDIQLANGAN -->
       <button class="tab-btn" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:#81c784"></i> Tasdiqlangan <span class="badge" id="b-approved">0</span>
       </button>
+      <!-- 6. RAD ETILGAN -->
       <button class="tab-btn" onclick="openTab('tab-rejected', this)">
         <i class="fi fi-rr-cross-circle" style="color:#e57373"></i> Rad etilgan <span class="badge" id="b-rejected">0</span>
       </button>
+      <!-- 7. BERIB YUBORILGAN -->
       <button class="tab-btn" onclick="openTab('tab-dispatched', this)">
         <i class="fi fi-rr-truck-side" style="color:#ffb74d"></i> Berib yuborilgan <span class="badge" id="b-dispatched">0</span>
       </button>
+      <!-- 8. YETQAZILGAN -->
       <button class="tab-btn" onclick="openTab('tab-delivered', this)">
         <i class="fi fi-rr-badge-check" style="color:#64b5f6"></i> Yetqazilgan <span class="badge" id="b-delivered">0</span>
       </button>
@@ -804,14 +835,12 @@
       const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
       const isOnlyAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
 
-      // "Yuborilganlar" menyusi faqat Maslahatchida ko'rinadi
       if (isOnlyAdvisor) {
         tabSentBtn.style.display = "inline-flex";
       } else {
         tabSentBtn.style.display = "none";
       }
 
-      // "Xodimlar so'rovi" faqat Admin va Maslahatchida ko'rinadi
       if (isAdminUser || currentUser.role === "Maslahatchi") {
         tabUsersBtn.style.display = "inline-flex";
         renderPendingUsers(data.pendingUsers || []);
@@ -892,9 +921,19 @@
     }
 
     function renderPendingUsers(users) {
-      document.getElementById('b-users').innerText = users.length;
+      const count = users.length;
+      document.getElementById('b-users').innerText = count;
+      const tabUsersBtn = document.getElementById('tabUsersBtn');
+
+      // Agar so'rovlar soni 0 dan katta bo'lsa, tugma qizaribroq turadi
+      if (count > 0) {
+        tabUsersBtn.classList.add('has-requests');
+      } else {
+        tabUsersBtn.classList.remove('has-requests');
+      }
+
       const container = document.getElementById('list-users');
-      if (!users.length) {
+      if (!count) {
         container.innerHTML = '<div class="empty-state">Tasdiqlash uchun yangi so\'rovlar yo\'q</div>';
         return;
       }
@@ -1014,7 +1053,6 @@
       const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
 
       records.forEach((r, idx) => {
-        // Boshqaruvchi va Adminga Maslahatchi hali "Yuborish" qilmagan ("Yangi") arizalar ko'rinmaydi
         if (isManager && r.status === "Yangi") {
           return;
         }
@@ -1023,7 +1061,6 @@
         const addrText = String(r.address || "");
         const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
 
-        // Ariza qaysi bo'limga (tabga) tushishini aniqlash:
         let category = "newRecs";
         if (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi") {
           category = isAdvisor ? "sent" : "newRecs";
@@ -1039,7 +1076,6 @@
           category = "newRecs";
         }
 
-        // Ko'ngillining "Mening arizalarim" bo'limida Sana tagida mayda yashil yozuv:
         let subStatusHtml = "";
         let displayStatusText = r.status;
         if (isVolunteer && category === "newRecs") {
@@ -1050,10 +1086,6 @@
           displayStatusText = stageName;
         }
 
-        // KIM QAYSI BOSQICHDA "O'ZGARISHNI SAQLASH" (TAHRIRLASH) QILA OLADI:
-        // 1) Topuvchi (Ko'ngilli): Maslahatchi hali tasdiqlab Boshqaruvchiga yubormaguncha (r.status === "Yangi")
-        // 2) Maslahatchi: Boshqaruvchi hali tasdiqlamaguncha (newRecs va sent bo'limlarida, ya'ni "Yangi" va "Yuborilgan" holatida)
-        // 3) Boshqaruvchi va Admin: "Arizalar", "Tasdiqlangan" va "Rad etilgan" bo'limlarida (Berib yuborilgan va Yetqazilgan bo'lganda chiqmaydi!)
         let canEditRecord = false;
         if (isVolunteer) {
           if (r.status === "Yangi") canEditRecord = true;
@@ -1063,7 +1095,6 @@
           if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
         }
 
-        // HOLATNI O'ZGARTIRUVCHI TUGMALAR (Yuborish, Tasdiqlash, Rad etish, Berib yuborish, Yetqazildi)
         let statusButtonsHtml = "";
 
         if (isAdvisor) {
@@ -1115,7 +1146,6 @@
         let bodyContent = "";
 
         if (canEditRecord) {
-          // Tahrirlash va "O'zgarishni saqlash" ruxsat etilgan holat
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
@@ -1141,7 +1171,6 @@
             </div>
           `;
         } else {
-          // Faqat ko'rish rejimi (O'zgarishni saqlash tugmasi va inputlar chiqmaydi)
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
