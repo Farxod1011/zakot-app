@@ -9,12 +9,32 @@
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
   <style>
     :root {
-      --bg-color: var(--tg-theme-bg-color, #17212b);
-      --text-color: var(--tg-theme-text-color, #f5f5f5);
-      --hint-color: var(--tg-theme-hint-color, #708499);
-      --accent-color: var(--tg-theme-button-color, #5288c1);
-      --card-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+      --bg-color: var(--tg-theme-bg-color, #ffffff);
+      --text-color: var(--tg-theme-text-color, #222222);
+      --hint-color: var(--tg-theme-hint-color, #707579);
+      --accent-color: var(--tg-theme-button-color, #2481cc);
+      --card-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+      --drawer-bg: var(--tg-theme-secondary-bg-color, #f8f9fa);
+      --modal-bg: var(--tg-theme-bg-color, #ffffff);
+      --border-color: rgba(0, 0, 0, 0.08);
+      --card-inner-bg: rgba(0, 0, 0, 0.03);
     }
+
+    /* Telegram qora temada bo'lsa ranglarni avtomatik moslaymiz */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: var(--tg-theme-bg-color, #17212b);
+        --text-color: var(--tg-theme-text-color, #f5f5f5);
+        --hint-color: var(--tg-theme-hint-color, #708499);
+        --accent-color: var(--tg-theme-button-color, #5288c1);
+        --card-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+        --drawer-bg: rgba(20, 29, 38, 0.98);
+        --modal-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+        --border-color: rgba(255, 255, 255, 0.08);
+        --card-inner-bg: rgba(0, 0, 0, 0.18);
+      }
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
 
@@ -56,9 +76,9 @@
     .role-banner {
       padding: 6px 12px;
       background: rgba(82, 136, 193, 0.15);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid var(--border-color);
       font-size: 12px;
-      color: #8ab4f8;
+      color: var(--accent-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -69,9 +89,9 @@
       gap: 6px;
     }
     .dots-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #fff;
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
       width: 22px;
       height: 24px;
       min-width: 24px;
@@ -85,13 +105,14 @@
     }
     .dots-btn:active, .dots-btn.open {
       background: var(--accent-color);
+      color: #fff;
       border-color: var(--accent-color);
     }
 
     /* KENGAYADIGON XODIMLAR / PROFIL PANELI */
     .top-menu-drawer {
       display: none;
-      background: rgba(20, 29, 38, 0.98);
+      background: var(--drawer-bg);
       border-bottom: 2px solid rgba(82, 136, 193, 0.35);
       padding: 12px 14px;
       max-height: 72vh;
@@ -111,7 +132,7 @@
 
     .dir-card {
       background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
       margin-bottom: 8px;
       overflow: hidden;
@@ -165,14 +186,14 @@
     .dir-volunteers-list {
       display: none;
       padding: 10px 12px;
-      background: rgba(0, 0, 0, 0.18);
-      border-top: 1px solid rgba(255,255,255,0.06);
+      background: var(--card-inner-bg);
+      border-top: 1px solid var(--border-color);
     }
     .dir-card.expanded .dir-volunteers-list { display: block; }
 
     .vol-item {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 9px 10px;
       margin-bottom: 8px;
@@ -193,7 +214,7 @@
     .vol-transfer-row {
       margin-top: 8px;
       padding-top: 7px;
-      border-top: 1px dashed rgba(255,255,255,0.08);
+      border-top: 1px dashed var(--border-color);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -230,10 +251,10 @@
       overflow-x: auto;
       white-space: nowrap;
       scroll-behavior: smooth;
-      background: rgba(23, 33, 43, 0.9);
+      background: var(--bg-color);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -247,9 +268,9 @@
       border-radius: 20px;
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.75);
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -304,7 +325,7 @@
     }
 
     .badge {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(100, 100, 100, 0.2);
       border-radius: 12px;
       padding: 2px 7px;
       font-size: 11px;
@@ -333,7 +354,7 @@
       width: 100%;
       padding: 12px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--border-color);
       background: var(--card-bg);
       color: var(--text-color);
       font-size: 14px;
@@ -346,7 +367,7 @@
       width: 100%;
       padding: 12px 14px;
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--border-color);
       background: var(--card-bg);
       color: var(--text-color);
       font-size: 14px;
@@ -364,17 +385,17 @@
       left: 0;
       right: 0;
       background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid var(--border-color);
       border-radius: 10px;
       overflow: hidden;
       z-index: 200;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
     .role-options.open { display: block; }
     .role-option {
       padding: 12px 14px;
       font-size: 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -407,7 +428,7 @@
       background: var(--card-bg);
       border-radius: 12px;
       margin-bottom: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-color);
       overflow: hidden;
       transition: all 0.2s ease;
     }
@@ -422,7 +443,7 @@
     .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
     .acc-date { font-size: 12px; color: var(--hint-color); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-    /* XODIMLAR SO'ROVIDAGI POZITSIYA YOZUVI (KATTAROQ VA QIZG'ISH) */
+    /* XODIMLAR SO'ROVIDAGI POZITSIYA YOZUVI */
     .pending-role-highlight {
       font-size: 13.5px;
       font-weight: 600;
@@ -459,8 +480,8 @@
     .acc-body {
       display: none;
       padding: 12px 14px 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(0, 0, 0, 0.12);
+      border-top: 1px solid var(--border-color);
+      background: var(--card-inner-bg);
       font-size: 13px;
     }
     .acc-card.expanded .acc-body { display: block; }
@@ -501,7 +522,6 @@
       gap: 6px;
       transition: opacity 0.2s, filter 0.2s;
     }
-    /* O'ZGARISH BO'LMAGANDA "O'ZGARISHNI SAQLASH" TUGMASI XIRA VA BOSILMAYDIGAN TURADI */
     .btn-act:disabled {
       opacity: 0.35;
       cursor: not-allowed;
@@ -532,14 +552,14 @@
     }
     .custom-modal.show { display: flex; }
     .modal-box {
-      background: var(--card-bg);
+      background: var(--modal-bg);
       border-radius: 16px;
       padding: 22px 20px;
       width: 100%;
       max-width: 340px;
       text-align: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.55);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
       max-height: 85vh;
       overflow-y: auto;
     }
@@ -579,11 +599,11 @@
 
     .reassign-item {
       text-align: left;
-      background: rgba(0,0,0,0.2);
+      background: var(--card-inner-bg);
       padding: 8px 10px;
       border-radius: 8px;
       margin-bottom: 8px;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--border-color);
     }
     .reassign-item-name {
       font-size: 13px;
@@ -842,8 +862,8 @@
         Ushbu Maslahatchiga biriktirilgan Topuvchilarni boshqa Maslahatchiga o'tkazing:
       </div>
 
-      <div style="text-align:left; margin-bottom:12px; background:rgba(82,136,193,0.12); padding:9px; border-radius:8px;">
-        <label style="color:#8ab4f8; font-weight:600;">Barchasini bitta Maslahatchiga o'tkazish:</label>
+      <div style="text-align:left; margin-bottom:12px; background:var(--card-inner-bg); padding:9px; border-radius:8px;">
+        <label style="color:var(--accent-color); font-weight:600;">Barchasini bitta Maslahatchiga o'tkazish:</label>
         <select id="bulkAdvisorSelect" onchange="applyBulkAdvisor(this.value)" style="padding:8px; font-size:13px; margin-top:4px;"></select>
       </div>
 
@@ -1067,7 +1087,7 @@
               <div class="dir-card-header" onclick="document.getElementById('${dCardId}').classList.toggle('expanded')">
                 <div class="dir-info">
                   <div class="dir-name">
-                    <i class="fi fi-rr-compass-alt" style="color:#8ab4f8"></i> ${adv.fio} (${adv.initials})
+                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${adv.initials})
                     <span class="badge">${adv.volunteers.length}</span>
                   </div>
                   <div class="dir-sub">📞 ${adv.phone} | 📧 ${adv.email}${advUnamePart}</div>
@@ -1290,7 +1310,6 @@
       document.getElementById(screenId).classList.add('active');
     }
 
-    // TAB ALMASHGANDA OCHIQ ARIZALAR YOPILADI VA TANLANGAN TAB MARKAZGA SILJIYDI
     function openTab(tabId, el) {
       activeTabId = tabId;
       document.querySelectorAll('.acc-card.expanded[id^="rec-card-"]').forEach(card => {
@@ -1576,7 +1595,6 @@
       });
     }
 
-    // XODIMLAR SO'ROVIDA "Pozitsiya: ..." QISMI KATTAROQ VA QIZG'ISH RANGDA CHIQADI
     function renderPendingUsers(users) {
       const count = users.length;
       document.getElementById('b-users').innerText = count;
@@ -1690,7 +1708,6 @@
       if (el) el.classList.toggle('expanded');
     }
 
-    // KATAKLARDA O'ZGARISH BO'LGANINI TEKSHIRUVCHI FUNKSIYA
     function checkRecordChanged(idx) {
       const rec = allRecords[idx];
       const saveBtn = document.getElementById(`esave-${idx}`);
@@ -1794,7 +1811,6 @@
           }
         } else if (isManager) {
           if (category === "newRecs") {
-            // ARIZALAR BO'LIMIDA RAD ETISH VA TASDIQLASH O'RNI ALMASHTIRILDI
             statusButtonsHtml = `
               <div class="action-row">
                 <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
