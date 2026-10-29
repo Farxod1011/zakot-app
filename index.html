@@ -1038,12 +1038,21 @@
     let currentUser = null;
     let isAdminUser = false;
     let myAccountsList = [];
+    let pendingUsersList = [];
     let advisorsList = [];
     let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
     let allRecords = [];
     let pendingRejectIdx = null;
     let activeTabId = null;
     let deletingAdvisorObj = null;
+
+    // Apostrof va maxsus belgilarni onclick ichida xavfsiz uzatish uchun funksiya
+    function escAttr(str) {
+      return String(str || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;");
+    }
 
     // GORIZONTAL SVAYP (SWIPE) LOGIKASI
     let touchStartX = 0;
@@ -1168,7 +1177,6 @@
         ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email || '-'}${myUnamePart}</div>`
         : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
 
-      // Foydalanuvchining o'z profili kartasi (kichik savatcha + Chiqish tugmasi bilan)
       let html = `
         <div class="dir-section-title">Mening profilim</div>
         <div class="dir-card">
@@ -1224,7 +1232,7 @@
                   <div class="dir-sub">📞 ${b.phone} | 📧 ${b.email}${bUnamePart}</div>
                 </div>
                 <div class="dir-actions">
-                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${b.chatId}', '${b.fio}', 'Boshqaruvchi')">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escAttr(b.chatId)}', '${escAttr(b.fio)}', 'Boshqaruvchi')">
                     <i class="fi fi-rr-trash"></i>
                   </button>
                 </div>
@@ -1285,12 +1293,12 @@
         let opts = "";
         directoryData.advisors.forEach(a => {
           const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
-          opts += `<option value="${a.chatId}" data-fio="${a.fio}" ${isCurrent ? 'selected' : ''}>${a.fio} (${a.initials})</option>`;
+          opts += `<option value="${escAttr(a.chatId)}" data-fio="${escAttr(a.fio)}" ${isCurrent ? 'selected' : ''}>${a.fio} (${a.initials})</option>`;
         });
         transferSelectHtml = `
           <div class="vol-transfer-row">
             <span style="color:var(--hint-color); font-weight:500;"><i class="fi fi-rr-exchange"></i> Maslahatchi:</span>
-            <select onchange="changeSingleVolunteerAdvisor('${v.chatId}', this)">
+            <select onchange="changeSingleVolunteerAdvisor('${escAttr(v.chatId)}', this)">
               ${opts}
             </select>
           </div>
@@ -1312,7 +1320,7 @@
                 ${vUnameLine}🗓 Sana: ${v.date || '-'}
               </div>
             </div>
-            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${v.chatId}', '${v.fio}', 'Topuvchi')">
+            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escAttr(v.chatId)}', '${escAttr(v.fio)}', 'Topuvchi')">
               <i class="fi fi-rr-trash"></i>
             </button>
           </div>
@@ -1338,7 +1346,6 @@
       });
     }
 
-    // AKKAUNTDAN CHIQISH (O'CHIRMASDAN REGISTRATSIYA/AKKAUNT TANLASH OYNASIGA O'TISH)
     function promptLogoutAccount() {
       askConfirm("Haqiqatan ham akkauntdan chiqmoqchimisiz?", () => {
         localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
@@ -1348,7 +1355,6 @@
       });
     }
 
-    // O'Z AKKAUNTINI BUTUNLAY O'CHIRISH
     function promptDeleteOwnAccount() {
       if (!currentUser) return;
       askConfirm(`Haqiqatan ham «${currentUser.fio} (${currentUser.role})» akkauntingizni butunlay o'chirmoqchimisiz?`, () => {
@@ -1466,7 +1472,7 @@
 
       let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
       otherAdvisors.forEach(oa => {
-        bulkOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+        bulkOpts += `<option value="${escAttr(oa.chatId)}" data-fio="${escAttr(oa.fio)}">${oa.fio} (${oa.initials})</option>`;
       });
       document.getElementById('bulkAdvisorSelect').innerHTML = bulkOpts;
 
@@ -1474,12 +1480,12 @@
       adv.volunteers.forEach(v => {
         let singleOpts = "";
         otherAdvisors.forEach(oa => {
-          singleOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+          singleOpts += `<option value="${escAttr(oa.chatId)}" data-fio="${escAttr(oa.fio)}">${oa.fio} (${oa.initials})</option>`;
         });
         vListHtml += `
           <div class="reassign-item">
             <div class="reassign-item-name">👤 ${v.fio} (${v.phone})</div>
-            <select class="indiv-reassign-select" data-vol-id="${v.chatId}">
+            <select class="indiv-reassign-select" data-vol-id="${escAttr(v.chatId)}">
               ${singleOpts}
             </select>
           </div>
@@ -1732,7 +1738,7 @@
           advisorsList.forEach(adv => {
             const fullFio = toTitleCaseJS(adv.fio);
             const shortInitials = adv.initials || getInitialsJS(fullFio);
-            advSelect.innerHTML += `<option value="${adv.chatId}" data-fio="${fullFio}">${shortInitials}</option>`;
+            advSelect.innerHTML += `<option value="${escAttr(adv.chatId)}" data-fio="${escAttr(fullFio)}">${shortInitials}</option>`;
           });
 
           const optBosh = document.getElementById('optBoshqaruvchi');
@@ -1867,8 +1873,10 @@
       });
     }
 
+    // XODIMLAR SO'ROVINI CHIQARISH (Apostrof xatosiz, indeks orqali)
     function renderPendingUsers(users) {
-      const count = users.length;
+      pendingUsersList = users || [];
+      const count = pendingUsersList.length;
       document.getElementById('b-users').innerText = count;
       const tabUsersBtn = document.getElementById('tabUsersBtn');
 
@@ -1884,7 +1892,7 @@
         return;
       }
       let html = "";
-      users.forEach((u, uIdx) => {
+      pendingUsersList.forEach((u, uIdx) => {
         html += `
           <div class="acc-card expanded" id="ucard-${uIdx}">
             <div class="acc-header">
@@ -1900,8 +1908,8 @@
               <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-envelope"></i> Email:</span> ${u.email}</div>
               ${hasValidUsername(u.username) ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-at"></i> Username:</span> ${u.username}</div>` : ''}
               <div class="action-row">
-                <button class="btn-act btn-approve" onclick="decideUser('${u.chatId}', '${u.role}', '${u.fio}', 'APPROVE', ${uIdx})"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-reject" onclick="decideUser('${u.chatId}', '${u.role}', '${u.fio}', 'REJECT', ${uIdx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button type="button" class="btn-act btn-approve" onclick="decideUser(${uIdx}, 'APPROVE')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button type="button" class="btn-act btn-reject" onclick="decideUser(${uIdx}, 'REJECT')"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
               </div>
             </div>
           </div>
@@ -1910,18 +1918,25 @@
       container.innerHTML = html;
     }
 
-    function decideUser(targetChatId, targetRole, targetFio, decision, uIdx) {
+    function decideUser(uIdx, decision) {
+      const targetUser = pendingUsersList[uIdx];
+      if (!targetUser) return;
+
       const card = document.getElementById('ucard-' + uIdx);
-      if (card) card.style.opacity = "0.4";
+      if (card) {
+        card.style.opacity = "0.4";
+        card.style.pointerEvents = "none";
+      }
 
       sendPost({
         action: "USER_DECISION",
-        targetChatId: targetChatId,
-        targetRole: targetRole,
-        targetFio: targetFio,
+        targetChatId: targetUser.chatId,
+        targetRole: targetUser.role,
+        targetFio: targetUser.fio,
         decision: decision
       }).then(() => {
-        setTimeout(() => initApp(activeTabId), 1500);
+        showNotice(decision === "APPROVE" ? "Xodim tasdiqlandi!" : "So'rov rad etildi!");
+        setTimeout(() => initApp(activeTabId), 1400);
       });
     }
 
@@ -2080,21 +2095,21 @@
           if (category === "newRecs") {
             statusButtonsHtml = `
               <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button type="button" class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
               </div>
             `;
           } else if (category === "sent") {
             statusButtonsHtml = `
               <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
               </div>
             `;
           } else if (category === "rejected") {
             statusButtonsHtml = `
               <div class="action-row" onclick="event.stopPropagation()">
-                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
-                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
+                <button type="button" class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                <button type="button" class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
               </div>
             `;
           }
@@ -2102,28 +2117,28 @@
           if (category === "newRecs") {
             statusButtonsHtml = `
               <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button type="button" class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
               </div>
             `;
           } else if (category === "approved") {
             statusButtonsHtml = `
               <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+                <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button type="button" class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
               </div>
             `;
           } else if (category === "rejected") {
             statusButtonsHtml = `
               <div class="action-row" onclick="event.stopPropagation()">
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
+                <button type="button" class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button type="button" class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
               </div>
             `;
           } else if (category === "dispatched") {
             statusButtonsHtml = `
               <div class="action-row" onclick="event.stopPropagation()">
-                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
+                <button type="button" class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
               </div>
             `;
           }
@@ -2138,20 +2153,20 @@
             ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
-              <input type="text" id="efio-${idx}" value="${r.fio}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
+              <input type="text" id="efio-${idx}" value="${escAttr(r.fio)}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
               <label>Telefon raqami</label>
-              <input type="tel" id="ephone-${idx}" inputmode="numeric" value="${r.phone}" oninput="validateDigitsOnly(this); checkRecordChanged(${idx})">
+              <input type="tel" id="ephone-${idx}" inputmode="numeric" value="${escAttr(r.phone)}" oninput="validateDigitsOnly(this); checkRecordChanged(${idx})">
               <label>Manba</label>
-              <input type="text" id="emanba-${idx}" value="${r.manba}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="emanba-${idx}" value="${escAttr(r.manba)}" oninput="checkRecordChanged(${idx})">
               <label>Sababi</label>
               <textarea id="ereason-${idx}" rows="2" oninput="checkRecordChanged(${idx})">${r.reason || ''}</textarea>
               <label>Miqdor</label>
-              <input type="text" id="eamount-${idx}" value="${r.amount}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="eamount-${idx}" value="${escAttr(r.amount)}" oninput="checkRecordChanged(${idx})">
               <label>Manzil ${addrLink ? `(${addrLink})` : ''}</label>
-              <input type="text" id="eaddr-${idx}" value="${r.address}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="eaddr-${idx}" value="${escAttr(r.address)}" oninput="checkRecordChanged(${idx})">
 
               <div class="action-row">
-                <button class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${cleanStatus}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
+                <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escAttr(cleanStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
               </div>
               ${statusButtonsHtml}
             </div>
@@ -2250,7 +2265,6 @@
       });
     }
 
-    // RAD ETILGAN ARIZANI O'CHIRISHDA TASDIQLASH OYNASI BILAN SO'RASH
     function deleteRecord(idx) {
       const rec = allRecords[idx];
       if (!rec) return;
