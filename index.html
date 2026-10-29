@@ -72,6 +72,50 @@
       transform-origin: center;
     }
 
+    /* QUMSOAT ANIMATSIYASI: 180 gradus aylanadi, 1 soniya kutadi, yana 180 gradus aylanadi */
+    @keyframes hourglassFlip {
+      0% { transform: rotate(0deg); }
+      16.67% { transform: rotate(180deg); }
+      50% { transform: rotate(180deg); }
+      66.67% { transform: rotate(360deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hourglass-anim {
+      display: inline-flex;
+      animation: hourglassFlip 3s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    /* YUKLANMOQDA UCH NUQTA ANIMATSIYASI (1 -> 2 -> 3) */
+    .loading-dots-wrap {
+      display: inline-block;
+      width: 18px;
+      text-align: left;
+    }
+    .loading-dots-wrap .dot {
+      opacity: 0;
+    }
+    .loading-dots-wrap .d1 {
+      animation: dotAnim1 1.5s infinite;
+    }
+    .loading-dots-wrap .d2 {
+      animation: dotAnim2 1.5s infinite;
+    }
+    .loading-dots-wrap .d3 {
+      animation: dotAnim3 1.5s infinite;
+    }
+    @keyframes dotAnim1 {
+      0%, 100% { opacity: 1; }
+    }
+    @keyframes dotAnim2 {
+      0%, 32% { opacity: 0; }
+      33%, 100% { opacity: 1; }
+    }
+    @keyframes dotAnim3 {
+      0%, 65% { opacity: 0; }
+      66%, 100% { opacity: 1; }
+    }
+
     .screen { display: none; min-height: 100vh; }
     .screen.active { display: block; }
 
@@ -125,7 +169,7 @@
       border-color: var(--accent-color);
     }
 
-    /* KENGAYADIGON XODIMLAR / PROFIL PANELI */
+    /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
     .top-menu-drawer {
       display: none;
       background: var(--drawer-bg);
@@ -159,11 +203,14 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
+      gap: 8px;
     }
     .dir-info {
       display: flex;
       flex-direction: column;
       gap: 3px;
+      min-width: 0;
+      flex: 1;
     }
     .dir-name {
       font-size: 14px;
@@ -172,32 +219,59 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
     .dir-sub {
       font-size: 12px;
       color: var(--hint-color);
       line-height: 1.4;
+      word-break: break-word;
     }
     .dir-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
+
+    /* KICHRAYTIRILGAN SAVATCHA (TRASH) IKONKASI */
     .trash-icon-btn {
-      background: rgba(229, 57, 53, 0.18);
-      border: 1px solid rgba(229, 57, 53, 0.4);
+      background: rgba(229, 57, 53, 0.16);
+      border: 1px solid rgba(229, 57, 53, 0.38);
       color: var(--danger-text);
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 12px;
       flex-shrink: 0;
     }
     .trash-icon-btn:active { background: #e53935; color: #fff; }
+
+    /* PROFIL YONIDAGI AKKAUNTDAN CHIQISH TUGMASI */
+    .logout-inline-btn {
+      background: rgba(82, 136, 193, 0.15);
+      border: 1px solid rgba(82, 136, 193, 0.4);
+      color: var(--accent-color);
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .logout-inline-btn:active {
+      background: var(--accent-color);
+      color: #fff;
+    }
 
     .dir-volunteers-list {
       display: none;
@@ -243,20 +317,44 @@
       flex: 1;
     }
 
-    .logout-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 10px;
-      background: rgba(229, 57, 53, 0.2);
-      border: 1px solid rgba(229, 57, 53, 0.45);
-      color: var(--danger-text);
-      font-size: 14px;
-      font-weight: 600;
+    /* MAVJUD AKKAUNTLAR RO'YXATI (REGISTRATSIYA EKRANIDA) */
+    .saved-acc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .saved-acc-card:active {
+      border-color: var(--accent-color);
+      transform: scale(0.99);
+    }
+    .saved-acc-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+    }
+    .saved-acc-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-color);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      gap: 7px;
+    }
+    .saved-acc-meta {
+      font-size: 12px;
+      color: var(--hint-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     /* TAB BAR */
@@ -638,67 +736,89 @@
   <!-- 1. YUKLANMOQDA -->
   <div id="screen-loading" class="screen active">
     <div class="center-box">
-      <div class="status-icon"><i class="fi fi-rr-hourglass-end"></i></div>
-      <div class="status-title">Yuklanmoqda...</div>
+      <div class="status-icon"><i class="fi fi-rr-hourglass-end hourglass-anim"></i></div>
+      <div class="status-title">Yuklanmoqda<span class="loading-dots-wrap"><span class="dot d1">.</span><span class="dot d2">.</span><span class="dot d3">.</span></span></div>
       <div class="status-desc">Ma'lumotlar tekshirilmoqda, iltimos kuting.</div>
     </div>
   </div>
 
-  <!-- 2. RO'YXATDAN O'TISH -->
+  <!-- 2. RO'YXATDAN O'TISH VA MAVJUD AKKAUNTLAR -->
   <div id="screen-register" class="screen">
     <div class="form-container">
-      <div class="form-header"><i class="fi fi-rr-user-add" style="color:var(--accent-color)"></i> Ro'yxatdan o'tish</div>
-      <div class="form-sub">Pozitsiyangizni tanlang va ma'lumotlaringizni kiriting.</div>
 
-      <form id="regForm" onsubmit="submitRegistration(event)">
-        <div class="form-group">
-          <label>Pozitsiyangizni tanlang</label>
-          <div class="role-dropdown" id="roleDropdown">
-            <div class="role-selected" onclick="toggleRoleMenu()">
-              <span id="selectedRoleText"><i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli</span>
-              <i class="fi fi-rr-angle-small-down"></i>
-            </div>
-            <div class="role-options" id="roleOptions">
-              <div class="role-option selected" onclick="selectRole('Ko\'ngilli', '<i class=\'fi fi-rr-hand-holding-heart\'></i> Ko\'ngilli', this)">
-                <i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli
-              </div>
-              <div class="role-option" onclick="selectRole('Maslahatchi', '<i class=\'fi fi-rr-compass-alt\'></i> Maslahatchi', this)">
-                <i class="fi fi-rr-compass-alt"></i> Maslahatchi
-              </div>
-              <div class="role-option" id="optBoshqaruvchi" onclick="selectRole('Boshqaruvchi', '<i class=\'fi fi-rr-building\'></i> Boshqaruvchi', this)">
-                <i class="fi fi-rr-building"></i> Boshqaruvchi
-              </div>
-            </div>
-          </div>
-          <input type="hidden" id="regRole" value="Ko'ngilli">
-        </div>
+      <!-- A) MAVJUD AKKAUNTLAR RO'YXATI -->
+      <div id="existingAccountsView" style="display:none;">
+        <div class="form-header"><i class="fi fi-rr-users" style="color:var(--accent-color)"></i> Akkauntni tanlang</div>
+        <div class="form-sub">Mavjud akkauntingizga kiring yoki yangi ro'yxatdan o'ting.</div>
 
-        <div class="form-group" id="advisorGroup">
-          <label>Maslahatchini tanlang</label>
-          <select id="regAdvisor">
-            <option value="">-- Maslahatchini tanlang --</option>
-          </select>
-        </div>
+        <div id="existingAccountsList"></div>
 
-        <div class="form-group">
-          <label>F.I.O (Ism va familiyangiz, faqat harflar)</label>
-          <input type="text" id="regFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
-        </div>
-
-        <div class="form-group">
-          <label>Telefon raqamingiz</label>
-          <input type="tel" id="regPhone" required placeholder="+998901234567 yoki 901234567">
-        </div>
-
-        <div class="form-group">
-          <label>Google pochtangiz (Gmail)</label>
-          <input type="email" id="regEmail" required placeholder="misol@gmail.com">
-        </div>
-
-        <button type="submit" class="submit-btn" id="regBtn">
-          <i class="fi fi-rr-check"></i> Ro'yxatdan o'tish
+        <button type="button" class="submit-btn" onclick="openRegistrationFormView()">
+          <i class="fi fi-rr-user-add"></i> Ro'yxatdan o'tish
         </button>
-      </form>
+      </div>
+
+      <!-- B) YANGI RO'YXATDAN O'TISH FORMASI -->
+      <div id="regFormView">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div class="form-header" style="margin-bottom:0;"><i class="fi fi-rr-user-add" style="color:var(--accent-color)"></i> Ro'yxatdan o'tish</div>
+          <button type="button" id="backToAccountsBtn" style="display:none; background:none; border:none; color:var(--accent-color); font-size:13px; font-weight:600; cursor:pointer;" onclick="showExistingAccountsView()">
+            <i class="fi fi-rr-arrow-small-left"></i> Akkauntlarim
+          </button>
+        </div>
+        <div class="form-sub">Pozitsiyangizni tanlang va ma'lumotlaringizni kiriting.</div>
+
+        <form id="regForm" onsubmit="submitRegistration(event)">
+          <div class="form-group">
+            <label>Pozitsiyangizni tanlang</label>
+            <div class="role-dropdown" id="roleDropdown">
+              <div class="role-selected" onclick="toggleRoleMenu()">
+                <span id="selectedRoleText"><i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli</span>
+                <i class="fi fi-rr-angle-small-down"></i>
+              </div>
+              <div class="role-options" id="roleOptions">
+                <div class="role-option selected" onclick="selectRole('Ko\'ngilli', '<i class=\'fi fi-rr-hand-holding-heart\'></i> Ko\'ngilli', this)">
+                  <i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli
+                </div>
+                <div class="role-option" onclick="selectRole('Maslahatchi', '<i class=\'fi fi-rr-compass-alt\'></i> Maslahatchi', this)">
+                  <i class="fi fi-rr-compass-alt"></i> Maslahatchi
+                </div>
+                <div class="role-option" id="optBoshqaruvchi" onclick="selectRole('Boshqaruvchi', '<i class=\'fi fi-rr-building\'></i> Boshqaruvchi', this)">
+                  <i class="fi fi-rr-building"></i> Boshqaruvchi
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="regRole" value="Ko'ngilli">
+          </div>
+
+          <div class="form-group" id="advisorGroup">
+            <label>Maslahatchini tanlang</label>
+            <select id="regAdvisor">
+              <option value="">-- Maslahatchini tanlang --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>F.I.O (Ism va familiyangiz, faqat harflar)</label>
+            <input type="text" id="regFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
+          </div>
+
+          <div class="form-group">
+            <label>Telefon raqamingiz (faqat raqam)</label>
+            <input type="tel" id="regPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
+          </div>
+
+          <div class="form-group">
+            <label>Google pochtangiz (Gmail)</label>
+            <input type="email" id="regEmail" required placeholder="misol@gmail.com">
+          </div>
+
+          <button type="submit" class="submit-btn" id="regBtn">
+            <i class="fi fi-rr-check"></i> Ro'yxatdan o'tish
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 
@@ -711,6 +831,9 @@
       <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp(activeTabId)">
         <i class="fi fi-rr-refresh refresh-icon-el"></i> Yangilash
       </button>
+      <button class="submit-btn" style="max-width:200px; margin-top:10px; background:#4b5563;" onclick="promptLogoutAccount()">
+        <i class="fi fi-rr-sign-out-alt"></i> Akkauntdan chiqish
+      </button>
     </div>
   </div>
 
@@ -720,6 +843,9 @@
       <div class="status-icon" style="color:var(--danger-text);"><i class="fi fi-rr-ban"></i></div>
       <div class="status-title">Ruxsat berilmadi</div>
       <div class="status-desc">Kechirasiz, sizning so'rovingiz rad etilgan.</div>
+      <button class="submit-btn" style="max-width:200px; margin-top:20px; background:#4b5563;" onclick="promptLogoutAccount()">
+        <i class="fi fi-rr-sign-out-alt"></i> Orqaga / Chiqish
+      </button>
     </div>
   </div>
 
@@ -784,8 +910,8 @@
         </div>
 
         <div class="form-group">
-          <label>Telefon raqami</label>
-          <input type="tel" id="recipientPhone" required placeholder="+998901234567 yoki 901234567">
+          <label>Telefon raqami (faqat raqam)</label>
+          <input type="tel" id="recipientPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
         </div>
 
         <div class="form-group">
@@ -808,7 +934,7 @@
             <option value="5 000 000 so'm">5 000 000 so'm</option>
             <option value="Boshqa">Boshqa</option>
           </select>
-          <input type="text" id="customAmount" placeholder="Summani kiriting (masalan: 10 000)" style="display:none; margin-top:8px;" oninput="formatNumberInput(this)">
+          <input type="text" id="customAmount" inputmode="numeric" placeholder="Summani kiriting (masalan: 10 000)" style="display:none; margin-top:8px;" oninput="formatNumberInput(this)">
         </div>
 
         <div class="form-group">
@@ -859,7 +985,7 @@
     </div>
   </div>
 
-  <!-- 3-MODAL: HA / YO'Q TASDIQLASH OYNASI -->
+  <!-- 3-MODAL: YO'Q / HA TASDIQLASH OYNASI -->
   <div id="confirmModal" class="custom-modal">
     <div class="modal-box">
       <div class="modal-title"><i class="fi fi-rr-exclamation" style="color:var(--warning-text)"></i> Tasdiqlash</div>
@@ -906,8 +1032,12 @@
     const chatId = tgUser.id ? String(tgUser.id) : "530526899";
     const username = tgUser.username || "";
 
+    const STORAGE_LOGOUT_KEY = "zakot_logged_out_" + chatId;
+    const STORAGE_ACC_KEY = "zakot_active_acc_" + chatId;
+
     let currentUser = null;
     let isAdminUser = false;
+    let myAccountsList = [];
     let advisorsList = [];
     let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
     let allRecords = [];
@@ -1032,15 +1162,38 @@
 
       const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
       const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
+      const roleLabel = isAdminUser ? "Admin" : currentUser.role;
+      const myUnamePart = hasValidUsername(currentUser.username) ? ` | 🔗 ${currentUser.username}` : '';
+      const myPhoneEmail = (currentUser.phone || currentUser.email)
+        ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email \vert{}\vert{} '-'}${myUnamePart}</div>`
+        : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
 
-      let html = "";
+      // Foydalanuvchining o'z profili kartasi (kichik savatcha + Chiqish tugmasi bilan)
+      let html = `
+        <div class="dir-section-title">Mening profilim</div>
+        <div class="dir-card">
+          <div class="dir-card-header" style="cursor:default;">
+            <div class="dir-info">
+              <div class="dir-name">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${currentUser.fio} (${roleLabel})
+              </div>
+              ${myPhoneEmail}
+            </div>
+            <div class="dir-actions">
+              ${currentUser.role !== "Admin" ? `
+                <button type="button" class="trash-icon-btn" title="Akkauntni o'chirish" onclick="promptDeleteOwnAccount()">
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              ` : ''}
+              <button type="button" class="logout-inline-btn" onclick="promptLogoutAccount()">
+                <i class="fi fi-rr-sign-out-alt"></i> Chiqish
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
 
       if (isVolunteer) {
-        html = `
-          <button type="button" class="logout-btn" onclick="logoutCurrentUser()">
-            <i class="fi fi-rr-sign-out-alt"></i> Tizimdan chiqib ketish
-          </button>
-        `;
         container.innerHTML = html;
         return;
       }
@@ -1088,8 +1241,7 @@
         html += `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Maslahatchilar mavjud emas</div>`;
       } else {
         directoryData.advisors.forEach((adv, aIdx) => {
-          const dCardId = `dir-adv-${aIdx}`;
-          const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
+          const dCardId = `dir-adv-${aIdx}`; const advUnamePart = hasValidUsername(adv.username) ? ` \vert{} 🔗 ${adv.username}` : '';
           let volsHtml = "";
           if (!adv.volunteers || !adv.volunteers.length) {
             volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
@@ -1185,16 +1337,93 @@
       });
     }
 
-    function logoutCurrentUser() {
-      askConfirm("Haqiqatan ham tizimdan chiqib ketmoqchimisiz? Qayta kirish uchun boshqatdan ro'yxatdan o'tishingiz kerak bo'ladi.", () => {
+    // AKKAUNTDAN CHIQISH (O'CHIRMASDAN REGISTRATSIYA/AKKAUNT TANLASH OYNASIGA O'TISH)
+    function promptLogoutAccount() {
+      askConfirm("Haqiqatan ham akkauntdan chiqmoqchimisiz?", () => {
+        localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
+        document.getElementById('topMenuDrawer').classList.remove('open');
+        document.getElementById('dotsMenuBtn').classList.remove('open');
+        openRegisterOrAccountsScreen();
+      });
+    }
+
+    // O'Z AKKAUNTINI BUTUNLAY O'CHIRISH
+    function promptDeleteOwnAccount() {
+      if (!currentUser) return;
+      askConfirm(`Haqiqatan ham «${currentUser.fio} (${currentUser.role})» akkauntingizni butunlay o'chirmoqchimisiz?`, () => {
         sendPost({
           action: "DELETE_USER_ACCOUNT",
-          targetChatId: chatId
+          targetChatId: chatId,
+          targetRole: currentUser.role,
+          targetFio: currentUser.fio
         }).then(() => {
+          localStorage.removeItem(STORAGE_ACC_KEY);
+          localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
           document.getElementById('topMenuDrawer').classList.remove('open');
+          document.getElementById('dotsMenuBtn').classList.remove('open');
           setTimeout(() => initApp(), 1200);
         });
       });
+    }
+
+    function openRegisterOrAccountsScreen() {
+      showScreen('screen-register');
+      if (myAccountsList && myAccountsList.length > 0) {
+        renderExistingAccountsList();
+        showExistingAccountsView();
+      } else {
+        openRegistrationFormView();
+      }
+    }
+
+    function showExistingAccountsView() {
+      document.getElementById('existingAccountsView').style.display = "block";
+      document.getElementById('regFormView').style.display = "none";
+    }
+
+    function openRegistrationFormView() {
+      document.getElementById('existingAccountsView').style.display = "none";
+      document.getElementById('regFormView').style.display = "block";
+      const backBtn = document.getElementById('backToAccountsBtn');
+      backBtn.style.display = (myAccountsList && myAccountsList.length > 0) ? "inline-block" : "none";
+    }
+
+    function renderExistingAccountsList() {
+      const listEl = document.getElementById('existingAccountsList');
+      if (!myAccountsList || !myAccountsList.length) {
+        listEl.innerHTML = "";
+        return;
+      }
+
+      let html = "";
+      myAccountsList.forEach((acc, idx) => {
+        const statusClass = "status-" + String(acc.status || "Tasdiqlangan").replace(/ /g, '-');
+        html += `
+          <div class="saved-acc-card" onclick="loginWithExistingAccount(${idx})">
+            <div class="saved-acc-left">
+              <div class="saved-acc-name">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${acc.fio}
+              </div>
+              <div class="saved-acc-meta">
+                <span>Pozitsiya: <b>${acc.role}</b></span>${acc.phone ? `<span>| 📞 ${acc.phone}</span>` : ''}
+              </div>
+            </div>
+            <div>
+              <span class="status-badge ${statusClass}">${acc.status || 'Tasdiqlangan'}</span>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function loginWithExistingAccount(idx) {
+      const chosen = myAccountsList[idx];
+      if (!chosen) return;
+      localStorage.removeItem(STORAGE_LOGOUT_KEY);
+      localStorage.setItem(STORAGE_ACC_KEY, chosen.accountKey || (chosen.role + "|" + chosen.fio));
+      activeTabId = null;
+      initApp();
     }
 
     function promptDeleteUser(targetId, targetFio, roleLabel) {
@@ -1204,32 +1433,11 @@
 
         sendPost({
           action: "DELETE_USER_ACCOUNT",
-          targetChatId: targetId
+          targetChatId: targetId,
+          targetRole: roleLabel === "Topuvchi" ? "Ko'ngilli" : roleLabel,
+          targetFio: targetFio
         }).then(() => {
-          showNotice(`${targetFio} o'chirildi!`);
-          setTimeout(() => initApp(activeTabId), 1300);
-        });
-      });
-    }
-
-    function promptDeleteAdvisor(advIdx) {
-      const adv = directoryData.advisors[advIdx];
-      if (!adv) return;
-
-      if (!adv.volunteers || adv.volunteers.length === 0) {
-        promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi");
-        return;
-      }
-
-      const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId));
-      if (otherAdvisors.length === 0) {
-        showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak.");
-        return;
-      }
-
-      deletingAdvisorObj = adv;
-      document.getElementById('reassignModalDesc').innerText =
-        `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
+          showNotice(`${targetFio} o'chirildi!`); setTimeout(() => initApp(activeTabId), 1300); }); }); }  function promptDeleteAdvisor(advIdx) { const adv = directoryData.advisors[advIdx]; if (!adv) return;  if (!adv.volunteers \vert{}\vert{} adv.volunteers.length === 0) { promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi"); return; }  const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId)); if (otherAdvisors.length === 0) { showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak."); return; }  deletingAdvisorObj = adv; document.getElementById('reassignModalDesc').innerText = `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
 
       let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
       otherAdvisors.forEach(oa => {
@@ -1293,6 +1501,8 @@
       sendPost({
         action: "DELETE_USER_ACCOUNT",
         targetChatId: targetAdvId,
+        targetRole: "Maslahatchi",
+        targetFio: targetAdvFio,
         reassignments: reassignments
       }).then(() => {
         showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi!`);
@@ -1362,6 +1572,11 @@
 
     function validateLettersOnly(input) {
       input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁўқғҳЎҚҒҲ\s'\`ʼ]/g, '');
+    }
+
+    // FAQAT RAQAMLARNI QABUL QILISH FUNKSIYASI
+    function validateDigitsOnly(input) {
+      input.value = input.value.replace(/\D/g, '');
     }
 
     function toTitleCaseJS(str) {
@@ -1472,11 +1687,18 @@
       if (!switchToTabId && !activeTabId) showScreen('screen-loading');
       setRefreshSpinning(true);
 
-      fetch(SCRIPT_URL + "?action=INIT_APP&chatId=" + encodeURIComponent(chatId) + "&t=" + Date.now())
+      const savedAccKey = localStorage.getItem(STORAGE_ACC_KEY) || "";
+      const url = SCRIPT_URL +
+        "?action=INIT_APP&chatId=" + encodeURIComponent(chatId) +
+        "&accountKey=" + encodeURIComponent(savedAccKey) +
+        "&t=" + Date.now();
+
+      fetch(url)
         .then(res => res.json())
         .then(data => {
           setRefreshSpinning(false);
           isAdminUser = Boolean(data.isAdmin);
+          myAccountsList = data.myAccounts || [];
           advisorsList = data.advisors || [];
           directoryData = data.directory || { boshqaruvchi: null, advisors: [], myVolunteers: [] };
 
@@ -1497,8 +1719,10 @@
             optBosh.innerHTML = '<i class="fi fi-rr-building"></i> Boshqaruvchi';
           }
 
-          if (!data.user) {
-            showScreen('screen-register');
+          const isLoggedOut = localStorage.getItem(STORAGE_LOGOUT_KEY) === "1";
+
+          if (!data.user || isLoggedOut) {
+            openRegisterOrAccountsScreen();
             return;
           }
 
@@ -1508,496 +1732,4 @@
             showScreen('screen-pending');
           } else if (currentUser.status === "Rad etilgan") {
             showScreen('screen-rejected');
-          } else if (currentUser.status === "Tasdiqlangan") {
-            setupMainScreen(data, switchToTabId);
           }
-        })
-        .catch(() => {
-          setRefreshSpinning(false);
-          showScreen('screen-register');
-        });
-    }
-
-    function setupMainScreen(data, switchToTabId) {
-      showScreen('screen-main');
-      const role = isAdminUser ? "Admin" : currentUser.role;
-      document.getElementById('userRoleBanner').innerHTML = `<i class="fi fi-rr-user"></i> ${currentUser.fio} (${role})`;
-
-      renderTopDrawer();
-
-      const tabAddBtn = document.getElementById('tabAddBtn');
-      const tabMyBtn = document.getElementById('tabMyBtn');
-      const tabSentBtn = document.getElementById('tabSentBtn');
-      const tabUsersBtn = document.getElementById('tabUsersBtn');
-      const myTabLabel = document.getElementById('myTabLabel');
-
-      const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
-      const isOnlyAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
-
-      if (isOnlyAdvisor) {
-        tabSentBtn.style.display = "inline-flex";
-      } else {
-        tabSentBtn.style.display = "none";
-      }
-
-      if (isAdminUser || currentUser.role === "Maslahatchi") {
-        tabUsersBtn.style.display = "inline-flex";
-        renderPendingUsers(data.pendingUsers || []);
-      } else {
-        tabUsersBtn.style.display = "none";
-      }
-
-      if (isStaff) {
-        myTabLabel.innerText = "Arizalar";
-        tabAddBtn.classList.add('compact-plus');
-      } else {
-        myTabLabel.innerText = "Mening arizalarim";
-        tabAddBtn.classList.remove('compact-plus');
-      }
-
-      allRecords = data.records || [];
-      renderRecords(allRecords);
-
-      if (switchToTabId) {
-        const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
-        openTab(switchToTabId, targetBtnObj);
-      } else if (!activeTabId) {
-        if (isStaff) {
-          openTab('tab-my', tabMyBtn);
-        } else {
-          openTab('tab-add', tabAddBtn);
-        }
-      }
-    }
-
-    function submitRegistration(e) {
-      e.preventDefault();
-      const role = document.getElementById('regRole').value;
-      const fio = toTitleCaseJS(document.getElementById('regFio').value.trim());
-      const rawPhone = document.getElementById('regPhone').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const advSelect = document.getElementById('regAdvisor');
-      const advisorId = advSelect.value;
-      const advisorFio = advSelect.options[advSelect.selectedIndex]?.getAttribute('data-fio') || "";
-
-      if (role === "Ko'ngilli" && !advisorId) {
-        showNotice("Iltimos, Maslahatchini tanlang!");
-        return;
-      }
-
-      const validPhone = validateAndFormatPhone(rawPhone);
-      if (!validPhone) {
-        showNotice("Telefon raqami noto'g'ri!\nMisol: +998901234567 yoki 901234567");
-        return;
-      }
-
-      const btn = document.getElementById('regBtn');
-      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
-      btn.disabled = true;
-
-      sendPost({
-        action: "REGISTER_USER",
-        chatId: chatId,
-        role: role,
-        fio: fio,
-        phone: validPhone,
-        email: email,
-        username: username,
-        advisorId: advisorId,
-        advisorFio: advisorFio
-      }).then(() => {
-        btn.innerHTML = '<i class="fi fi-rr-check"></i> Ro\'yxatdan o\'tish';
-        btn.disabled = false;
-        showScreen('screen-pending');
-      });
-    }
-
-    function renderPendingUsers(users) {
-      const count = users.length;
-      document.getElementById('b-users').innerText = count;
-      const tabUsersBtn = document.getElementById('tabUsersBtn');
-
-      if (count > 0) {
-        tabUsersBtn.classList.add('has-requests');
-      } else {
-        tabUsersBtn.classList.remove('has-requests');
-      }
-
-      const container = document.getElementById('list-users');
-      if (!count) {
-        container.innerHTML = '<div class="empty-state">Tasdiqlash uchun yangi so\'rovlar yo\'q</div>';
-        return;
-      }
-      let html = "";
-      users.forEach(u => {
-        html += `
-          <div class="acc-card expanded" id="ucard-${u.chatId}">
-            <div class="acc-header">
-              <div class="acc-left">
-                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${u.fio}</div>
-                <div class="acc-date">
-                  <span class="pending-role-highlight"><i class="fi fi-rr-briefcase"></i> Pozitsiya: ${u.role}</span> | <i class="fi fi-rr-calendar"></i> ${u.date}
-                </div>
-              </div>
-            </div>
-            <div class="acc-body" style="display:block;">
-              <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${u.phone}</div>
-              <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-envelope"></i> Email:</span> ${u.email}</div>
-              ${hasValidUsername(u.username) ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-at"></i> Username:</span> ${u.username}</div>` : ''}
-              <div class="action-row">
-                <button class="btn-act btn-approve" onclick="decideUser('${u.chatId}', 'APPROVE')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-reject" onclick="decideUser('${u.chatId}', 'REJECT')"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    function decideUser(targetChatId, decision) {
-      const card = document.getElementById('ucard-' + targetChatId);
-      if (card) card.style.opacity = "0.4";
-
-      sendPost({
-        action: "USER_DECISION",
-        targetChatId: targetChatId,
-        decision: decision
-      }).then(() => {
-        setTimeout(() => initApp(activeTabId), 1500);
-      });
-    }
-
-    function submitForm(e) {
-      e.preventDefault();
-
-      const rawPhone = document.getElementById('recipientPhone').value.trim();
-      const validPhone = validateAndFormatPhone(rawPhone);
-      if (!validPhone) {
-        showNotice("Noto'g'ri raqam kiritildi!\nMisol: +998901234567 yoki 901234567");
-        return;
-      }
-
-      let finalAmount = document.getElementById('amountSelect').value;
-      if (finalAmount === "Boshqa") {
-        const customVal = document.getElementById('customAmount').value.trim();
-        if (!customVal) {
-          showNotice("Iltimos, summani kiriting!");
-          return;
-        }
-        finalAmount = customVal + " so'm";
-      }
-
-      const addressVal = document.getElementById('locDisplay').value.trim();
-      if (!addressVal) {
-        showNotice("Iltimos, manzilni yozing yoki «Lokatsiyani olish» tugmasini bosing!");
-        return;
-      }
-
-      const btn = document.getElementById('submitBtn');
-      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
-      btn.disabled = true;
-
-      sendPost({
-        action: "ADD_RECORD_FROM_APP",
-        chatId: chatId,
-        username: username,
-        senderFio: currentUser ? currentUser.fio : "",
-        recipientFio: toTitleCaseJS(document.getElementById('recipientFio').value.trim()),
-        recipientPhone: validPhone,
-        manba: document.getElementById('manba').value.trim(),
-        reason: document.getElementById('reason').value.trim(),
-        amount: finalAmount,
-        address: addressVal
-      }).then(() => {
-        btn.innerHTML = '<i class="fi fi-rr-paper-plane"></i> Arizani yuborish';
-        btn.disabled = false;
-        showNotice("Ariza muvaffaqiyatli yuborildi!");
-        document.getElementById('zakotForm').reset();
-        document.getElementById('customAmount').style.display = "none";
-        document.getElementById('locDisplay').value = "";
-        setTimeout(() => initApp('tab-my'), 1800);
-      });
-    }
-
-    function toggleCard(cardId) {
-      const el = document.getElementById(cardId);
-      if (el) el.classList.toggle('expanded');
-    }
-
-    function checkRecordChanged(idx) {
-      const rec = allRecords[idx];
-      const saveBtn = document.getElementById(`esave-${idx}`);
-      if (!rec || !saveBtn) return;
-
-      const fioVal = (document.getElementById(`efio-${idx}`)?.value || "").trim();
-      const phoneVal = (document.getElementById(`ephone-${idx}`)?.value || "").trim();
-      const manbaVal = (document.getElementById(`emanba-${idx}`)?.value || "").trim();
-      const reasonVal = (document.getElementById(`ereason-${idx}`)?.value || "").trim();
-      const amountVal = (document.getElementById(`eamount-${idx}`)?.value || "").trim();
-      const addrVal = (document.getElementById(`eaddr-${idx}`)?.value || "").trim();
-
-      const isChanged =
-        fioVal !== String(rec.fio || "").trim() ||
-        phoneVal !== String(rec.phone || "").trim() ||
-        manbaVal !== String(rec.manba || "").trim() ||
-        reasonVal !== String(rec.reason || "").trim() ||
-        amountVal !== String(rec.amount || "").trim() ||
-        addrVal !== String(rec.address || "").trim();
-
-      saveBtn.disabled = !isChanged;
-    }
-
-    function renderRecords(records) {
-      let counts = { newRecs: 0, sent: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
-      let htmls = { newRecs: "", sent: "", approved: "", rejected: "", dispatched: "", delivered: "" };
-
-      const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
-      const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
-      const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
-
-      records.forEach((r, idx) => {
-        const isOwnManagerRecord = (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
-                                   (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1);
-
-        if (isManager && r.status === "Yangi" && !isOwnManagerRecord) {
-          return;
-        }
-
-        const cardId = `rec-card-${idx}`;
-        const addrText = String(r.address || "");
-        const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
-
-        let category = "newRecs";
-        if (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi") {
-          category = isAdvisor ? "sent" : "newRecs";
-        } else if (r.status === "Tasdiqlangan") {
-          category = "approved";
-        } else if (r.status === "Rad etilgan") {
-          category = "rejected";
-        } else if (r.status === "Berib yuborilgan") {
-          category = "dispatched";
-        } else if (r.status === "Yetqazilgan") {
-          category = "delivered";
-        } else {
-          category = "newRecs";
-        }
-
-        let subStatusHtml = "";
-        let displayStatusText = r.status;
-        if (isVolunteer && category === "newRecs") {
-          const stageName = (r.status === "Yuborilgan" || r.status === "Maslahatchi tasdiqladi")
-            ? "Boshqaruvchida"
-            : "Maslahatchida";
-          subStatusHtml = `<div class="acc-substatus">Holati: ${stageName}</div>`;
-          displayStatusText = stageName;
-        }
-
-        let canEditRecord = false;
-        if (isVolunteer) {
-          if (r.status === "Yangi") canEditRecord = true;
-        } else if (isAdvisor) {
-          if (category === "newRecs" || category === "sent") canEditRecord = true;
-        } else if (isManager) {
-          if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
-        }
-
-        let statusButtonsHtml = "";
-
-        if (isAdvisor) {
-          if (category === "newRecs") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
-              </div>
-            `;
-          } else if (category === "sent") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-              </div>
-            `;
-          } else if (category === "rejected") {
-            statusButtonsHtml = `
-              <div class="action-row" onclick="event.stopPropagation()">
-                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
-                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
-              </div>
-            `;
-          }
-        } else if (isManager) {
-          if (category === "newRecs") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-              </div>
-            `;
-          } else if (category === "approved") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
-              </div>
-            `;
-          } else if (category === "rejected") {
-            statusButtonsHtml = `
-              <div class="action-row">
-                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
-                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
-              </div>
-            `;
-          } else if (category === "dispatched") {
-            statusButtonsHtml = `
-              <div class="action-row" onclick="event.stopPropagation()">
-                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
-              </div>
-            `;
-          }
-        }
-
-        let bodyContent = "";
-
-        if (canEditRecord) {
-          bodyContent = `
-            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
-            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
-            <div class="edit-box" onclick="event.stopPropagation()">
-              <label>Zakot oluvchi F.I.O</label>
-              <input type="text" id="efio-${idx}" value="${r.fio}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
-              <label>Telefon raqami</label>
-              <input type="text" id="ephone-${idx}" value="${r.phone}" oninput="checkRecordChanged(${idx})">
-              <label>Manba</label>
-              <input type="text" id="emanba-${idx}" value="${r.manba}" oninput="checkRecordChanged(${idx})">
-              <label>Sababi</label>
-              <textarea id="ereason-${idx}" rows="2" oninput="checkRecordChanged(${idx})">${r.reason || ''}</textarea>
-              <label>Miqdor</label>
-              <input type="text" id="eamount-${idx}" value="${r.amount}" oninput="checkRecordChanged(${idx})">
-              <label>Manzil ${addrLink ? `(${addrLink})` : ''}</label>
-              <input type="text" id="eaddr-${idx}" value="${r.address}" oninput="checkRecordChanged(${idx})">
-
-              <div class="action-row">
-                <button class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${r.status}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
-              </div>
-              ${statusButtonsHtml}
-            </div>
-          `;
-        } else {
-          bodyContent = `
-            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(r.status).replace(/ /g, '-')}">${displayStatusText}</span></div>
-            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
-            ${statusButtonsHtml}
-          `;
-        }
-
-        const cardHtml = `
-          <div class="acc-card" id="${cardId}">
-            <div class="acc-header" onclick="toggleCard('${cardId}')">
-              <div class="acc-left">
-                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${r.fio}</div>
-                <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${r.date || '-'}</div>
-                ${subStatusHtml}
-              </div>
-              <div class="acc-right">
-                <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${r.amount || '0 so\'m'}</div>
-                <span class="acc-arrow"><i class="fi fi-rr-angle-small-down"></i> Batafsil</span>
-              </div>
-            </div>
-            <div class="acc-body">
-              ${bodyContent}
-            </div>
-          </div>
-        `;
-
-        counts[category]++;
-        htmls[category] += cardHtml;
-      });
-
-      document.getElementById('b-all').innerText = counts.newRecs;
-      document.getElementById('b-sent').innerText = counts.sent;
-      document.getElementById('b-approved').innerText = counts.approved;
-      document.getElementById('b-rejected').innerText = counts.rejected;
-      document.getElementById('b-dispatched').innerText = counts.dispatched;
-      document.getElementById('b-delivered').innerText = counts.delivered;
-
-      document.getElementById('list-all').innerHTML = htmls.newRecs || '<div class="empty-state">Yangi arizalar mavjud emas</div>';
-      document.getElementById('list-sent').innerHTML = htmls.sent || '<div class="empty-state">Yuborilgan arizalar mavjud emas</div>';
-      document.getElementById('list-approved').innerHTML = htmls.approved || '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
-      document.getElementById('list-rejected').innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
-      document.getElementById('list-dispatched').innerHTML = htmls.dispatched || '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
-      document.getElementById('list-delivered').innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
-    }
-
-    function saveRecordUpdate(idx, newStatus, rejectReason) {
-      const rec = allRecords[idx];
-      if (!rec) return;
-
-      const card = document.getElementById(`rec-card-${idx}`);
-      if (card) card.style.opacity = "0.5";
-
-      const fioInput = document.getElementById(`efio-${idx}`);
-      const phoneInput = document.getElementById(`ephone-${idx}`);
-      const manbaInput = document.getElementById(`emanba-${idx}`);
-      const reasonInput = document.getElementById(`ereason-${idx}`);
-      const amountInput = document.getElementById(`eamount-${idx}`);
-      const addrInput = document.getElementById(`eaddr-${idx}`);
-
-      sendPost({
-        action: "UPDATE_RECORD",
-        sheetName: rec.sheetName,
-        ownerChatId: rec.ownerChatId,
-        rowIndex: rec.rowIndex,
-        origFio: rec.fio,
-        origPhone: rec.phone,
-        sender: rec.sender,
-        fio: fioInput ? toTitleCaseJS(fioInput.value.trim()) : rec.fio,
-        phone: phoneInput ? phoneInput.value.trim() : rec.phone,
-        manba: manbaInput ? manbaInput.value.trim() : rec.manba,
-        reason: reasonInput ? reasonInput.value.trim() : rec.reason,
-        amount: amountInput ? amountInput.value.trim() : rec.amount,
-        address: addrInput ? addrInput.value.trim() : rec.address,
-        newStatus: newStatus,
-        rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
-      }).then(() => {
-        showNotice("Ma'lumot yangilandi!");
-        setTimeout(() => initApp(activeTabId), 1500);
-      });
-    }
-
-    function deleteRecord(idx) {
-      const rec = allRecords[idx];
-      if (!rec) return;
-
-      const card = document.getElementById(`rec-card-${idx}`);
-      if (card) {
-        card.style.opacity = "0.3";
-        card.style.pointerEvents = "none";
-      }
-
-      sendPost({
-        action: "DELETE_RECORD",
-        sheetName: rec.sheetName,
-        ownerChatId: rec.ownerChatId,
-        rowIndex: rec.rowIndex,
-        fio: rec.fio,
-        phone: rec.phone,
-        sender: rec.sender
-      }).then(() => {
-        if (card) card.remove();
-        showNotice("Ariza o'chirib yuborildi!");
-        setTimeout(() => initApp(activeTabId), 1500);
-      });
-    }
-
-    initApp();
-  </script>
-</body>
-</html>
