@@ -1,1053 +1,2284 @@
-var BOT_TOKEN = "8851130757:AAHuZI1EqWPXi-B7OM7ruQKxsvZvLycRbN8";
-var ADMIN_CHAT_ID = "530526899";
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Zakot Tizimi</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Flaticon UIcons kutubxonasi -->
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+  <style>
+    :root {
+      --bg-color: var(--tg-theme-bg-color, #ffffff);
+      --text-color: var(--tg-theme-text-color, #111827);
+      --hint-color: #4b5563;
+      --accent-color: var(--tg-theme-button-color, #2481cc);
+      --card-bg: var(--tg-theme-secondary-bg-color, #f3f4f6);
+      --drawer-bg: var(--tg-theme-secondary-bg-color, #f8f9fa);
+      --modal-bg: var(--tg-theme-bg-color, #ffffff);
+      --border-color: rgba(0, 0, 0, 0.12);
+      --card-inner-bg: rgba(0, 0, 0, 0.04);
 
-// GET so'rovlari
-function doGet(e) {
-  var action = e && e.parameter ? e.parameter.action : null;
-  var chatId = e && e.parameter ? String(e.parameter.chatId).trim() : "";
-  var accountKey = e && e.parameter ? String(e.parameter.accountKey || "").trim() : "";
+      /* Oq tema (Light Theme) uchun ranglar */
+      --amount-bg: rgba(46, 125, 50, 0.12);
+      --amount-text: #2e7d32;
+      --success-text: #2e7d32;
+      --danger-text: #c62828;
+      --warning-text: #ef6c00;
+      --info-text: #1565c0;
+    }
 
-  if (action === "INIT_APP") {
-    var result = getAppInitData(chatId, accountKey);
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+    /* Qora tema (Dark Theme) uchun ranglar */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: var(--tg-theme-bg-color, #17212b);
+        --text-color: var(--tg-theme-text-color, #f5f5f5);
+        --hint-color: var(--tg-theme-hint-color, #8b9bb4);
+        --accent-color: var(--tg-theme-button-color, #5288c1);
+        --card-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+        --drawer-bg: rgba(20, 29, 38, 0.98);
+        --modal-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+        --border-color: rgba(255, 255, 255, 0.08);
+        --card-inner-bg: rgba(0, 0, 0, 0.18);
 
-  return ContentService.createTextOutput(JSON.stringify({ status: "API IS RUNNING" }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-// POST so'rovlari (Mini App va Telegram Webhook callback_query uchun)
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-
-    // 1. Telegram botdagi "🗑 Xabarni o'chirish" inline tugmasi bosilganda:
-    if (data.callback_query) {
-      var cb = data.callback_query;
-      if (cb.data === "DELETE_BOT_MSG" && cb.message) {
-        deleteTelegramMessage(cb.message.chat.id, cb.message.message_id);
+        /* Qora tema uchun yorqin va ko'rinarli ranglar */
+        --amount-bg: rgba(129, 199, 132, 0.2);
+        --amount-text: #81c784;
+        --success-text: #81c784;
+        --danger-text: #ff8a80;
+        --warning-text: #ffb74d;
+        --info-text: #64b5f6;
       }
-      answerCallbackQuery(cb.id);
-      return jsonResponse({ status: "OK" });
     }
 
-    // 2. Mini App amal so'rovlari:
-    if (data.action === "REGISTER_USER") {
-      return jsonResponse(registerUser(data));
-    }
-    if (data.action === "USER_DECISION") {
-      return jsonResponse(handleUserDecision(data));
-    }
-    if (data.action === "ADD_RECORD_FROM_APP") {
-      return jsonResponse(saveRecordFromWeb(data));
-    }
-    if (data.action === "UPDATE_RECORD") {
-      return jsonResponse(updateRecordFromApp(data));
-    }
-    if (data.action === "DELETE_RECORD") {
-      return jsonResponse(deleteRecordFromApp(data));
-    }
-    if (data.action === "DELETE_USER_ACCOUNT") {
-      return jsonResponse(deleteUserAccount(data));
-    }
-    if (data.action === "REASSIGN_VOLUNTEERS") {
-      return jsonResponse(reassignVolunteers(data));
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+
+    i.fi {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      vertical-align: middle;
+      line-height: 1;
     }
 
-  } catch (err) {
-    return jsonResponse({ status: "ERROR", message: err.toString() });
-  }
-}
-
-function jsonResponse(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function toTitleCase(str) {
-  if (!str) return "";
-  return String(str).toLowerCase().trim().replace(/\s+/g, " ").replace(/(?:^|\s)\S/g, function(a) { 
-    return a.toUpperCase(); 
-  });
-}
-
-function getInitials(fio) {
-  if (!fio) return "";
-  var parts = String(fio).trim().split(/\s+/);
-  var initials = [];
-  for (var i = 0; i < parts.length; i++) {
-    if (parts[i].length > 0) {
-      initials.push(parts[i].charAt(0).toUpperCase());
+    /* YANGILASH IKONKASI AYLANISHI */
+    @keyframes spinRefresh {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
-  }
-  return initials.join(".");
-}
-
-// Google Sheets'da qo'lda kiritilgan Holati (status) qiymatlarini standartlashtirish
-function normalizeRecordStatus(rawStatus) {
-  var s = String(rawStatus || "").trim().toLowerCase();
-  if (!s || s === "yangi") return "Yangi";
-  if (s === "yuborilgan" || s === "maslahatchi tasdiqladi") return "Yuborilgan";
-  if (s === "tasdiqlangan") return "Tasdiqlangan";
-  if (s === "rad etilgan") return "Rad etilgan";
-  if (s === "berib yuborilgan") return "Berib yuborilgan";
-  if (s === "yetqazilgan" || s === "yetkazilgan") return "Yetqazilgan";
-  return "Yangi";
-}
-
-function getUsersSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Foydalanuvchilar");
-  if (!sheet) {
-    sheet = ss.insertSheet("Foydalanuvchilar");
-    sheet.getRange("A1:J1").setValues([[
-      "ChatID", "F.I.O", "Telefon", "Email", "Username", "Pozitsiya (Rol)", "Maslahatchi ID", "Maslahatchi F.I.O", "Holati", "Sana"
-    ]]).setFontWeight("bold");
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
-function getManagerSheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Boshqaruvchi");
-  if (!sheet) {
-    sheet = ss.insertSheet("Boshqaruvchi");
-    sheet.getRange("A1:J1").setValues([[
-      "Topuvchi", "Sana / Vaqt", "Zakot oluvchi F.I.O", "Telefon raqami", "Manba", "Sababi", "Miqdor", "Manzil yoki Geolokatsiya", "Holati", "Rad etish sababi"
-    ]]).setFontWeight("bold");
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
-function getApprovedManagerChatId() {
-  var uSheet = getUsersSheet();
-  var lastRow = uSheet.getLastRow();
-  if (lastRow < 2) return null;
-  var data = uSheet.getRange(2, 1, lastRow - 1, 9).getValues();
-  for (var i = 0; i < data.length; i++) {
-    if (String(data[i][5]).trim() === "Boshqaruvchi" && String(data[i][8]).trim() === "Tasdiqlangan") {
-      return String(data[i][0]).trim();
+    .spin-icon {
+      animation: spinRefresh 0.75s linear infinite;
+      transform-origin: center;
     }
-  }
-  return null;
-}
 
-function getAppInitData(chatId, accountKey) {
-  var isOwnerAdminChat = (String(chatId) === ADMIN_CHAT_ID);
-  var sheet = getUsersSheet();
-  var lastRow = sheet.getLastRow();
+    /* QUMSOAT ANIMATSIYASI: 180 gradus aylanadi, 1 soniya kutadi, yana 180 gradus aylanadi */
+    @keyframes hourglassFlip {
+      0% { transform: rotate(0deg); }
+      16.67% { transform: rotate(180deg); }
+      50% { transform: rotate(180deg); }
+      66.67% { transform: rotate(360deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hourglass-anim {
+      display: inline-flex;
+      animation: hourglassFlip 3s ease-in-out infinite;
+      transform-origin: center;
+    }
 
-  var userObj = null;
-  var myAccounts = [];
-  var advisors = [];
-  var hasBoshqaruvchi = false;
-  var pendingUsers = [];
-  var allUsersList = [];
+    /* YUKLANMOQDA UCH NUQTA ANIMATSIYASI (1 -> 2 -> 3) */
+    .loading-dots-wrap {
+      display: inline-block;
+      width: 18px;
+      text-align: left;
+    }
+    .loading-dots-wrap .dot {
+      opacity: 0;
+    }
+    .loading-dots-wrap .d1 {
+      animation: dotAnim1 1.5s infinite;
+    }
+    .loading-dots-wrap .d2 {
+      animation: dotAnim2 1.5s infinite;
+    }
+    .loading-dots-wrap .d3 {
+      animation: dotAnim3 1.5s infinite;
+    }
+    @keyframes dotAnim1 {
+      0%, 100% { opacity: 1; }
+    }
+    @keyframes dotAnim2 {
+      0%, 32% { opacity: 0; }
+      33%, 100% { opacity: 1; }
+    }
+    @keyframes dotAnim3 {
+      0%, 65% { opacity: 0; }
+      66%, 100% { opacity: 1; }
+    }
 
-  if (isOwnerAdminChat) {
-    myAccounts.push({
-      accountKey: "Admin|Admin",
-      chatId: ADMIN_CHAT_ID,
-      fio: "Admin",
-      phone: "",
-      email: "",
-      username: "",
-      role: "Admin",
-      advisorId: "",
-      advisorFio: "",
-      status: "Tasdiqlangan",
-      date: ""
-    });
-  }
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
 
-  if (lastRow >= 2) {
-    var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
-    for (var i = 0; i < data.length; i++) {
-      var rChatId = String(data[i][0]).trim();
-      if (!rChatId) continue;
-      var rFio = toTitleCase(data[i][1]);
-      var rPhone = String(data[i][2] || "");
-      var rEmail = String(data[i][3] || "");
-      var rUname = String(data[i][4] || "");
-      var rRole = String(data[i][5]).trim();
-      var rAdvId = String(data[i][6]).trim();
-      var rAdvFio = String(data[i][7] || "");
-      var rStatus = String(data[i][8]).trim();
-      var rDate = "";
-      try {
-        if (data[i][9]) rDate = Utilities.formatDate(new Date(data[i][9]), "Asia/Tashkent", "dd.MM.yyyy");
-      } catch (e) {
-        rDate = String(data[i][9] || "");
+    .center-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 85vh;
+      padding: 20px;
+      text-align: center;
+    }
+    .status-icon { font-size: 48px; margin-bottom: 16px; color: var(--accent-color); }
+    .status-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .status-desc { font-size: 14px; color: var(--hint-color); line-height: 1.5; max-width: 310px; }
+
+    /* YUQORI BAR VA 3-NUQTA */
+    .role-banner {
+      padding: 6px 12px;
+      background: rgba(82, 136, 193, 0.15);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--accent-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .role-banner-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dots-btn {
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      width: 22px;
+      height: 24px;
+      min-width: 24px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .dots-btn:active, .dots-btn.open {
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
+    }
+
+    /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
+    .top-menu-drawer {
+      display: none;
+      background: var(--drawer-bg);
+      border-bottom: 2px solid rgba(82, 136, 193, 0.35);
+      padding: 12px 14px;
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+    .top-menu-drawer.open { display: block; }
+
+    .dir-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--hint-color);
+      margin: 10px 0 6px;
+      font-weight: 700;
+    }
+    .dir-section-title:first-child { margin-top: 0; }
+
+    .dir-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .dir-card-header {
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      gap: 8px;
+    }
+    .dir-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      flex: 1;
+    }
+    .dir-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .dir-sub {
+      font-size: 12px;
+      color: var(--hint-color);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .dir-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* KICHRAYTIRILGAN SAVATCHA (TRASH) IKONKASI */
+    .trash-icon-btn {
+      background: rgba(229, 57, 53, 0.16);
+      border: 1px solid rgba(229, 57, 53, 0.38);
+      color: var(--danger-text);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .trash-icon-btn:active { background: #e53935; color: #fff; }
+
+    /* PROFIL YONIDAGI AKKAUNTDAN CHIQISH TUGMASI */
+    .logout-inline-btn {
+      background: rgba(82, 136, 193, 0.15);
+      border: 1px solid rgba(82, 136, 193, 0.4);
+      color: var(--accent-color);
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .logout-inline-btn:active {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    .dir-volunteers-list {
+      display: none;
+      padding: 10px 12px;
+      background: var(--card-inner-bg);
+      border-top: 1px solid var(--border-color);
+    }
+    .dir-card.expanded .dir-volunteers-list { display: block; }
+
+    .vol-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+    }
+    .vol-item:last-child { margin-bottom: 0; }
+    .vol-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .vol-details {
+      font-size: 12px;
+      color: var(--hint-color);
+      line-height: 1.45;
+      margin-top: 3px;
+    }
+    .vol-transfer-row {
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .vol-transfer-row select {
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 7px;
+      flex: 1;
+    }
+
+    /* MAVJUD AKKAUNTLAR RO'YXATI (REGISTRATSIYA EKRANIDA) */
+    .saved-acc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .saved-acc-card:active {
+      border-color: var(--accent-color);
+      transform: scale(0.99);
+    }
+    .saved-acc-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+    }
+    .saved-acc-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .saved-acc-meta {
+      font-size: 12px;
+      color: var(--hint-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* TAB BAR */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      white-space: nowrap;
+      scroll-behavior: smooth;
+      background: var(--bg-color);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      scrollbar-width: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-color);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+    }
+    .tab-btn.active {
+      background: var(--accent-color);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 8px rgba(82, 136, 193, 0.35);
+    }
+
+    .tab-btn.compact-plus:not(.active) {
+      padding: 8px 11px;
+      gap: 0;
+    }
+    .tab-btn.compact-plus:not(.active) .add-tab-text {
+      display: none;
+    }
+
+    .tab-btn.compact-users:not(.active) {
+      padding: 8px 11px;
+      gap: 5px;
+    }
+    .tab-btn.compact-users:not(.active) .users-tab-text {
+      display: none;
+    }
+
+    .tab-btn.compact-tab:not(.active) {
+      padding: 8px 11px;
+      gap: 5px;
+    }
+    .tab-btn.compact-tab:not(.active) .tab-text-label {
+      display: none;
+    }
+
+    .tab-btn.has-requests:not(.active) {
+      background: rgba(244, 67, 54, 0.22);
+      border-color: rgba(244, 67, 54, 0.55);
+      color: var(--danger-text);
+    }
+    .tab-btn.has-requests:not(.active) .badge {
+      background: #e53935;
+      color: #ffffff;
+    }
+    .tab-btn.has-requests.active {
+      background: #e53935;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(229, 57, 53, 0.45);
+    }
+
+    .badge {
+      background: rgba(100, 100, 100, 0.2);
+      border-radius: 12px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 14px;
+      min-height: calc(100vh - 105px);
+      animation: fadeTab 0.2s ease;
+    }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeTab {
+      from { opacity: 0.4; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-container { padding: 18px 14px; }
+    .form-header { font-size: 18px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .form-sub { font-size: 13px; color: var(--hint-color); margin-bottom: 18px; }
+    .form-group { margin-bottom: 13px; text-align: left; }
+    label { display: block; font-size: 13px; color: var(--hint-color); margin-bottom: 5px; font-weight: 500; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 14px;
+      outline: none;
+    }
+    input::placeholder, textarea::placeholder { color: var(--hint-color); opacity: 0.8; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
+
+    .role-dropdown { position: relative; user-select: none; }
+    .role-selected {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .role-selected span { display: inline-flex; align-items: center; gap: 8px; }
+    .role-options {
+      display: none;
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 200;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .role-options.open { display: block; }
+    .role-option {
+      padding: 12px 14px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .role-option:last-child { border-bottom: none; }
+    .role-option:hover, .role-option.selected { background: var(--accent-color); color: #fff; }
+    .role-option.disabled { opacity: 0.4; pointer-events: none; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      background: var(--accent-color);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .acc-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .acc-header {
+      padding: 13px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .acc-left { display: flex; flex-direction: column; gap: 4px; }
+    .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
+    .acc-date { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    /* XODIMLAR SO'ROVIDAGI POZITSIYA YOZUVI */
+    .pending-role-highlight {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--danger-text);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .acc-substatus {
+      font-size: 11px;
+      color: var(--success-text);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 1px;
+    }
+    .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+    .acc-amount {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amount-text);
+      background: var(--amount-bg);
+      padding: 4px 9px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .acc-arrow { font-size: 11px; color: var(--hint-color); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
+    .acc-card.expanded .acc-arrow i { transform: rotate(180deg); }
+
+    .acc-body {
+      display: none;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--border-color);
+      background: var(--card-inner-bg);
+      font-size: 13px;
+    }
+    .acc-card.expanded .acc-body { display: block; }
+
+    .detail-row { margin-bottom: 7px; color: var(--text-color); line-height: 1.4; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .detail-label { color: var(--hint-color); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-Tasdiqlangan { background: rgba(46, 125, 50, 0.15); color: var(--success-text); }
+    .status-Yuborilgan, .status-Maslahatchi-tasdiqladi { background: rgba(21, 101, 192, 0.15); color: var(--info-text); }
+    .status-Rad-etilgan { background: rgba(198, 40, 40, 0.15); color: var(--danger-text); }
+    .status-Berib-yuborilgan { background: rgba(239, 108, 0, 0.15); color: var(--warning-text); }
+    .status-Yetqazilgan { background: rgba(21, 101, 192, 0.15); color: var(--info-text); }
+    .status-Yangi { background: rgba(100, 100, 100, 0.15); color: var(--text-color); }
+
+    .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
+    .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .btn-act {
+      flex: 1;
+      min-width: 110px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.2s, filter 0.2s;
+    }
+    .btn-act:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+      filter: grayscale(40%);
+    }
+    .btn-save { background: #3b6998; }
+    .btn-approve { background: #2e7d32; }
+    .btn-send { background: #0288d1; }
+    .btn-reject { background: #c62828; }
+    .btn-delete { background: #c62828; }
+    .btn-dispatch { background: #ef6c00; }
+    .btn-deliver { background: #1565c0; }
+
+    .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
+
+    .custom-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .custom-modal.show { display: flex; }
+    .modal-box {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      padding: 22px 20px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .modal-text {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 18px;
+      color: var(--text-color);
+      line-height: 1.45;
+    }
+    .modal-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      background: var(--accent-color);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .reassign-item {
+      text-align: left;
+      background: var(--card-inner-bg);
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .reassign-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .reassign-item select {
+      padding: 7px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. YUKLANMOQDA -->
+  <div id="screen-loading" class="screen active">
+    <div class="center-box">
+      <div class="status-icon"><i class="fi fi-rr-hourglass-end hourglass-anim"></i></div>
+      <div class="status-title">Yuklanmoqda<span class="loading-dots-wrap"><span class="dot d1">.</span><span class="dot d2">.</span><span class="dot d3">.</span></span></div>
+      <div class="status-desc">Ma'lumotlar tekshirilmoqda, iltimos kuting.</div>
+    </div>
+  </div>
+
+  <!-- 2. RO'YXATDAN O'TISH VA MAVJUD AKKAUNTLAR -->
+  <div id="screen-register" class="screen">
+    <div class="form-container">
+
+      <!-- A) MAVJUD AKKAUNTLAR RO'YXATI -->
+      <div id="existingAccountsView" style="display:none;">
+        <div class="form-header"><i class="fi fi-rr-users" style="color:var(--accent-color)"></i> Akkauntni tanlang</div>
+        <div class="form-sub">Mavjud akkauntingizga kiring yoki yangi ro'yxatdan o'ting.</div>
+
+        <div id="existingAccountsList"></div>
+
+        <button type="button" class="submit-btn" onclick="openRegistrationFormView()">
+          <i class="fi fi-rr-user-add"></i> Ro'yxatdan o'tish
+        </button>
+      </div>
+
+      <!-- B) YANGI RO'YXATDAN O'TISH FORMASI -->
+      <div id="regFormView">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div class="form-header" style="margin-bottom:0;"><i class="fi fi-rr-user-add" style="color:var(--accent-color)"></i> Ro'yxatdan o'tish</div>
+          <button type="button" id="backToAccountsBtn" style="display:none; background:none; border:none; color:var(--accent-color); font-size:13px; font-weight:600; cursor:pointer;" onclick="showExistingAccountsView()">
+            <i class="fi fi-rr-arrow-small-left"></i> Akkauntlarim
+          </button>
+        </div>
+        <div class="form-sub">Pozitsiyangizni tanlang va ma'lumotlaringizni kiriting.</div>
+
+        <form id="regForm" onsubmit="submitRegistration(event)">
+          <div class="form-group">
+            <label>Pozitsiyangizni tanlang</label>
+            <div class="role-dropdown" id="roleDropdown">
+              <div class="role-selected" onclick="toggleRoleMenu()">
+                <span id="selectedRoleText"><i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli</span>
+                <i class="fi fi-rr-angle-small-down"></i>
+              </div>
+              <div class="role-options" id="roleOptions">
+                <div class="role-option selected" onclick="selectRole('Ko\'ngilli', '<i class=\'fi fi-rr-hand-holding-heart\'></i> Ko\'ngilli', this)">
+                  <i class="fi fi-rr-hand-holding-heart"></i> Ko'ngilli
+                </div>
+                <div class="role-option" onclick="selectRole('Maslahatchi', '<i class=\'fi fi-rr-compass-alt\'></i> Maslahatchi', this)">
+                  <i class="fi fi-rr-compass-alt"></i> Maslahatchi
+                </div>
+                <div class="role-option" id="optBoshqaruvchi" onclick="selectRole('Boshqaruvchi', '<i class=\'fi fi-rr-building\'></i> Boshqaruvchi', this)">
+                  <i class="fi fi-rr-building"></i> Boshqaruvchi
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="regRole" value="Ko'ngilli">
+          </div>
+
+          <div class="form-group" id="advisorGroup">
+            <label>Maslahatchini tanlang</label>
+            <select id="regAdvisor">
+              <option value="">-- Maslahatchini tanlang --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>F.I.O (Ism va familiyangiz, faqat harflar)</label>
+            <input type="text" id="regFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
+          </div>
+
+          <div class="form-group">
+            <label>Telefon raqamingiz (faqat raqam)</label>
+            <input type="tel" id="regPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
+          </div>
+
+          <div class="form-group">
+            <label>Google pochtangiz (Gmail)</label>
+            <input type="email" id="regEmail" required placeholder="misol@gmail.com">
+          </div>
+
+          <button type="submit" class="submit-btn" id="regBtn">
+            <i class="fi fi-rr-check"></i> Ro'yxatdan o'tish
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. KUTILMOQDA -->
+  <div id="screen-pending" class="screen">
+    <div class="center-box">
+      <div class="status-icon"><i class="fi fi-rr-time-forward"></i></div>
+      <div class="status-title">Arizangiz ko'rib chiqilmoqda</div>
+      <div class="status-desc">So'rovingiz mas'ul shaxsga yuborildi. Tasdiqlangach sizga bot orqali xabar boradi.</div>
+      <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp(activeTabId)">
+        <i class="fi fi-rr-refresh refresh-icon-el"></i> Yangilash
+      </button>
+      <button class="submit-btn" style="max-width:200px; margin-top:10px; background:#4b5563;" onclick="promptLogoutAccount()">
+        <i class="fi fi-rr-sign-out-alt"></i> Akkauntdan chiqish
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. RAD ETILGAN -->
+  <div id="screen-rejected" class="screen">
+    <div class="center-box">
+      <div class="status-icon" style="color:var(--danger-text);"><i class="fi fi-rr-ban"></i></div>
+      <div class="status-title">Ruxsat berilmadi</div>
+      <div class="status-desc">Kechirasiz, sizning so'rovingiz rad etilgan.</div>
+      <button class="submit-btn" style="max-width:200px; margin-top:20px; background:#4b5563;" onclick="promptLogoutAccount()">
+        <i class="fi fi-rr-sign-out-alt"></i> Orqaga / Chiqish
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. ASOSIY EKRAN -->
+  <div id="screen-main" class="screen">
+    <div class="role-banner">
+      <div class="role-banner-left">
+        <button type="button" class="dots-btn" id="dotsMenuBtn" onclick="toggleTopDrawer()">
+          <i class="fi fi-rr-menu-dots-vertical"></i>
+        </button>
+        <span id="userRoleBanner"><i class="fi fi-rr-user"></i> Pozitsiya: Ko'ngilli</span>
+      </div>
+      <span onclick="initApp(activeTabId)" style="cursor:pointer;"><i class="fi fi-rr-refresh refresh-icon-el"></i> Yangilash</span>
+    </div>
+
+    <!-- 3-NUQTA BOSILGANDA KENGAYADIGAN RO'YXAT OYNA -->
+    <div id="topMenuDrawer" class="top-menu-drawer">
+      <div id="topDrawerContent"></div>
+    </div>
+
+    <div class="tab-bar">
+      <!-- 1. "+" ARIZA QO'SHISH -->
+      <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
+        <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
+      </button>
+      <!-- 2. XODIMLAR SO'ROVI -->
+      <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
+        <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
+      </button>
+      <!-- 3. ARIZALAR / MENING ARIZALARIM -->
+      <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
+        <i class="fi fi-rr-document-signed"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
+      </button>
+      <!-- 4. YUBORILGANLAR -->
+      <button class="tab-btn compact-tab" id="tabSentBtn" style="display:none;" onclick="openTab('tab-sent', this)">
+        <i class="fi fi-rr-paper-plane" style="color:var(--info-text)"></i> <span class="tab-text-label">Yuborilganlar</span> <span class="badge" id="b-sent">0</span>
+      </button>
+      <!-- 5. TASDIQLANGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
+        <i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> <span class="tab-text-label">Tasdiqlangan</span> <span class="badge" id="b-approved">0</span>
+      </button>
+      <!-- 6. RAD ETILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-rejected', this)">
+        <i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> <span class="tab-text-label">Rad etilgan</span> <span class="badge" id="b-rejected">0</span>
+      </button>
+      <!-- 7. BERIB YUBORILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-dispatched', this)">
+        <i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> <span class="tab-text-label">Berib yuborilgan</span> <span class="badge" id="b-dispatched">0</span>
+      </button>
+      <!-- 8. YETQAZILGAN -->
+      <button class="tab-btn compact-tab" onclick="openTab('tab-delivered', this)">
+        <i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> <span class="tab-text-label">Yetqazilgan</span> <span class="badge" id="b-delivered">0</span>
+      </button>
+    </div>
+
+    <!-- ARIZA QO'SHISH -->
+    <div id="tab-add" class="tab-content active">
+      <form id="zakotForm" onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>Zakot oluvchi F.I.O (faqat harflar)</label>
+          <input type="text" id="recipientFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
+        </div>
+
+        <div class="form-group">
+          <label>Telefon raqami (faqat raqam)</label>
+          <input type="tel" id="recipientPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
+        </div>
+
+        <div class="form-group">
+          <label>Tavsiya etuvchi manba</label>
+          <input type="text" id="manba" required placeholder="Mahalla oqsoqoli, qo'shni...">
+        </div>
+
+        <div class="form-group">
+          <label>Sababi</label>
+          <textarea id="reason" rows="2" required placeholder="Nega aynan ushbu inson tanlandi?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Belgilangan miqdor</label>
+          <select id="amountSelect" onchange="toggleCustomAmount(this.value)">
+            <option value="1 000 000 so'm">1 000 000 so'm</option>
+            <option value="2 000 000 so'm">2 000 000 so'm</option>
+            <option value="3 000 000 so'm">3 000 000 so'm</option>
+            <option value="4 000 000 so'm">4 000 000 so'm</option>
+            <option value="5 000 000 so'm">5 000 000 so'm</option>
+            <option value="Boshqa">Boshqa</option>
+          </select>
+          <input type="text" id="customAmount" inputmode="numeric" placeholder="Summani kiriting (masalan: 10 000)" style="display:none; margin-top:8px;" oninput="formatNumberInput(this)">
+        </div>
+
+        <div class="form-group">
+          <label>Manzili (majburiy)</label>
+          <input type="text" id="locDisplay" required placeholder="Manzilni yozing yoki lokatsiya oling">
+          <button type="button" id="locBtn" class="submit-btn" style="background:#2b5278; margin-top:6px;" onclick="getLocation()">
+            <i class="fi fi-rr-marker"></i> Lokatsiyani olish
+          </button>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="fi fi-rr-paper-plane"></i> Arizani yuborish
+        </button>
+      </form>
+    </div>
+
+    <!-- XODIMLARNI TASDIQLASH TABI -->
+    <div id="tab-users" class="tab-content">
+      <div id="list-users"></div>
+    </div>
+
+    <!-- ARIZALAR TABLARI -->
+    <div id="tab-my" class="tab-content"><div id="list-all"></div></div>
+    <div id="tab-sent" class="tab-content"><div id="list-sent"></div></div>
+    <div id="tab-approved" class="tab-content"><div id="list-approved"></div></div>
+    <div id="tab-rejected" class="tab-content"><div id="list-rejected"></div></div>
+    <div id="tab-dispatched" class="tab-content"><div id="list-dispatched"></div></div>
+    <div id="tab-delivered" class="tab-content"><div id="list-delivered"></div></div>
+  </div>
+
+  <!-- 1-MODAL: XABAR OYNASI -->
+  <div id="msgModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-text" id="msgModalText">Ma'lumot yangilandi!</div>
+      <button type="button" class="modal-btn" onclick="closeMsgModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- 2-MODAL: RAD ETISH SABABINI YOZISH OYNASI -->
+  <div id="rejectModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> Rad etish</div>
+      <textarea id="rejectReasonInput" rows="3" placeholder="Sababini yozing..."></textarea>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeRejectModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" style="background:#c62828;" onclick="confirmReject()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-MODAL: YO'Q / HA TASDIQLASH OYNASI -->
+  <div id="confirmModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fi fi-rr-exclamation" style="color:var(--warning-text)"></i> Tasdiqlash</div>
+      <div class="modal-text" id="confirmModalText">Haqiqatan ham o'chirmoqchimisiz?</div>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeConfirmModal()">Yo'q</button>
+        <button type="button" class="modal-btn" style="background:#c62828;" id="confirmYesBtn">Ha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-MODAL: MASLAHATCHINI O'CHIRISHDA TOPUVCHILARNI BIRIKTIRISH OYNASI -->
+  <div id="reassignModal" class="custom-modal">
+    <div class="modal-box" style="max-width:360px;">
+      <div class="modal-title"><i class="fi fi-rr-users-alt" style="color:var(--accent-color)"></i> Topuvchilarni biriktirish</div>
+      <div class="modal-text" id="reassignModalDesc" style="margin-bottom:12px; font-size:13px;">
+        Ushbu Maslahatchiga biriktirilgan Topuvchilarni boshqa Maslahatchiga o'tkazing:
+      </div>
+
+      <div style="text-align:left; margin-bottom:12px; background:var(--card-inner-bg); padding:9px; border-radius:8px;">
+        <label style="color:var(--accent-color); font-weight:600;">Barchasini bitta Maslahatchiga o'tkazish:</label>
+        <select id="bulkAdvisorSelect" onchange="applyBulkAdvisor(this.value)" style="padding:8px; font-size:13px; margin-top:4px;"></select>
+      </div>
+
+      <div style="text-align:left; font-size:12px; color:var(--hint-color); margin-bottom:6px; font-weight:500;">
+        Yoki har bir Topuvchini alohida Maslahatchiga biriktiring:
+      </div>
+      <div id="reassignVolunteersContainer" style="max-height:210px; overflow-y:auto; margin-bottom:10px;"></div>
+
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeReassignModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" style="background:#c62828;" onclick="confirmAdvisorTransferAndDelete()">Biriktirish va O'chirish</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzz_-WtiwIcIt6giXx-y8ekX05DAJ4um8sV9LYHz82LIOnit-F_i3YqZxoWnAdB56d/exec";
+
+    const tgUser = tg?.initDataUnsafe?.user || {};
+    const chatId = tgUser.id ? String(tgUser.id) : "530526899";
+    const username = tgUser.username || "";
+
+    const STORAGE_LOGOUT_KEY = "zakot_logged_out_" + chatId;
+    const STORAGE_ACC_KEY = "zakot_active_acc_" + chatId;
+
+    let currentUser = null;
+    let isAdminUser = false;
+    let myAccountsList = [];
+    let advisorsList = [];
+    let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
+    let allRecords = [];
+    let pendingRejectIdx = null;
+    let activeTabId = null;
+    let deletingAdvisorObj = null;
+
+    // GORIZONTAL SVAYP (SWIPE) LOGIKASI
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let ignoreSwipe = false;
+
+    document.addEventListener('touchstart', function(e) {
+      const mainScreen = document.getElementById('screen-main');
+      if (!mainScreen || !mainScreen.classList.contains('active')) {
+        ignoreSwipe = true;
+        return;
       }
+      if (
+        e.target.closest('.tab-bar') ||
+        e.target.closest('.top-menu-drawer') ||
+        e.target.closest('.custom-modal') ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)
+      ) {
+        ignoreSwipe = true;
+        return;
+      }
+      ignoreSwipe = false;
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
 
-      var uItem = {
-        accountKey: rRole + "|" + rFio,
-        chatId: rChatId,
-        fio: rFio,
-        phone: rPhone,
-        email: rEmail,
-        username: rUname,
-        role: rRole,
-        advisorId: rAdvId,
-        advisorFio: rAdvFio,
-        status: rStatus,
-        date: rDate
+    document.addEventListener('touchend', function(e) {
+      if (ignoreSwipe) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+        if (diffX < 0) {
+          switchAdjacentTab(1);
+        } else {
+          switchAdjacentTab(-1);
+        }
+      }
+    }, { passive: true });
+
+    function switchAdjacentTab(direction) {
+      const visibleBtns = Array.from(document.querySelectorAll('.tab-bar .tab-btn')).filter(
+        btn => window.getComputedStyle(btn).display !== 'none'
+      );
+      if (!visibleBtns.length) return;
+
+      const currentIdx = visibleBtns.findIndex(btn => btn.classList.contains('active'));
+      if (currentIdx === -1) return;
+
+      const nextIdx = currentIdx + direction;
+      if (nextIdx >= 0 && nextIdx < visibleBtns.length) {
+        visibleBtns[nextIdx].click();
+      }
+    }
+
+    function setRefreshSpinning(isSpinning) {
+      document.querySelectorAll('.refresh-icon-el').forEach(icon => {
+        if (isSpinning) {
+          icon.classList.add('spin-icon');
+        } else {
+          icon.classList.remove('spin-icon');
+        }
+      });
+    }
+
+    function hasValidUsername(u) {
+      if (!u) return false;
+      const s = String(u).trim();
+      return s !== "" && s.toLowerCase() !== "mavjud emas";
+    }
+
+    function sendPost(payload) {
+      return fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    function showNotice(text) {
+      document.getElementById('msgModalText').innerText = text;
+      document.getElementById('msgModal').classList.add('show');
+    }
+
+    function closeMsgModal() {
+      document.getElementById('msgModal').classList.remove('show');
+    }
+
+    function askConfirm(text, onYesCallback) {
+      document.getElementById('confirmModalText').innerText = text;
+      const yesBtn = document.getElementById('confirmYesBtn');
+      yesBtn.onclick = () => {
+        closeConfirmModal();
+        onYesCallback();
       };
+      document.getElementById('confirmModal').classList.add('show');
+    }
 
-      allUsersList.push(uItem);
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('show');
+    }
 
-      if (rChatId === String(chatId)) {
-        myAccounts.push(uItem);
+    function toggleTopDrawer() {
+      const drawer = document.getElementById('topMenuDrawer');
+      const btn = document.getElementById('dotsMenuBtn');
+      drawer.classList.toggle('open');
+      btn.classList.toggle('open');
+    }
+
+    function renderTopDrawer() {
+      const container = document.getElementById('topDrawerContent');
+      if (!currentUser) return;
+
+      const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+      const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
+      const roleLabel = isAdminUser ? "Admin" : currentUser.role;
+      const myUnamePart = hasValidUsername(currentUser.username) ? ` | 🔗 ${currentUser.username}` : '';
+      const myPhoneEmail = (currentUser.phone || currentUser.email)
+        ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email || '-'}${myUnamePart}</div>`
+        : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
+
+      // Foydalanuvchining o'z profili kartasi (kichik savatcha + Chiqish tugmasi bilan)
+      let html = `
+        <div class="dir-section-title">Mening profilim</div>
+        <div class="dir-card">
+          <div class="dir-card-header" style="cursor:default;">
+            <div class="dir-info">
+              <div class="dir-name">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${currentUser.fio} (${roleLabel})
+              </div>
+              ${myPhoneEmail}
+            </div>
+            <div class="dir-actions">
+              ${currentUser.role !== "Admin" ? `
+                <button type="button" class="trash-icon-btn" title="Akkauntni o'chirish" onclick="promptDeleteOwnAccount()">
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              ` : ''}
+              <button type="button" class="logout-inline-btn" onclick="promptLogoutAccount()">
+                <i class="fi fi-rr-sign-out-alt"></i> Chiqish
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (isVolunteer) {
+        container.innerHTML = html;
+        return;
       }
 
-      if (rRole === "Maslahatchi" && rStatus === "Tasdiqlangan") {
-        advisors.push({
-          chatId: rChatId,
-          fio: rFio,
-          initials: getInitials(rFio)
+      if (isAdvisor) {
+        html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
+        if (!directoryData.myVolunteers.length) {
+          html += `<div style="font-size:13px; color:var(--hint-color); padding:8px 0; font-weight:500;">Hozircha biriktirilgan topuvchilar yo'q</div>`;
+        } else {
+          directoryData.myVolunteers.forEach(v => {
+            html += buildVolunteerItemHtml(v, false);
+          });
+        }
+        container.innerHTML = html;
+        return;
+      }
+
+      if (isAdminUser) {
+        html += `<div class="dir-section-title">Boshqaruvchi</div>`;
+        if (directoryData.boshqaruvchi) {
+          const b = directoryData.boshqaruvchi;
+          const bUnamePart = hasValidUsername(b.username) ? ` | 🔗 ${b.username}` : '';
+          html += `
+            <div class="dir-card">
+              <div class="dir-card-header" style="cursor:default;">
+                <div class="dir-info">
+                  <div class="dir-name"><i class="fi fi-rr-building" style="color:var(--warning-text)"></i> ${b.fio}</div>
+                  <div class="dir-sub">📞 ${b.phone} | 📧 ${b.email}${bUnamePart}</div>
+                </div>
+                <div class="dir-actions">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${b.chatId}', '${b.fio}', 'Boshqaruvchi')">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `<div style="font-size:12px; color:var(--hint-color); margin-bottom:8px; font-weight:500;">Boshqaruvchi ro'yxatdan o'tmagan</div>`;
+        }
+      }
+
+      html += `<div class="dir-section-title">Maslahatchilar (${directoryData.advisors.length})</div>`;
+      if (!directoryData.advisors.length) {
+        html += `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Maslahatchilar mavjud emas</div>`;
+      } else {
+        directoryData.advisors.forEach((adv, aIdx) => {
+          const dCardId = `dir-adv-${aIdx}`;
+          const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
+          let volsHtml = "";
+          if (!adv.volunteers || !adv.volunteers.length) {
+            volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
+          } else {
+            adv.volunteers.forEach(v => {
+              volsHtml += buildVolunteerItemHtml(v, true);
+            });
+          }
+
+          html += `
+            <div class="dir-card" id="${dCardId}">
+              <div class="dir-card-header" onclick="document.getElementById('${dCardId}').classList.toggle('expanded')">
+                <div class="dir-info">
+                  <div class="dir-name">
+                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${adv.initials})
+                    <span class="badge">${adv.volunteers.length}</span>
+                  </div>
+                  <div class="dir-sub">📞 ${adv.phone} | 📧 ${adv.email}${advUnamePart}</div>
+                </div>
+                <div class="dir-actions" onclick="event.stopPropagation()">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteAdvisor(${aIdx})">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="dir-volunteers-list">
+                ${volsHtml}
+              </div>
+            </div>
+          `;
         });
       }
 
-      if (rRole === "Boshqaruvchi" && (rStatus === "Tasdiqlangan" || rStatus === "Kutilmoqda")) {
-        hasBoshqaruvchi = true;
-      }
-    }
-  }
-
-  // Tanlangan akkauntni aniqlash
-  if (myAccounts.length > 0) {
-    if (accountKey) {
-      for (var m = 0; m < myAccounts.length; m++) {
-        if (myAccounts[m].accountKey === accountKey) {
-          userObj = myAccounts[m];
-          break;
-        }
-      }
-    }
-    if (!userObj) {
-      userObj = myAccounts[0];
-    }
-  }
-
-  var isAdminActive = Boolean(userObj && userObj.role === "Admin");
-
-  // Tasdiqlash kutilayotgan foydalanuvchilar
-  for (var k = 0; k < allUsersList.length; k++) {
-    var item = allUsersList[k];
-    if (!item || item.status !== "Kutilmoqda") continue;
-
-    if (isAdminActive && (item.role === "Boshqaruvchi" || item.role === "Maslahatchi")) {
-      pendingUsers.push(item);
-    }
-    if (userObj && userObj.role === "Boshqaruvchi" && userObj.status === "Tasdiqlangan") {
-      if (item.role === "Maslahatchi") {
-        pendingUsers.push(item);
-      }
-    }
-    if (userObj && userObj.role === "Maslahatchi" && userObj.status === "Tasdiqlangan") {
-      if (item.role === "Ko'ngilli" && (item.advisorId === String(chatId) || item.advisorFio.toLowerCase() === userObj.fio.toLowerCase())) {
-        pendingUsers.push(item);
-      }
-    }
-  }
-
-  var directory = {
-    boshqaruvchi: null,
-    advisors: [],
-    myVolunteers: []
-  };
-
-  if (userObj && userObj.status === "Tasdiqlangan") {
-    var approvedAdvisorsMap = {};
-
-    for (var uIdx = 0; uIdx < allUsersList.length; uIdx++) {
-      var u = allUsersList[uIdx];
-      if (u.status !== "Tasdiqlangan") continue;
-
-      if (u.role === "Boshqaruvchi") {
-        directory.boshqaruvchi = u;
-      } else if (u.role === "Maslahatchi") {
-        var advCopy = {
-          chatId: u.chatId,
-          fio: u.fio,
-          initials: getInitials(u.fio),
-          phone: u.phone,
-          email: u.email,
-          username: u.username,
-          date: u.date,
-          volunteers: []
-        };
-        approvedAdvisorsMap[u.chatId] = advCopy;
-        directory.advisors.push(advCopy);
-      }
+      container.innerHTML = html;
     }
 
-    for (var vIdx = 0; vIdx < allUsersList.length; vIdx++) {
-      var v = allUsersList[vIdx];
-      if (v.status !== "Tasdiqlangan" || v.role !== "Ko'ngilli") continue;
+    function buildVolunteerItemHtml(v, allowTransfer) {
+      let transferSelectHtml = "";
+      if (allowTransfer && directoryData.advisors.length > 1) {
+        let opts = "";
+        directoryData.advisors.forEach(a => {
+          const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
+          opts += `<option value="${a.chatId}" data-fio="${a.fio}" ${isCurrent ? 'selected' : ''}>${a.fio} (${a.initials})</option>`;
+        });
+        transferSelectHtml = `
+          <div class="vol-transfer-row">
+            <span style="color:var(--hint-color); font-weight:500;"><i class="fi fi-rr-exchange"></i> Maslahatchi:</span>
+            <select onchange="changeSingleVolunteerAdvisor('${v.chatId}', this)">
+              ${opts}
+            </select>
+          </div>
+        `;
+      }
 
-      var matchedAdv = approvedAdvisorsMap[v.advisorId];
-      if (!matchedAdv && v.advisorFio) {
-        for (var aid in approvedAdvisorsMap) {
-          if (approvedAdvisorsMap[aid].fio.toLowerCase() === v.advisorFio.toLowerCase()) {
-            matchedAdv = approvedAdvisorsMap[aid];
-            break;
-          }
-        }
-      }
-      if (matchedAdv) {
-        matchedAdv.volunteers.push(v);
-      }
+      const vUnameLine = hasValidUsername(v.username) ? `🔗 Username: ${v.username} | ` : '';
 
-      if (userObj.role === "Maslahatchi") {
-        var isMine = (String(v.advisorId) === String(userObj.chatId)) ||
-                     (v.advisorFio && userObj.fio && v.advisorFio.toLowerCase() === userObj.fio.toLowerCase());
-        if (isMine) {
-          directory.myVolunteers.push(v);
-        }
-      }
+      return `
+        <div class="vol-item" id="vol-row-${v.chatId}">
+          <div class="vol-top">
+            <div>
+              <div style="font-size:13px; font-weight:600; color:var(--text-color);">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${v.fio}
+              </div>
+              <div class="vol-details">
+                📞 Tel: ${v.phone}<br>
+                📧 Email: ${v.email}<br>
+                ${vUnameLine}🗓 Sana: ${v.date || '-'}
+              </div>
+            </div>
+            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${v.chatId}', '${v.fio}', 'Topuvchi')">
+              <i class="fi fi-rr-trash"></i>
+            </button>
+          </div>
+          ${transferSelectHtml}
+        </div>
+      `;
     }
-  }
 
-  var records = [];
-  if (userObj && userObj.status === "Tasdiqlangan") {
-    records = getRecordsForRole(userObj, isAdminActive, allUsersList);
-  }
+    function changeSingleVolunteerAdvisor(volChatId, selectEl) {
+      const newAdvId = selectEl.value;
+      const newAdvFio = selectEl.options[selectEl.selectedIndex]?.getAttribute('data-fio') || "";
 
-  return {
-    isAdmin: isAdminActive,
-    user: userObj,
-    myAccounts: myAccounts,
-    advisors: advisors,
-    hasBoshqaruvchi: hasBoshqaruvchi,
-    pendingUsers: pendingUsers,
-    directory: directory,
-    records: records
-  };
-}
-
-function registerUser(data) {
-  var sheet = getUsersSheet();
-  var lastRow = sheet.getLastRow();
-  var chatId = String(data.chatId).trim();
-  var role = data.role || "Ko'ngilli";
-  var cleanFio = toTitleCase(data.fio || "");
-  var now = new Date();
-  var uname = data.username ? "@" + String(data.username).replace("@", "") : "Mavjud emas";
-
-  var approvedBoshqaruvchiId = null;
-
-  if (lastRow >= 2) {
-    var existing = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
-    for (var i = 0; i < existing.length; i++) {
-      var exChatId = String(existing[i][0]).trim();
-      var exFio = toTitleCase(existing[i][1]);
-      var exRole = String(existing[i][5]).trim();
-      var exStatus = String(existing[i][8]).trim();
-
-      if (exRole === "Boshqaruvchi" && exStatus === "Tasdiqlangan") {
-        approvedBoshqaruvchiId = exChatId;
-      }
-      if (exChatId === chatId && exRole === role && exFio.toLowerCase() === cleanFio.toLowerCase()) {
-        return { status: "ALREADY_REGISTERED" };
-      }
-      if (role === "Boshqaruvchi" && exRole === "Boshqaruvchi" && exStatus !== "Rad etilgan") {
-        return { status: "ERROR", message: "Boshqaruvchi lavozimi band (1 ta bo'lishi mumkin)!" };
-      }
+      sendPost({
+        action: "REASSIGN_VOLUNTEERS",
+        reassignments: [{
+          volunteerChatId: volChatId,
+          newAdvisorId: newAdvId,
+          newAdvisorFio: newAdvFio
+        }]
+      }).then(() => {
+        showNotice("Topuvchi boshqa Maslahatchiga biriktirildi!");
+        setTimeout(() => initApp(activeTabId), 1200);
+      });
     }
-  }
 
-  var advisorId = data.advisorId ? String(data.advisorId).trim() : "";
-  var advisorFio = toTitleCase(data.advisorFio || "");
+    // AKKAUNTDAN CHIQISH (O'CHIRMASDAN REGISTRATSIYA/AKKAUNT TANLASH OYNASIGA O'TISH)
+    function promptLogoutAccount() {
+      askConfirm("Haqiqatan ham akkauntdan chiqmoqchimisiz?", () => {
+        localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
+        document.getElementById('topMenuDrawer').classList.remove('open');
+        document.getElementById('dotsMenuBtn').classList.remove('open');
+        openRegisterOrAccountsScreen();
+      });
+    }
 
-  sheet.appendRow([
-    chatId,
-    cleanFio,
-    data.phone || "",
-    data.email || "",
-    uname,
-    role,
-    advisorId,
-    advisorFio,
-    "Kutilmoqda",
-    now
-  ]);
+    // O'Z AKKAUNTINI BUTUNLAY O'CHIRISH
+    function promptDeleteOwnAccount() {
+      if (!currentUser) return;
+      askConfirm(`Haqiqatan ham «${currentUser.fio} (${currentUser.role})» akkauntingizni butunlay o'chirmoqchimisiz?`, () => {
+        sendPost({
+          action: "DELETE_USER_ACCOUNT",
+          targetChatId: chatId,
+          targetRole: currentUser.role,
+          targetFio: currentUser.fio
+        }).then(() => {
+          localStorage.removeItem(STORAGE_ACC_KEY);
+          localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
+          document.getElementById('topMenuDrawer').classList.remove('open');
+          document.getElementById('dotsMenuBtn').classList.remove('open');
+          setTimeout(() => initApp(), 1200);
+        });
+      });
+    }
 
-  var targetNotifyId = ADMIN_CHAT_ID;
-  if (role === "Ko'ngilli" && advisorId) {
-    targetNotifyId = advisorId;
-  } else if (role === "Maslahatchi") {
-    targetNotifyId = approvedBoshqaruvchiId ? approvedBoshqaruvchiId : ADMIN_CHAT_ID;
-  } else if (role === "Boshqaruvchi") {
-    targetNotifyId = ADMIN_CHAT_ID;
-  }
-
-  var msg = "👤 YANGI RO'YXATDAN O'TISH SO'ROVI:\n\n" +
-            "📌 Pozitsiya: " + role + "\n" +
-            "👤 F.I.O: " + cleanFio + "\n" +
-            "📞 Tel: " + (data.phone || "") + "\n" +
-            "📧 Email: " + (data.email || "") + "\n" +
-            "🔗 Username: " + uname + "\n\n" +
-            "👉 Tasdiqlash uchun Mini App dasturiga kiring.";
-  sendTelegramMessage(targetNotifyId, msg);
-
-  return { status: "SUCCESS" };
-}
-
-function handleUserDecision(data) {
-  var sheet = getUsersSheet();
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { status: "NOT_FOUND" };
-
-  var targetChatId = String(data.targetChatId).trim();
-  var targetRole = String(data.targetRole || "").trim();
-  var targetFio = toTitleCase(data.targetFio || "");
-  var decision = data.decision;
-  var values = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
-
-  for (var i = 0; i < values.length; i++) {
-    var rChatId = String(values[i][0]).trim();
-    var rFio = toTitleCase(values[i][1]);
-    var rRole = String(values[i][5]).trim();
-
-    var isMatch = (rChatId === targetChatId) &&
-                  (!targetRole || rRole === targetRole) &&
-                  (!targetFio || rFio.toLowerCase() === targetFio.toLowerCase());
-
-    if (isMatch) {
-      var rowNum = i + 2;
-      var phone = values[i][2];
-      var email = values[i][3];
-
-      if (decision === "APPROVE") {
-        sheet.getRange(rowNum, 9).setValue("Tasdiqlangan");
-
-        if (rRole === "Ko'ngilli" || rRole === "Maslahatchi") {
-          createUserSheet({
-            chatId: targetChatId,
-            senderFio: rFio,
-            senderPhone: phone,
-            senderEmail: email
-          });
-        } else if (rRole === "Boshqaruvchi") {
-          getManagerSheet();
-          if (email && email.indexOf("@") !== -1) {
-            try { SpreadsheetApp.getActiveSpreadsheet().addEditor(email); } catch (e) {}
-          }
-        }
-
-        sendTelegramMessage(targetChatId, "🟢 Tabriklaymiz! Sizning (" + rRole + ") so'rovingiz tasdiqlandi.\nEndi dasturga kirib ishlashingiz mumkin.");
+    function openRegisterOrAccountsScreen() {
+      showScreen('screen-register');
+      if (myAccountsList && myAccountsList.length > 0) {
+        renderExistingAccountsList();
+        showExistingAccountsView();
       } else {
-        sheet.getRange(rowNum, 9).setValue("Rad etilgan");
-        sendTelegramMessage(targetChatId, "🔴 Kechirasiz, sizning ro'yxatdan o'tish so'rovingiz rad etildi.");
-      }
-      return { status: "SUCCESS" };
-    }
-  }
-  return { status: "NOT_FOUND" };
-}
-
-function deleteUserAccount(data) {
-  var sheet = getUsersSheet();
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { status: "NOT_FOUND" };
-
-  var targetChatId = String(data.targetChatId || "").trim();
-  var targetRole = String(data.targetRole || "").trim();
-  var targetFio = toTitleCase(data.targetFio || "");
-  if (!targetChatId) return { status: "ERROR", message: "ChatID topilmadi" };
-
-  if (data.reassignments && data.reassignments.length > 0) {
-    reassignVolunteers({ reassignments: data.reassignments });
-  }
-
-  var values = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
-  for (var i = values.length - 1; i >= 0; i--) {
-    var rChatId = String(values[i][0]).trim();
-    var rFio = toTitleCase(values[i][1]);
-    var rRole = String(values[i][5]).trim();
-
-    var isMatch = (rChatId === targetChatId) &&
-                  (!targetRole || rRole === targetRole) &&
-                  (!targetFio || rFio.toLowerCase() === targetFio.toLowerCase());
-
-    if (isMatch) {
-      safeDeleteRow(sheet, i + 2, 2);
-      break;
-    }
-  }
-
-  SpreadsheetApp.flush();
-  return { status: "SUCCESS" };
-}
-
-function reassignVolunteers(data) {
-  var reassignments = data.reassignments || [];
-  if (!reassignments.length) return { status: "EMPTY" };
-
-  var sheet = getUsersSheet();
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { status: "NOT_FOUND" };
-
-  var values = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
-
-  var map = {};
-  for (var r = 0; r < reassignments.length; r++) {
-    var item = reassignments[r];
-    map[String(item.volunteerChatId).trim()] = {
-      advisorId: String(item.newAdvisorId).trim(),
-      advisorFio: toTitleCase(item.newAdvisorFio || "")
-    };
-  }
-
-  for (var i = 0; i < values.length; i++) {
-    var rowChatId = String(values[i][0]).trim();
-    if (map[rowChatId] && String(values[i][5]).trim() === "Ko'ngilli") {
-      var rowNum = i + 2;
-      sheet.getRange(rowNum, 7, 1, 2).setValues([[
-        map[rowChatId].advisorId,
-        map[rowChatId].advisorFio
-      ]]);
-    }
-  }
-
-  SpreadsheetApp.flush();
-  return { status: "SUCCESS" };
-}
-
-function ensureSheetColumns(sheet) {
-  var h5 = String(sheet.getRange(3, 5).getValue()).trim();
-  var h6 = String(sheet.getRange(3, 6).getValue()).trim();
-  if (h5 === "Manba" && h6 === "Miqdor") {
-    sheet.insertColumnAfter(5);
-    sheet.getRange(3, 6).setValue("Sababi").setFontWeight("bold");
-  }
-  var h10 = String(sheet.getRange(3, 10).getValue()).trim();
-  if (!h10) {
-    sheet.getRange(3, 10).setValue("Rad etish sababi").setFontWeight("bold");
-  }
-}
-
-function findUserSheet(ss, chatId, fio) {
-  var sheets = ss.getSheets();
-  var cleanId = String(chatId || "").trim();
-  var cleanFio = String(fio || "").trim().toLowerCase();
-
-  // 1. Ham FIO, ham ChatID mos keladigan varaqni qidirish
-  if (cleanFio && cleanId) {
-    for (var k = 0; k < sheets.length; k++) {
-      var shBoth = sheets[k];
-      var nameBoth = shBoth.getName().toLowerCase();
-      if (nameBoth === "foydalanuvchilar" || nameBoth === "boshqaruvchi") continue;
-      if (nameBoth.indexOf(cleanFio) !== -1 && nameBoth.indexOf(cleanId.toLowerCase()) !== -1) {
-        return shBoth;
+        openRegistrationFormView();
       }
     }
-  }
 
-  // 2. FIO bo'yicha qidirish
-  if (cleanFio) {
-    for (var j = 0; j < sheets.length; j++) {
-      var sh = sheets[j];
-      var shName = sh.getName().toLowerCase();
-      if (shName === "foydalanuvchilar" || shName === "boshqaruvchi") continue;
-      if (shName.indexOf(cleanFio) === 0 || shName.indexOf(cleanFio) !== -1) {
-        return sh;
-      }
-      var a1Val = String(sh.getRange("A1").getValue() || "").toLowerCase();
-      if (a1Val.indexOf(cleanFio) !== -1) {
-        return sh;
-      }
+    function showExistingAccountsView() {
+      document.getElementById('existingAccountsView').style.display = "block";
+      document.getElementById('regFormView').style.display = "none";
     }
-  }
 
-  // 3. ChatID bo'yicha qidirish
-  if (cleanId) {
-    for (var i = 0; i < sheets.length; i++) {
-      var sName = sheets[i].getName();
-      if (sName === "Foydalanuvchilar" || sName === "Boshqaruvchi") continue;
-      if (sName.indexOf(cleanId) !== -1) {
-        return sheets[i];
-      }
+    function openRegistrationFormView() {
+      document.getElementById('existingAccountsView').style.display = "none";
+      document.getElementById('regFormView').style.display = "block";
+      const backBtn = document.getElementById('backToAccountsBtn');
+      backBtn.style.display = (myAccountsList && myAccountsList.length > 0) ? "inline-block" : "none";
     }
-  }
 
-  return null;
-}
-
-function findExactRowIndex(sheet, expectedRowIndex, fio, phone) {
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 4) return -1;
-
-  var cleanFio = String(fio || "").trim().toLowerCase();
-  var cleanPhone = String(phone || "").replace(/\D/g, "");
-
-  if (expectedRowIndex >= 4 && expectedRowIndex <= lastRow) {
-    var rFio = String(sheet.getRange(expectedRowIndex, 3).getValue() || "").trim().toLowerCase();
-    if (!cleanFio || rFio === cleanFio) {
-      return expectedRowIndex;
-    }
-  }
-
-  var data = sheet.getRange(4, 3, lastRow - 3, 2).getValues();
-  for (var i = data.length - 1; i >= 0; i--) {
-    var rowFio = String(data[i][0] || "").trim().toLowerCase();
-    var rowPhone = String(data[i][1] || "").replace(/\D/g, "");
-    if (cleanFio && rowFio === cleanFio) {
-      if (!cleanPhone || rowPhone === cleanPhone) {
-        return i + 4;
-      }
-    }
-  }
-
-  return expectedRowIndex <= lastRow ? expectedRowIndex : -1;
-}
-
-function safeDeleteRow(sheet, rowIndex, startDataRow) {
-  var maxRows = sheet.getMaxRows();
-  if (maxRows <= startDataRow) {
-    sheet.insertRowAfter(maxRows);
-  }
-  sheet.deleteRow(rowIndex);
-}
-
-// Yangi zakot arizasini qo'shish
-function saveRecordFromWeb(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var chatId = String(data.chatId).trim();
-  var requestedFio = toTitleCase(data.senderFio || "");
-  var requestedRole = String(data.senderRole || "").trim();
-
-  var usersSheet = getUsersSheet();
-  var uLastRow = usersSheet.getLastRow();
-  var registeredFio = "";
-  var registeredUsername = "";
-  var userRole = requestedRole;
-  var advisorId = "";
-
-  if (uLastRow >= 2) {
-    var uData = usersSheet.getRange(2, 1, uLastRow - 1, 7).getValues();
-    for (var j = 0; j < uData.length; j++) {
-      var rowChatId = String(uData[j][0]).trim();
-      var rowFio = toTitleCase(uData[j][1]);
-      var rowRole = String(uData[j][5]).trim();
-
-      if (rowChatId === chatId && (!requestedFio || rowFio.toLowerCase() === requestedFio.toLowerCase())) {
-        registeredFio = rowFio;
-        registeredUsername = String(uData[j][4]).trim();
-        userRole = rowRole;
-        advisorId = String(uData[j][6]).trim();
-        break;
-      }
-    }
-  }
-
-  var isManagerOrAdmin = (userRole === "Admin" || userRole === "Boshqaruvchi" || (chatId === ADMIN_CHAT_ID && !userRole));
-  var isAdvisor = (userRole === "Maslahatchi" && !isManagerOrAdmin);
-
-  var fallbackFio = registeredFio || requestedFio || (isManagerOrAdmin ? "Admin" : "Ko'ngilli");
-  var targetSheet = findUserSheet(ss, chatId, fallbackFio);
-
-  if (!targetSheet) {
-    targetSheet = createUserSheet({
-      chatId: chatId,
-      senderFio: fallbackFio,
-      senderPhone: "",
-      senderEmail: ""
-    });
-  } else {
-    ensureSheetColumns(targetSheet);
-  }
-
-  var senderText = fallbackFio;
-  if (registeredUsername && registeredUsername !== "Mavjud emas" && senderText.indexOf("@") === -1) {
-    senderText += " (" + registeredUsername + ")";
-  } else if (data.username && senderText.indexOf("@") === -1) {
-    senderText += " (@" + String(data.username).replace("@", "") + ")";
-  }
-
-  var now = Utilities.formatDate(new Date(), "Asia/Tashkent", "dd.MM.yyyy HH:mm:ss");
-  var formattedRecipientFio = toTitleCase(data.recipientFio || "");
-  var initialStatus = (isManagerOrAdmin || isAdvisor) ? "Yuborilgan" : "Yangi";
-
-  var newRowValues = [
-    senderText,
-    now,
-    formattedRecipientFio,
-    data.recipientPhone || "",
-    data.manba || "",
-    data.reason || "",
-    data.amount || "",
-    data.address || "",
-    initialStatus,
-    ""
-  ];
-
-  targetSheet.appendRow(newRowValues);
-
-  if (isManagerOrAdmin || isAdvisor) {
-    syncToManagerSheet(newRowValues);
-  }
-
-  SpreadsheetApp.flush();
-
-  if (!isManagerOrAdmin && !isAdvisor && advisorId) {
-    var msgToAdvisor = "📩 YANGI ZAKOT ARIZASI KELDI!\n\n" +
-                       "👤 Topuvchi: " + senderText + "\n" +
-                       "📋 Zakot oluvchi: " + formattedRecipientFio + "\n" +
-                       "💰 Miqdor: " + (data.amount || "") + "\n\n" +
-                       "👉 Ko'rib chiqish va Boshqaruvchiga yuborish uchun Mini App'ga kiring.";
-    sendTelegramMessage(advisorId, msgToAdvisor);
-  } else if (isAdvisor) {
-    notifyManager(senderText, formattedRecipientFio, data.amount || "");
-  }
-
-  return { status: "SUCCESS" };
-}
-
-function updateRecordFromApp(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var targetSheet = ss.getSheetByName(data.sheetName);
-  if (!targetSheet) {
-    targetSheet = findUserSheet(ss, data.ownerChatId, data.sender);
-  }
-  if (!targetSheet) return { status: "ERROR", message: "Varaq topilmadi" };
-
-  ensureSheetColumns(targetSheet);
-
-  var origFio = data.origFio || data.fio;
-  var rowIndex = findExactRowIndex(targetSheet, Number(data.rowIndex), origFio, data.origPhone || data.phone);
-  if (rowIndex < 4) return { status: "ERROR", message: "Qator topilmadi" };
-
-  var formattedFio = toTitleCase(data.fio || "");
-  var phone = data.phone || "";
-  var manba = data.manba || "";
-  var reason = data.reason || "";
-  var amount = data.amount || "";
-  var address = data.address || "";
-  var newStatus = normalizeRecordStatus(data.newStatus || "");
-  var rejectReason = data.rejectReason !== undefined ? data.rejectReason : targetSheet.getRange(rowIndex, 10).getValue();
-
-  if (newStatus !== "Rad etilgan" && data.rejectReason === "") {
-    rejectReason = "";
-  }
-
-  targetSheet.getRange(rowIndex, 3, 1, 8).setValues([[
-    formattedFio, phone, manba, reason, amount, address, newStatus, rejectReason
-  ]]);
-
-  var statusCell = targetSheet.getRange(rowIndex, 9);
-  if (newStatus === "Yuborilgan") {
-    statusCell.setBackground("#d9ead3");
-  } else if (newStatus === "Tasdiqlangan") {
-    statusCell.setBackground("#b7e1cd");
-  } else if (newStatus === "Rad etilgan") {
-    statusCell.setBackground("#f4c7c3");
-  } else if (newStatus === "Berib yuborilgan") {
-    statusCell.setBackground("#ffe0b2");
-  } else if (newStatus === "Yetqazilgan") {
-    statusCell.setBackground("#bbdefb");
-  }
-
-  SpreadsheetApp.flush();
-
-  var fullRow = targetSheet.getRange(rowIndex, 1, 1, 10).getValues()[0];
-  syncToManagerSheet(fullRow, origFio);
-
-  if (newStatus === "Yuborilgan") {
-    notifyManager(fullRow[0], formattedFio, amount);
-  }
-
-  return { status: "SUCCESS" };
-}
-
-function deleteRecordFromApp(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var targetSheet = ss.getSheetByName(data.sheetName);
-  if (!targetSheet) {
-    targetSheet = findUserSheet(ss, data.ownerChatId, data.sender);
-  }
-
-  var targetFio = String(data.fio || "").trim().toLowerCase();
-  var targetPhone = String(data.phone || "").replace(/\D/g, "");
-  var topuvchi = String(data.sender || "").trim();
-
-  if (targetSheet) {
-    var rowToDelete = findExactRowIndex(targetSheet, Number(data.rowIndex), data.fio, data.phone);
-    if (rowToDelete >= 4 && rowToDelete <= targetSheet.getLastRow()) {
-      var rowVals = targetSheet.getRange(rowToDelete, 1, 1, 4).getValues()[0];
-      if (!topuvchi) topuvchi = String(rowVals[0] || "").trim();
-      if (!targetFio) targetFio = String(rowVals[2] || "").trim().toLowerCase();
-      safeDeleteRow(targetSheet, rowToDelete, 4);
-    }
-  } else {
-    var allSheets = ss.getSheets();
-    for (var s = 0; s < allSheets.length; s++) {
-      var sh = allSheets[s];
-      var sName = sh.getName();
-      if (sName === "Foydalanuvchilar" || sName === "Boshqaruvchi") continue;
-      var rIdx = findExactRowIndex(sh, -1, data.fio, data.phone);
-      if (rIdx >= 4) {
-        safeDeleteRow(sh, rIdx, 4);
-        break;
-      }
-    }
-  }
-
-  var mSheet = getManagerSheet();
-  var mLastRow = mSheet.getLastRow();
-  if (mLastRow >= 2 && targetFio) {
-    var mData = mSheet.getRange(2, 1, mLastRow - 1, 4).getValues();
-    for (var i = mData.length - 1; i >= 0; i--) {
-      var mFio = String(mData[i][2] || "").trim().toLowerCase();
-      var mPhone = String(mData[i][3] || "").replace(/\D/g, "");
-      if (mFio === targetFio && (!targetPhone || mPhone === targetPhone)) {
-        safeDeleteRow(mSheet, i + 2, 2);
-        break;
-      }
-    }
-  }
-
-  SpreadsheetApp.flush();
-  return { status: "SUCCESS" };
-}
-
-function syncToManagerSheet(rowValues, origFio) {
-  var mSheet = getManagerSheet();
-  var lastRow = mSheet.getLastRow();
-  var topuvchi = String(rowValues[0]).trim();
-  var currentFio = String(rowValues[2]).trim();
-  var searchFio = String(origFio || currentFio).trim();
-
-  if (lastRow >= 2) {
-    var mData = mSheet.getRange(2, 1, lastRow - 1, 10).getValues();
-    for (var i = 0; i < mData.length; i++) {
-      if (String(mData[i][0]).trim() === topuvchi && String(mData[i][2]).trim() === searchFio) {
-        mSheet.getRange(i + 2, 1, 1, 10).setValues([rowValues]);
+    function renderExistingAccountsList() {
+      const listEl = document.getElementById('existingAccountsList');
+      if (!myAccountsList || !myAccountsList.length) {
+        listEl.innerHTML = "";
         return;
       }
-    }
-  }
-  var normSt = normalizeRecordStatus(rowValues[8]);
-  if (normSt === "Yuborilgan" || normSt === "Tasdiqlangan") {
-    mSheet.appendRow(rowValues);
-  }
-}
 
-function notifyManager(senderText, recipientFio, amount) {
-  var managerChatId = getApprovedManagerChatId();
-  var targetId = managerChatId ? managerChatId : ADMIN_CHAT_ID;
-
-  var msg = "📤 MASLAHATCHIDAN YANGI ARIZA YUBORILDI!\n\n" +
-            "👤 Topuvchi / Yuboruvchi: " + senderText + "\n" +
-            "📋 Zakot oluvchi: " + recipientFio + "\n" +
-            "💰 Miqdor: " + amount + "\n\n" +
-            "👉 Ko'rib chiqish va tasdiqlash uchun Mini App'ga kiring.";
-  sendTelegramMessage(targetId, msg);
-}
-
-function getRecordsForRole(userObj, isAdmin, allUsersList) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheets = ss.getSheets();
-  var records = [];
-  var readSheetNames = {};
-
-  if (userObj.role === "Ko'ngilli" && !isAdmin) {
-    var mySheet = findUserSheet(ss, userObj.chatId, userObj.fio);
-    if (mySheet) {
-      records = readSheetRecords(mySheet, userObj.chatId);
-    }
-    return records;
-  }
-
-  if (userObj.role === "Maslahatchi" && !isAdmin) {
-    var advOwnSheet = findUserSheet(ss, userObj.chatId, userObj.fio);
-    if (advOwnSheet) {
-      readSheetNames[advOwnSheet.getName()] = true;
-      records = records.concat(readSheetRecords(advOwnSheet, userObj.chatId));
+      let html = "";
+      myAccountsList.forEach((acc, idx) => {
+        const statusClass = "status-" + String(acc.status || "Tasdiqlangan").replace(/ /g, '-');
+        html += `
+          <div class="saved-acc-card" onclick="loginWithExistingAccount(${idx})">
+            <div class="saved-acc-left">
+              <div class="saved-acc-name">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${acc.fio}
+              </div>
+              <div class="saved-acc-meta">
+                <span>Pozitsiya: <b>${acc.role}</b></span>
+                ${acc.phone ? `<span>| 📞 ${acc.phone}</span>` : ''}
+              </div>
+            </div>
+            <div>
+              <span class="status-badge ${statusClass}">${acc.status || 'Tasdiqlangan'}</span>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
     }
 
-    for (var idx = 0; idx < allUsersList.length; idx++) {
-      var u = allUsersList[idx];
-      var isAssigned = (String(u.advisorId) === String(userObj.chatId)) ||
-                       (u.advisorFio && userObj.fio && u.advisorFio.toLowerCase() === userObj.fio.toLowerCase());
+    function loginWithExistingAccount(idx) {
+      const chosen = myAccountsList[idx];
+      if (!chosen) return;
+      localStorage.removeItem(STORAGE_LOGOUT_KEY);
+      localStorage.setItem(STORAGE_ACC_KEY, chosen.accountKey || (chosen.role + "|" + chosen.fio));
+      activeTabId = null;
+      initApp();
+    }
 
-      if (u.role === "Ko'ngilli" && isAssigned) {
-        var vSheet = findUserSheet(ss, u.chatId, u.fio);
-        if (vSheet && !readSheetNames[vSheet.getName()]) {
-          readSheetNames[vSheet.getName()] = true;
-          var vRecs = readSheetRecords(vSheet, u.chatId);
-          records = records.concat(vRecs);
+    function promptDeleteUser(targetId, targetFio, roleLabel) {
+      askConfirm(`Haqiqatan ham ${roleLabel} «${targetFio}»ni o'chirib yubormoqchimisiz?\nUshbu akkaunt qaytadan ro'yxatdan o'tishi kerak bo'ladi.`, () => {
+        const rowEl = document.getElementById('vol-row-' + targetId);
+        if (rowEl) rowEl.style.opacity = "0.3";
+
+        sendPost({
+          action: "DELETE_USER_ACCOUNT",
+          targetChatId: targetId,
+          targetRole: roleLabel === "Topuvchi" ? "Ko'ngilli" : roleLabel,
+          targetFio: targetFio
+        }).then(() => {
+          showNotice(`${targetFio} o'chirildi!`);
+          setTimeout(() => initApp(activeTabId), 1300);
+        });
+      });
+    }
+
+    function promptDeleteAdvisor(advIdx) {
+      const adv = directoryData.advisors[advIdx];
+      if (!adv) return;
+
+      if (!adv.volunteers || adv.volunteers.length === 0) {
+        promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi");
+        return;
+      }
+
+      const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId));
+      if (otherAdvisors.length === 0) {
+        showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak.");
+        return;
+      }
+
+      deletingAdvisorObj = adv;
+      document.getElementById('reassignModalDesc').innerText =
+        `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
+
+      let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
+      otherAdvisors.forEach(oa => {
+        bulkOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+      });
+      document.getElementById('bulkAdvisorSelect').innerHTML = bulkOpts;
+
+      let vListHtml = "";
+      adv.volunteers.forEach(v => {
+        let singleOpts = "";
+        otherAdvisors.forEach(oa => {
+          singleOpts += `<option value="${oa.chatId}" data-fio="${oa.fio}">${oa.fio} (${oa.initials})</option>`;
+        });
+        vListHtml += `
+          <div class="reassign-item">
+            <div class="reassign-item-name">👤 ${v.fio} (${v.phone})</div>
+            <select class="indiv-reassign-select" data-vol-id="${v.chatId}">
+              ${singleOpts}
+            </select>
+          </div>
+        `;
+      });
+      document.getElementById('reassignVolunteersContainer').innerHTML = vListHtml;
+      document.getElementById('reassignModal').classList.add('show');
+    }
+
+    function applyBulkAdvisor(selectedAdvId) {
+      if (!selectedAdvId) return;
+      document.querySelectorAll('.indiv-reassign-select').forEach(sel => {
+        sel.value = selectedAdvId;
+      });
+    }
+
+    function closeReassignModal() {
+      deletingAdvisorObj = null;
+      document.getElementById('reassignModal').classList.remove('show');
+    }
+
+    function confirmAdvisorTransferAndDelete() {
+      if (!deletingAdvisorObj) return;
+      const selects = document.querySelectorAll('.indiv-reassign-select');
+      const reassignments = [];
+
+      selects.forEach(sel => {
+        const volId = sel.getAttribute('data-vol-id');
+        const newAdvId = sel.value;
+        const newAdvFio = sel.options[sel.selectedIndex]?.getAttribute('data-fio') || "";
+        if (volId && newAdvId) {
+          reassignments.push({
+            volunteerChatId: volId,
+            newAdvisorId: newAdvId,
+            newAdvisorFio: newAdvFio
+          });
+        }
+      });
+
+      const targetAdvId = deletingAdvisorObj.chatId;
+      const targetAdvFio = deletingAdvisorObj.fio;
+      closeReassignModal();
+
+      sendPost({
+        action: "DELETE_USER_ACCOUNT",
+        targetChatId: targetAdvId,
+        targetRole: "Maslahatchi",
+        targetFio: targetAdvFio,
+        reassignments: reassignments
+      }).then(() => {
+        showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi!`);
+        setTimeout(() => initApp(activeTabId), 1400);
+      });
+    }
+
+    function openRejectPrompt(idx) {
+      pendingRejectIdx = idx;
+      document.getElementById('rejectReasonInput').value = "";
+      document.getElementById('rejectModal').classList.add('show');
+    }
+
+    function closeRejectModal() {
+      pendingRejectIdx = null;
+      document.getElementById('rejectModal').classList.remove('show');
+    }
+
+    function confirmReject() {
+      const reason = document.getElementById('rejectReasonInput').value.trim();
+      if (!reason) {
+        showNotice("Iltimos, rad etish sababini yozing!");
+        return;
+      }
+      const idx = pendingRejectIdx;
+      closeRejectModal();
+      saveRecordUpdate(idx, 'Rad etilgan', reason);
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function openTab(tabId, el) {
+      activeTabId = tabId;
+      document.querySelectorAll('.acc-card.expanded[id^="rec-card-"]').forEach(card => {
+        card.classList.remove('expanded');
+      });
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      if (el) {
+        el.classList.add('active');
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 40);
+      }
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+    }
+
+    function toggleRoleMenu() {
+      document.getElementById('roleOptions').classList.toggle('open');
+    }
+
+    function selectRole(roleVal, labelHtml, el) {
+      document.getElementById('regRole').value = roleVal;
+      document.getElementById('selectedRoleText').innerHTML = labelHtml;
+      document.getElementById('roleOptions').classList.remove('open');
+
+      document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+
+      const advGroup = document.getElementById('advisorGroup');
+      advGroup.style.display = (roleVal === "Ko'ngilli") ? "block" : "none";
+    }
+
+    function validateLettersOnly(input) {
+      input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁўқғҳЎҚҒҲ\s'\`ʼ]/g, '');
+    }
+
+    // FAQAT RAQAMLARNI QABUL QILISH FUNKSIYASI
+    function validateDigitsOnly(input) {
+      input.value = input.value.replace(/\D/g, '');
+    }
+
+    function toTitleCaseJS(str) {
+      if (!str) return "";
+      return str.toLowerCase().trim().replace(/\s+/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+    }
+
+    function getInitialsJS(fio) {
+      if (!fio) return "";
+      return fio.trim().split(/\s+/).filter(Boolean).map(w => w.charAt(0).toUpperCase()).join('.');
+    }
+
+    function toggleCustomAmount(val) {
+      const customInput = document.getElementById('customAmount');
+      if (val === "Boshqa") {
+        customInput.style.display = "block";
+        customInput.required = true;
+      } else {
+        customInput.style.display = "none";
+        customInput.required = false;
+        customInput.value = "";
+      }
+    }
+
+    function formatNumberInput(input) {
+      let raw = input.value.replace(/\D/g, '');
+      input.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '';
+    }
+
+    function validateAndFormatPhone(phone) {
+      let digitsOnly = phone.replace(/\D/g, '');
+      if (digitsOnly.length === 9) return "+998" + digitsOnly;
+      if (digitsOnly.length === 12 && digitsOnly.startsWith("998")) return "+998" + digitsOnly.substring(3);
+      return null;
+    }
+
+    function getLocation() {
+      const btn = document.getElementById('locBtn');
+      const oldHtml = '<i class="fi fi-rr-marker"></i> Lokatsiyani olish';
+      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Aniqlanmoqda...';
+      btn.disabled = true;
+
+      function onSuccess(lat, lng) {
+        document.getElementById('locDisplay').value = "https://maps.google.com/?q=" + lat + "," + lng;
+        btn.innerHTML = '<i class="fi fi-rr-check"></i> Lokatsiya olindi';
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2500);
+      }
+
+      function onFail(msg) {
+        btn.innerHTML = oldHtml;
+        btn.disabled = false;
+        showNotice(msg || "Geolokatsiyani aniqlab bo'lmadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
+      }
+
+      if (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) {
+        try {
+          tg.LocationManager.init(() => {
+            if (!tg.LocationManager.isLocationAvailable) {
+              fallbackBrowserGeo(onSuccess, onFail);
+              return;
+            }
+            tg.LocationManager.getLocation((locData) => {
+              if (locData && locData.latitude && locData.longitude) {
+                onSuccess(locData.latitude, locData.longitude);
+              } else {
+                if (tg.LocationManager.isAccessGranted === false && tg.LocationManager.openSettings) {
+                  tg.LocationManager.openSettings();
+                }
+                fallbackBrowserGeo(onSuccess, onFail);
+              }
+            });
+          });
+          return;
+        } catch (err) {
+          fallbackBrowserGeo(onSuccess, onFail);
+          return;
+        }
+      }
+
+      fallbackBrowserGeo(onSuccess, onFail);
+    }
+
+    function fallbackBrowserGeo(onSuccess, onFail) {
+      if (!navigator.geolocation) {
+        onFail("Qurilmangiz geolokatsiyani qo'llab-quvvatlamaydi.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => onSuccess(pos.coords.latitude, pos.coords.longitude),
+        () => {
+          navigator.geolocation.getCurrentPosition(
+            (pos2) => onSuccess(pos2.coords.latitude, pos2.coords.longitude),
+            (err2) => {
+              let msg = "Joylashuvni olib bo'lmadi. Telefoningizda GPS yoqilganligiga ishonch hosil qiling yoki manzilni qo'lda yozing.";
+              if (err2.code === 1) msg = "Joylashuvga ruxsat berilmadi. Telefon sozlamalaridan Telegram uchun «Joylashuv» ruxsatini yoqing.";
+              onFail(msg);
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+          );
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    }
+
+    function initApp(switchToTabId) {
+      if (!switchToTabId && !activeTabId) showScreen('screen-loading');
+      setRefreshSpinning(true);
+
+      const savedAccKey = localStorage.getItem(STORAGE_ACC_KEY) || "";
+      const url = SCRIPT_URL +
+        "?action=INIT_APP&chatId=" + encodeURIComponent(chatId) +
+        "&accountKey=" + encodeURIComponent(savedAccKey) +
+        "&t=" + Date.now();
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          setRefreshSpinning(false);
+          isAdminUser = Boolean(data.isAdmin);
+          myAccountsList = data.myAccounts || [];
+          advisorsList = data.advisors || [];
+          directoryData = data.directory || { boshqaruvchi: null, advisors: [], myVolunteers: [] };
+
+          const advSelect = document.getElementById('regAdvisor');
+          advSelect.innerHTML = '<option value="">-- Maslahatchini tanlang --</option>';
+          advisorsList.forEach(adv => {
+            const fullFio = toTitleCaseJS(adv.fio);
+            const shortInitials = adv.initials || getInitialsJS(fullFio);
+            advSelect.innerHTML += `<option value="${adv.chatId}" data-fio="${fullFio}">${shortInitials}</option>`;
+          });
+
+          const optBosh = document.getElementById('optBoshqaruvchi');
+          if (data.hasBoshqaruvchi) {
+            optBosh.classList.add('disabled');
+            optBosh.innerHTML = '<i class="fi fi-rr-building"></i> Boshqaruvchi (Band)';
+          } else {
+            optBosh.classList.remove('disabled');
+            optBosh.innerHTML = '<i class="fi fi-rr-building"></i> Boshqaruvchi';
+          }
+
+          const isLoggedOut = localStorage.getItem(STORAGE_LOGOUT_KEY) === "1";
+
+          if (!data.user || isLoggedOut) {
+            openRegisterOrAccountsScreen();
+            return;
+          }
+
+          currentUser = data.user;
+
+          if (currentUser.status === "Kutilmoqda") {
+            showScreen('screen-pending');
+          } else if (currentUser.status === "Rad etilgan") {
+            showScreen('screen-rejected');
+          } else if (currentUser.status === "Tasdiqlangan") {
+            setupMainScreen(data, switchToTabId);
+          }
+        })
+        .catch(() => {
+          setRefreshSpinning(false);
+          openRegisterOrAccountsScreen();
+        });
+    }
+
+    function setupMainScreen(data, switchToTabId) {
+      showScreen('screen-main');
+      const role = isAdminUser ? "Admin" : currentUser.role;
+      document.getElementById('userRoleBanner').innerHTML = `<i class="fi fi-rr-user"></i> ${currentUser.fio} (${role})`;
+
+      renderTopDrawer();
+
+      const tabAddBtn = document.getElementById('tabAddBtn');
+      const tabMyBtn = document.getElementById('tabMyBtn');
+      const tabSentBtn = document.getElementById('tabSentBtn');
+      const tabUsersBtn = document.getElementById('tabUsersBtn');
+      const myTabLabel = document.getElementById('myTabLabel');
+
+      const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
+      const isOnlyAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+
+      if (isOnlyAdvisor) {
+        tabSentBtn.style.display = "inline-flex";
+      } else {
+        tabSentBtn.style.display = "none";
+      }
+
+      if (isStaff) {
+        tabUsersBtn.style.display = "inline-flex";
+        renderPendingUsers(data.pendingUsers || []);
+      } else {
+        tabUsersBtn.style.display = "none";
+      }
+
+      if (isStaff) {
+        myTabLabel.innerText = "Arizalar";
+        tabAddBtn.classList.add('compact-plus');
+      } else {
+        myTabLabel.innerText = "Mening arizalarim";
+        tabAddBtn.classList.remove('compact-plus');
+      }
+
+      allRecords = data.records || [];
+      renderRecords(allRecords);
+
+      if (switchToTabId) {
+        const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
+        openTab(switchToTabId, targetBtnObj);
+      } else if (!activeTabId) {
+        if (isStaff) {
+          openTab('tab-my', tabMyBtn);
+        } else {
+          openTab('tab-add', tabAddBtn);
         }
       }
     }
-    return records;
-  }
 
-  // Boshqaruvchi va Admin uchun:
-  var managerChatIds = {};
-  managerChatIds[ADMIN_CHAT_ID] = true;
-  if (userObj && userObj.chatId) managerChatIds[String(userObj.chatId)] = true;
-  for (var mIdx = 0; mIdx < allUsersList.length; mIdx++) {
-    if (allUsersList[mIdx].role === "Boshqaruvchi" || allUsersList[mIdx].role === "Admin") {
-      managerChatIds[String(allUsersList[mIdx].chatId)] = true;
-    }
-  }
+    function submitRegistration(e) {
+      e.preventDefault();
+      const role = document.getElementById('regRole').value;
+      const fio = toTitleCaseJS(document.getElementById('regFio').value.trim());
+      const rawPhone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const advSelect = document.getElementById('regAdvisor');
+      const advisorId = advSelect.value;
+      const advisorFio = advSelect.options[advSelect.selectedIndex]?.getAttribute('data-fio') || "";
 
-  for (var s = 0; s < sheets.length; s++) {
-    var shName = sheets[s].getName();
-    if (shName === "Foydalanuvchilar" || shName === "Boshqaruvchi") continue;
-
-    var isManagerOwnSheet = false;
-    for (var mKey in managerChatIds) {
-      if (shName.indexOf(mKey) !== -1) {
-        isManagerOwnSheet = true;
-        break;
+      if (role === "Ko'ngilli" && !advisorId) {
+        showNotice("Iltimos, Maslahatchini tanlang!");
+        return;
       }
-    }
 
-    var sRecs = readSheetRecords(sheets[s], "");
-    for (var r = 0; r < sRecs.length; r++) {
-      if (sRecs[r].status !== "Yangi" || isManagerOwnSheet) {
-        records.push(sRecs[r]);
+      const validPhone = validateAndFormatPhone(rawPhone);
+      if (!validPhone) {
+        showNotice("Telefon raqami noto'g'ri!\nMisol: 901234567 yoki 998901234567");
+        return;
       }
-    }
-  }
 
-  return records;
-}
+      const btn = document.getElementById('regBtn');
+      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
+      btn.disabled = true;
 
-function readSheetRecords(sheet, ownerChatId) {
-  ensureSheetColumns(sheet);
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 4) return [];
+      const newAccKey = role + "|" + fio;
 
-  var maxCols = Math.max(sheet.getLastColumn(), 10);
-  var data = sheet.getRange(4, 1, lastRow - 3, maxCols).getValues();
-  var list = [];
-  var shName = sheet.getName();
-
-  // Agar Google Sheets'da qo'lda kiritilganda "Topuvchi" ustuni bo'sh qoldirilsa, varaq egasining ismini olamiz
-  var defaultSender = shName.split(" (")[0];
-  try {
-    var a1Text = String(sheet.getRange("A1").getValue() || "").replace("F.I.O:", "").trim();
-    if (a1Text) defaultSender = a1Text;
-  } catch (e) {}
-
-  for (var i = 0; i < data.length; i++) {
-    var fioVal = String(data[i][2] || "").trim();
-    var phoneVal = String(data[i][3] || "").trim();
-    if (!fioVal && !phoneVal) continue;
-
-    var rawDate = data[i][1];
-    var formattedDate = "";
-    try {
-      if (rawDate instanceof Date) {
-        formattedDate = Utilities.formatDate(rawDate, "Asia/Tashkent", "dd.MM.yyyy");
-      } else if (rawDate) {
-        formattedDate = String(rawDate).split(" ")[0];
-      }
-    } catch (e) {
-      formattedDate = String(rawDate || "");
+      sendPost({
+        action: "REGISTER_USER",
+        chatId: chatId,
+        role: role,
+        fio: fio,
+        phone: validPhone,
+        email: email,
+        username: username,
+        advisorId: advisorId,
+        advisorFio: advisorFio
+      }).then(() => {
+        btn.innerHTML = '<i class="fi fi-rr-check"></i> Ro\'yxatdan o\'tish';
+        btn.disabled = false;
+        localStorage.removeItem(STORAGE_LOGOUT_KEY);
+        localStorage.setItem(STORAGE_ACC_KEY, newAccKey);
+        document.getElementById('regForm').reset();
+        showScreen('screen-pending');
+        setTimeout(() => initApp(), 1200);
+      });
     }
 
-    var senderVal = String(data[i][0] || "").trim() || defaultSender;
-    var normalizedStatus = normalizeRecordStatus(data[i][8]);
+    function renderPendingUsers(users) {
+      const count = users.length;
+      document.getElementById('b-users').innerText = count;
+      const tabUsersBtn = document.getElementById('tabUsersBtn');
 
-    list.push({
-      rowIndex: i + 4,
-      sheetName: shName,
-      ownerChatId: String(ownerChatId || ""),
-      sender: senderVal,
-      date: formattedDate,
-      fio: toTitleCase(fioVal),
-      phone: phoneVal,
-      manba: String(data[i][4] || ""),
-      reason: String(data[i][5] || ""),
-      amount: String(data[i][6] || ""),
-      address: String(data[i][7] || ""),
-      status: normalizedStatus,
-      rejectReason: String(data[i][9] || "")
-    });
-  }
-  return list.reverse();
-}
-
-function createUserSheet(data) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var cleanFio = toTitleCase(data.senderFio || "Ko'ngilli");
-  var sheetName = cleanFio + " (" + data.chatId + ")";
-  var sheet = ss.getSheetByName(sheetName);
-
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-    sheet.getRange("A1").setValue("F.I.O: " + cleanFio);
-    sheet.getRange("B1").setValue("Telefon: " + (data.senderPhone || ""));
-    sheet.getRange("C1").setValue("Email: " + (data.senderEmail || ""));
-
-    var headers = [[
-      "Topuvchi", "Sana / Vaqt", "Zakot oluvchi F.I.O", "Telefon raqami", "Manba", "Sababi", "Miqdor", "Manzil yoki Geolokatsiya", "Holati", "Rad etish sababi"
-    ]];
-    sheet.getRange("A3:J3").setValues(headers).setFontWeight("bold");
-    sheet.setFrozenRows(3);
-  }
-
-  if (data.senderEmail && data.senderEmail.indexOf("@") !== -1) {
-    try { ss.addEditor(data.senderEmail); } catch (e) {}
-  }
-
-  return sheet;
-}
-
-// Botdan xabar yuborish (ostida "🗑 Xabarni o'chirish" tugmasi bilan)
-function sendTelegramMessage(chatId, text) {
-  try {
-    var url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage";
-    var payload = {
-      chat_id: String(chatId),
-      text: text,
-      reply_markup: {
-        inline_keyboard: [[
-          { text: "🗑 Xabarni o'chirish", callback_data: "DELETE_BOT_MSG" }
-        ]]
+      if (count > 0) {
+        tabUsersBtn.classList.add('has-requests');
+      } else {
+        tabUsersBtn.classList.remove('has-requests');
       }
-    };
-    UrlFetchApp.fetch(url, {
-      method: "post",
-      contentType: "application/json",
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    });
-  } catch (e) {}
-}
 
-// "🗑 Xabarni o'chirish" bosilganda xabarni o'chirish
-function deleteTelegramMessage(chatId, messageId) {
-  try {
-    var url = "https://api.telegram.org/bot" + BOT_TOKEN + "/deleteMessage";
-    UrlFetchApp.fetch(url, {
-      method: "post",
-      contentType: "application/json",
-      payload: JSON.stringify({
-        chat_id: String(chatId),
-        message_id: Number(messageId)
-      }),
-      muteHttpExceptions: true
-    });
-  } catch (e) {}
-}
+      const container = document.getElementById('list-users');
+      if (!count) {
+        container.innerHTML = '<div class="empty-state">Tasdiqlash uchun yangi so\'rovlar yo\'q</div>';
+        return;
+      }
+      let html = "";
+      users.forEach((u, uIdx) => {
+        html += `
+          <div class="acc-card expanded" id="ucard-${uIdx}">
+            <div class="acc-header">
+              <div class="acc-left">
+                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${u.fio}</div>
+                <div class="acc-date">
+                  <span class="pending-role-highlight"><i class="fi fi-rr-briefcase"></i> Pozitsiya: ${u.role}</span> | <i class="fi fi-rr-calendar"></i> ${u.date}
+                </div>
+              </div>
+            </div>
+            <div class="acc-body" style="display:block;">
+              <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${u.phone}</div>
+              <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-envelope"></i> Email:</span> ${u.email}</div>
+              ${hasValidUsername(u.username) ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-at"></i> Username:</span> ${u.username}</div>` : ''}
+              <div class="action-row">
+                <button class="btn-act btn-approve" onclick="decideUser('${u.chatId}', '${u.role}', '${u.fio}', 'APPROVE', ${uIdx})"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button class="btn-act btn-reject" onclick="decideUser('${u.chatId}', '${u.role}', '${u.fio}', 'REJECT', ${uIdx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
 
-function answerCallbackQuery(callbackQueryId) {
-  try {
-    var url = "https://api.telegram.org/bot" + BOT_TOKEN + "/answerCallbackQuery";
-    UrlFetchApp.fetch(url, {
-      method: "post",
-      contentType: "application/json",
-      payload: JSON.stringify({ callback_query_id: String(callbackQueryId) }),
-      muteHttpExceptions: true
-    });
-  } catch (e) {}
-}
+    function decideUser(targetChatId, targetRole, targetFio, decision, uIdx) {
+      const card = document.getElementById('ucard-' + uIdx);
+      if (card) card.style.opacity = "0.4";
+
+      sendPost({
+        action: "USER_DECISION",
+        targetChatId: targetChatId,
+        targetRole: targetRole,
+        targetFio: targetFio,
+        decision: decision
+      }).then(() => {
+        setTimeout(() => initApp(activeTabId), 1500);
+      });
+    }
+
+    function submitForm(e) {
+      e.preventDefault();
+
+      const rawPhone = document.getElementById('recipientPhone').value.trim();
+      const validPhone = validateAndFormatPhone(rawPhone);
+      if (!validPhone) {
+        showNotice("Noto'g'ri raqam kiritildi!\nMisol: 901234567 yoki 998901234567");
+        return;
+      }
+
+      let finalAmount = document.getElementById('amountSelect').value;
+      if (finalAmount === "Boshqa") {
+        const customVal = document.getElementById('customAmount').value.trim();
+        if (!customVal) {
+          showNotice("Iltimos, summani kiriting!");
+          return;
+        }
+        finalAmount = customVal + " so'm";
+      }
+
+      const addressVal = document.getElementById('locDisplay').value.trim();
+      if (!addressVal) {
+        showNotice("Iltimos, manzilni yozing yoki «Lokatsiyani olish» tugmasini bosing!");
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
+      btn.disabled = true;
+
+      sendPost({
+        action: "ADD_RECORD_FROM_APP",
+        chatId: chatId,
+        username: username,
+        senderFio: currentUser ? currentUser.fio : "",
+        senderRole: isAdminUser ? "Admin" : (currentUser ? currentUser.role : ""),
+        recipientFio: toTitleCaseJS(document.getElementById('recipientFio').value.trim()),
+        recipientPhone: validPhone,
+        manba: document.getElementById('manba').value.trim(),
+        reason: document.getElementById('reason').value.trim(),
+        amount: finalAmount,
+        address: addressVal
+      }).then(() => {
+        btn.innerHTML = '<i class="fi fi-rr-paper-plane"></i> Arizani yuborish';
+        btn.disabled = false;
+        showNotice("Ariza muvaffaqiyatli yuborildi!");
+        document.getElementById('zakotForm').reset();
+        document.getElementById('customAmount').style.display = "none";
+        document.getElementById('locDisplay').value = "";
+        setTimeout(() => initApp('tab-my'), 1800);
+      });
+    }
+
+    function toggleCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (el) el.classList.toggle('expanded');
+    }
+
+    function checkRecordChanged(idx) {
+      const rec = allRecords[idx];
+      const saveBtn = document.getElementById(`esave-${idx}`);
+      if (!rec || !saveBtn) return;
+
+      const fioVal = (document.getElementById(`efio-${idx}`)?.value || "").trim();
+      const phoneVal = (document.getElementById(`ephone-${idx}`)?.value || "").trim();
+      const manbaVal = (document.getElementById(`emanba-${idx}`)?.value || "").trim();
+      const reasonVal = (document.getElementById(`ereason-${idx}`)?.value || "").trim();
+      const amountVal = (document.getElementById(`eamount-${idx}`)?.value || "").trim();
+      const addrVal = (document.getElementById(`eaddr-${idx}`)?.value || "").trim();
+
+      const isChanged =
+        fioVal !== String(rec.fio || "").trim() ||
+        phoneVal !== String(rec.phone || "").trim() ||
+        manbaVal !== String(rec.manba || "").trim() ||
+        reasonVal !== String(rec.reason || "").trim() ||
+        amountVal !== String(rec.amount || "").trim() ||
+        addrVal !== String(rec.address || "").trim();
+
+      saveBtn.disabled = !isChanged;
+    }
+
+    function normalizeStatusJS(statusStr) {
+      const s = String(statusStr || "").trim().toLowerCase();
+      if (!s || s === "yangi") return "Yangi";
+      if (s === "yuborilgan" || s === "maslahatchi tasdiqladi") return "Yuborilgan";
+      if (s === "tasdiqlangan") return "Tasdiqlangan";
+      if (s === "rad etilgan") return "Rad etilgan";
+      if (s === "berib yuborilgan") return "Berib yuborilgan";
+      if (s === "yetqazilgan" || s === "yetkazilgan") return "Yetqazilgan";
+      return "Yangi";
+    }
+
+    function renderRecords(records) {
+      let counts = { newRecs: 0, sent: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
+      let htmls = { newRecs: "", sent: "", approved: "", rejected: "", dispatched: "", delivered: "" };
+
+      const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
+      const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
+      const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
+
+      records.forEach((r, idx) => {
+        const cleanStatus = normalizeStatusJS(r.status);
+        r.status = cleanStatus;
+
+        const isOwnManagerRecord = (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
+                                   (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1);
+
+        if (isManager && cleanStatus === "Yangi" && !isOwnManagerRecord) {
+          return;
+        }
+
+        const cardId = `rec-card-${idx}`;
+        const addrText = String(r.address || "");
+        const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
+
+        let category = "newRecs";
+        if (cleanStatus === "Yuborilgan") {
+          category = isAdvisor ? "sent" : "newRecs";
+        } else if (cleanStatus === "Tasdiqlangan") {
+          category = "approved";
+        } else if (cleanStatus === "Rad etilgan") {
+          category = "rejected";
+        } else if (cleanStatus === "Berib yuborilgan") {
+          category = "dispatched";
+        } else if (cleanStatus === "Yetqazilgan") {
+          category = "delivered";
+        } else {
+          category = "newRecs";
+        }
+
+        let subStatusHtml = "";
+        let displayStatusText = cleanStatus;
+        if (isVolunteer && category === "newRecs") {
+          const stageName = (cleanStatus === "Yuborilgan")
+            ? "Boshqaruvchida"
+            : "Maslahatchida";
+          subStatusHtml = `<div class="acc-substatus">Holati: ${stageName}</div>`;
+          displayStatusText = stageName;
+        }
+
+        let canEditRecord = false;
+        if (isVolunteer) {
+          if (cleanStatus === "Yangi") canEditRecord = true;
+        } else if (isAdvisor) {
+          if (category === "newRecs" || category === "sent") canEditRecord = true;
+        } else if (isManager) {
+          if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
+        }
+
+        let statusButtonsHtml = "";
+
+        if (isAdvisor) {
+          if (category === "newRecs") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+              </div>
+            `;
+          } else if (category === "sent") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+              </div>
+            `;
+          } else if (category === "rejected") {
+            statusButtonsHtml = `
+              <div class="action-row" onclick="event.stopPropagation()">
+                <button class="btn-act btn-send" onclick="saveRecordUpdate(${idx}, 'Yuborilgan', '')"><i class="fi fi-rr-paper-plane"></i> Yuborish</button>
+                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
+              </div>
+            `;
+          }
+        } else if (isManager) {
+          if (category === "newRecs") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+              </div>
+            `;
+          } else if (category === "approved") {
+            statusButtonsHtml = `
+              <div class="action-row">
+                <button class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
+                <button class="btn-act btn-dispatch" onclick="saveRecordUpdate(${idx}, 'Berib yuborilgan', '')"><i class="fi fi-rr-truck-side"></i> Berib yuborish</button>
+              </div>
+            `;
+          } else if (category === "rejected") {
+            statusButtonsHtml = `
+              <div class="action-row" onclick="event.stopPropagation()">
+                <button class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
+              </div>
+            `;
+          } else if (category === "dispatched") {
+            statusButtonsHtml = `
+              <div class="action-row" onclick="event.stopPropagation()">
+                <button class="btn-act btn-deliver" onclick="saveRecordUpdate(${idx}, 'Yetqazilgan', '')"><i class="fi fi-rr-badge-check"></i> Yetqazildi</button>
+              </div>
+            `;
+          }
+        }
+
+        let bodyContent = "";
+
+        if (canEditRecord) {
+          bodyContent = `
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
+            <div class="edit-box" onclick="event.stopPropagation()">
+              <label>Zakot oluvchi F.I.O</label>
+              <input type="text" id="efio-${idx}" value="${r.fio}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
+              <label>Telefon raqami</label>
+              <input type="tel" id="ephone-${idx}" inputmode="numeric" value="${r.phone}" oninput="validateDigitsOnly(this); checkRecordChanged(${idx})">
+              <label>Manba</label>
+              <input type="text" id="emanba-${idx}" value="${r.manba}" oninput="checkRecordChanged(${idx})">
+              <label>Sababi</label>
+              <textarea id="ereason-${idx}" rows="2" oninput="checkRecordChanged(${idx})">${r.reason || ''}</textarea>
+              <label>Miqdor</label>
+              <input type="text" id="eamount-${idx}" value="${r.amount}" oninput="checkRecordChanged(${idx})">
+              <label>Manzil ${addrLink ? `(${addrLink})` : ''}</label>
+              <input type="text" id="eaddr-${idx}" value="${r.address}" oninput="checkRecordChanged(${idx})">
+
+              <div class="action-row">
+                <button class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${cleanStatus}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
+              </div>
+              ${statusButtonsHtml}
+            </div>
+          `;
+        } else {
+          bodyContent = `
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
+            ${statusButtonsHtml}
+          `;
+        }
+
+        const cardHtml = `
+          <div class="acc-card" id="${cardId}">
+            <div class="acc-header" onclick="toggleCard('${cardId}')">
+              <div class="acc-left">
+                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${r.fio}</div>
+                <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${r.date || '-'}</div>
+                ${subStatusHtml}
+              </div>
+              <div class="acc-right">
+                <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${r.amount || '0 so\'m'}</div>
+                <span class="acc-arrow"><i class="fi fi-rr-angle-small-down"></i> Batafsil</span>
+              </div>
+            </div>
+            <div class="acc-body">
+              ${bodyContent}
+            </div>
+          </div>
+        `;
+
+        counts[category]++;
+        htmls[category] += cardHtml;
+      });
+
+      document.getElementById('b-all').innerText = counts.newRecs;
+      document.getElementById('b-sent').innerText = counts.sent;
+      document.getElementById('b-approved').innerText = counts.approved;
+      document.getElementById('b-rejected').innerText = counts.rejected;
+      document.getElementById('b-dispatched').innerText = counts.dispatched;
+      document.getElementById('b-delivered').innerText = counts.delivered;
+
+      document.getElementById('list-all').innerHTML = htmls.newRecs || '<div class="empty-state">Yangi arizalar mavjud emas</div>';
+      document.getElementById('list-sent').innerHTML = htmls.sent || '<div class="empty-state">Yuborilgan arizalar mavjud emas</div>';
+      document.getElementById('list-approved').innerHTML = htmls.approved || '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
+      document.getElementById('list-rejected').innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
+      document.getElementById('list-dispatched').innerHTML = htmls.dispatched || '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
+      document.getElementById('list-delivered').innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
+    }
+
+    function saveRecordUpdate(idx, newStatus, rejectReason) {
+      const rec = allRecords[idx];
+      if (!rec) return;
+
+      const card = document.getElementById(`rec-card-${idx}`);
+      if (card) card.style.opacity = "0.5";
+
+      const fioInput = document.getElementById(`efio-${idx}`);
+      const phoneInput = document.getElementById(`ephone-${idx}`);
+      const manbaInput = document.getElementById(`emanba-${idx}`);
+      const reasonInput = document.getElementById(`ereason-${idx}`);
+      const amountInput = document.getElementById(`eamount-${idx}`);
+      const addrInput = document.getElementById(`eaddr-${idx}`);
+
+      let finalPhone = rec.phone;
+      if (phoneInput) {
+        const formatted = validateAndFormatPhone(phoneInput.value.trim());
+        finalPhone = formatted || phoneInput.value.trim();
+      }
+
+      sendPost({
+        action: "UPDATE_RECORD",
+        sheetName: rec.sheetName,
+        ownerChatId: rec.ownerChatId,
+        rowIndex: rec.rowIndex,
+        origFio: rec.fio,
+        origPhone: rec.phone,
+        sender: rec.sender,
+        fio: fioInput ? toTitleCaseJS(fioInput.value.trim()) : rec.fio,
+        phone: finalPhone,
+        manba: manbaInput ? manbaInput.value.trim() : rec.manba,
+        reason: reasonInput ? reasonInput.value.trim() : rec.reason,
+        amount: amountInput ? amountInput.value.trim() : rec.amount,
+        address: addrInput ? addrInput.value.trim() : rec.address,
+        newStatus: newStatus,
+        rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
+      }).then(() => {
+        showNotice("Ma'lumot yangilandi!");
+        setTimeout(() => initApp(activeTabId), 1500);
+      });
+    }
+
+    // RAD ETILGAN ARIZANI O'CHIRISHDA TASDIQLASH OYNASI BILAN SO'RASH
+    function deleteRecord(idx) {
+      const rec = allRecords[idx];
+      if (!rec) return;
+
+      askConfirm("Ushbu arizani butunlay o'chirmoqchimisiz?", () => {
+        const card = document.getElementById(`rec-card-${idx}`);
+        if (card) {
+          card.style.opacity = "0.3";
+          card.style.pointerEvents = "none";
+        }
+
+        sendPost({
+          action: "DELETE_RECORD",
+          sheetName: rec.sheetName,
+          ownerChatId: rec.ownerChatId,
+          rowIndex: rec.rowIndex,
+          fio: rec.fio,
+          phone: rec.phone,
+          sender: rec.sender
+        }).then(() => {
+          if (card) card.remove();
+          showNotice("Ariza o'chirib yuborildi!");
+          setTimeout(() => initApp(activeTabId), 1500);
+        });
+      });
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
