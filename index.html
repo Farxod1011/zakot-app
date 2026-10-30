@@ -42,7 +42,7 @@
         --card-inner-bg: rgba(0, 0, 0, 0.18);
 
         /* Qora tema uchun yorqin va ko'rinarli ranglar */
-        --amount-bg: rgba(129, 199, 132, 0.2);
+        --amount-bg: rgba(129, 199, 132, 0.18);
         --amount-text: #81c784;
         --success-text: #81c784;
         --danger-text: #ff8a80;
@@ -164,8 +164,8 @@
       transition: all 0.2s;
     }
     .dots-btn:active, .dots-btn.open {
-      background: var(--accent-color);
-      color: #fff;
+      background: rgba(82, 136, 193, 0.25);
+      color: var(--accent-color);
       border-color: var(--accent-color);
     }
 
@@ -236,8 +236,8 @@
 
     /* KICHRAYTIRILGAN SAVATCHA (TRASH) IKONKASI */
     .trash-icon-btn {
-      background: rgba(229, 57, 53, 0.16);
-      border: 1px solid rgba(229, 57, 53, 0.38);
+      background: rgba(229, 57, 53, 0.14);
+      border: 1px solid rgba(229, 57, 53, 0.35);
       color: var(--danger-text);
       width: 26px;
       height: 26px;
@@ -249,12 +249,12 @@
       font-size: 12px;
       flex-shrink: 0;
     }
-    .trash-icon-btn:active { background: #e53935; color: #fff; }
+    .trash-icon-btn:active { background: rgba(229, 57, 53, 0.3); }
 
     /* PROFIL YONIDAGI AKKAUNTDAN CHIQISH TUGMASI */
     .logout-inline-btn {
-      background: rgba(82, 136, 193, 0.15);
-      border: 1px solid rgba(82, 136, 193, 0.4);
+      background: rgba(82, 136, 193, 0.14);
+      border: 1px solid rgba(82, 136, 193, 0.38);
       color: var(--accent-color);
       height: 26px;
       padding: 0 9px;
@@ -269,8 +269,7 @@
       flex-shrink: 0;
     }
     .logout-inline-btn:active {
-      background: var(--accent-color);
-      color: #fff;
+      background: rgba(82, 136, 193, 0.28);
     }
 
     .dir-volunteers-list {
@@ -393,10 +392,10 @@
       transition: all 0.25s ease;
     }
     .tab-btn.active {
-      background: var(--accent-color);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 2px 8px rgba(82, 136, 193, 0.35);
+      background: rgba(82, 136, 193, 0.22);
+      color: var(--accent-color);
+      border-color: rgba(82, 136, 193, 0.5);
+      font-weight: 600;
     }
 
     .tab-btn.compact-plus:not(.active) {
@@ -424,18 +423,18 @@
     }
 
     .tab-btn.has-requests:not(.active) {
-      background: rgba(244, 67, 54, 0.22);
-      border-color: rgba(244, 67, 54, 0.55);
+      background: rgba(244, 67, 54, 0.16);
+      border-color: rgba(244, 67, 54, 0.45);
       color: var(--danger-text);
     }
     .tab-btn.has-requests:not(.active) .badge {
-      background: #e53935;
-      color: #ffffff;
+      background: rgba(229, 57, 53, 0.25);
+      color: var(--danger-text);
     }
     .tab-btn.has-requests.active {
-      background: #e53935;
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 8px rgba(229, 57, 53, 0.45);
+      background: rgba(229, 57, 53, 0.24);
+      color: var(--danger-text);
+      border-color: rgba(229, 57, 53, 0.55);
     }
 
     .badge {
@@ -473,6 +472,14 @@
       color: var(--text-color);
       font-size: 14px;
       outline: none;
+    }
+    /* Sababi yacheykasi avvaldan yuqoridagi inputlar bilan bir xil razmerda bo'lishi uchun */
+    textarea.single-line-box {
+      height: 43px;
+      min-height: 43px;
+      padding: 11px 12px;
+      line-height: 1.35;
+      resize: vertical;
     }
     input::placeholder, textarea::placeholder { color: var(--hint-color); opacity: 0.8; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
@@ -518,26 +525,29 @@
       transition: background 0.15s;
     }
     .role-option:last-child { border-bottom: none; }
-    .role-option:hover, .role-option.selected { background: var(--accent-color); color: #fff; }
+    .role-option:hover, .role-option.selected { background: rgba(82, 136, 193, 0.22); color: var(--accent-color); font-weight: 600; }
     .role-option.disabled { opacity: 0.4; pointer-events: none; }
 
+    /* SHAFFOF (ПРОЗРАЧНЫЙ) ASOSIY TUGMALAR */
     .submit-btn {
       width: 100%;
       padding: 13px;
       border-radius: 10px;
-      background: var(--accent-color);
-      color: #fff;
+      background: rgba(82, 136, 193, 0.16);
+      color: var(--accent-color);
+      border: 1px solid rgba(82, 136, 193, 0.42);
       font-size: 15px;
       font-weight: 600;
-      border: none;
       cursor: pointer;
       margin-top: 10px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: all 0.2s;
     }
-    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .submit-btn:active { background: rgba(82, 136, 193, 0.28); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .acc-card {
       background: var(--card-bg);
@@ -620,22 +630,26 @@
 
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
+    .edit-box textarea.single-line-box {
+      height: 38px;
+      min-height: 38px;
+    }
+
+    /* SHAFFOF (ПРОЗРАЧНЫЙ) AMAL TUGMALARI */
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .btn-act {
       flex: 1;
       min-width: 110px;
       padding: 10px;
       border-radius: 8px;
-      border: none;
       font-size: 13px;
       font-weight: 600;
-      color: #fff;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: opacity 0.2s, filter 0.2s;
+      transition: all 0.2s;
     }
     .btn-act:disabled {
       opacity: 0.35;
@@ -643,13 +657,35 @@
       pointer-events: none;
       filter: grayscale(40%);
     }
-    .btn-save { background: #3b6998; }
-    .btn-approve { background: #2e7d32; }
-    .btn-send { background: #0288d1; }
-    .btn-reject { background: #c62828; }
-    .btn-delete { background: #c62828; }
-    .btn-dispatch { background: #ef6c00; }
-    .btn-deliver { background: #1565c0; }
+    .btn-save {
+      background: rgba(82, 136, 193, 0.16);
+      border: 1px solid rgba(82, 136, 193, 0.42);
+      color: var(--accent-color);
+    }
+    .btn-approve {
+      background: rgba(46, 125, 50, 0.16);
+      border: 1px solid rgba(46, 125, 50, 0.42);
+      color: var(--success-text);
+    }
+    .btn-send, .btn-deliver {
+      background: rgba(21, 101, 192, 0.16);
+      border: 1px solid rgba(21, 101, 192, 0.42);
+      color: var(--info-text);
+    }
+    .btn-reject, .btn-delete {
+      background: rgba(229, 57, 53, 0.16);
+      border: 1px solid rgba(229, 57, 53, 0.42);
+      color: var(--danger-text);
+    }
+    .btn-dispatch {
+      background: rgba(239, 108, 0, 0.16);
+      border: 1px solid rgba(239, 108, 0, 0.42);
+      color: var(--warning-text);
+    }
+    .btn-act:active {
+      transform: scale(0.98);
+      filter: brightness(1.1);
+    }
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
 
@@ -699,12 +735,22 @@
       width: 100%;
       padding: 11px;
       border-radius: 10px;
-      background: var(--accent-color);
-      color: #fff;
-      border: none;
+      background: rgba(82, 136, 193, 0.18);
+      color: var(--accent-color);
+      border: 1px solid rgba(82, 136, 193, 0.42);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
+    }
+    .modal-btn-cancel {
+      background: rgba(120, 130, 140, 0.16);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+    .modal-btn-danger {
+      background: rgba(229, 57, 53, 0.18);
+      color: var(--danger-text);
+      border: 1px solid rgba(229, 57, 53, 0.42);
     }
     .modal-btn-row {
       display: flex;
@@ -799,13 +845,13 @@
           </div>
 
           <div class="form-group">
-            <label>F.I.O (Ism va familiyangiz, faqat harflar)</label>
+            <label>F.I.O (Ism va familiyangiz)</label>
             <input type="text" id="regFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
           </div>
 
           <div class="form-group">
-            <label>Telefon raqamingiz (faqat raqam)</label>
-            <input type="tel" id="regPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
+            <label>Telefon raqamingiz</label>
+            <input type="tel" id="regPhone" inputmode="tel" required placeholder="+998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
           </div>
 
           <div class="form-group">
@@ -831,7 +877,7 @@
       <button class="submit-btn" style="max-width:200px; margin-top:20px;" onclick="initApp(activeTabId)">
         <i class="fi fi-rr-refresh refresh-icon-el"></i> Yangilash
       </button>
-      <button class="submit-btn" style="max-width:200px; margin-top:10px; background:#4b5563;" onclick="promptLogoutAccount()">
+      <button class="submit-btn modal-btn-cancel" style="max-width:200px; margin-top:10px;" onclick="promptLogoutAccount()">
         <i class="fi fi-rr-sign-out-alt"></i> Akkauntdan chiqish
       </button>
     </div>
@@ -843,7 +889,7 @@
       <div class="status-icon" style="color:var(--danger-text);"><i class="fi fi-rr-ban"></i></div>
       <div class="status-title">Ruxsat berilmadi</div>
       <div class="status-desc">Kechirasiz, sizning so'rovingiz rad etilgan.</div>
-      <button class="submit-btn" style="max-width:200px; margin-top:20px; background:#4b5563;" onclick="promptLogoutAccount()">
+      <button class="submit-btn modal-btn-cancel" style="max-width:200px; margin-top:20px;" onclick="promptLogoutAccount()">
         <i class="fi fi-rr-sign-out-alt"></i> Orqaga / Chiqish
       </button>
     </div>
@@ -905,13 +951,13 @@
     <div id="tab-add" class="tab-content active">
       <form id="zakotForm" onsubmit="submitForm(event)">
         <div class="form-group">
-          <label>Zakot oluvchi F.I.O (faqat harflar)</label>
+          <label>Zakot oluvchi F.I.O</label>
           <input type="text" id="recipientFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
         </div>
 
         <div class="form-group">
-          <label>Telefon raqami (faqat raqam)</label>
-          <input type="tel" id="recipientPhone" inputmode="numeric" required placeholder="901234567 yoki 998901234567" oninput="validateDigitsOnly(this)">
+          <label>Telefon raqami</label>
+          <input type="tel" id="recipientPhone" inputmode="tel" required placeholder="+998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
         </div>
 
         <div class="form-group">
@@ -921,7 +967,7 @@
 
         <div class="form-group">
           <label>Sababi</label>
-          <textarea id="reason" rows="2" required placeholder="Nega aynan ushbu inson tanlandi?"></textarea>
+          <textarea id="reason" class="single-line-box" rows="1" required placeholder="Nega aynan ushbu inson tanlandi?"></textarea>
         </div>
 
         <div class="form-group">
@@ -940,7 +986,7 @@
         <div class="form-group">
           <label>Manzili (majburiy)</label>
           <input type="text" id="locDisplay" required placeholder="Manzilni yozing yoki lokatsiya oling">
-          <button type="button" id="locBtn" class="submit-btn" style="background:#2b5278; margin-top:6px;" onclick="getLocation()">
+          <button type="button" id="locBtn" class="submit-btn" style="margin-top:6px;" onclick="getLocation()">
             <i class="fi fi-rr-marker"></i> Lokatsiyani olish
           </button>
         </div>
@@ -979,8 +1025,8 @@
       <div class="modal-title"><i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> Rad etish</div>
       <textarea id="rejectReasonInput" rows="3" placeholder="Sababini yozing..."></textarea>
       <div class="modal-btn-row">
-        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeRejectModal()">Bekor qilish</button>
-        <button type="button" class="modal-btn" style="background:#c62828;" onclick="confirmReject()">OK</button>
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeRejectModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn modal-btn-danger" onclick="confirmReject()">OK</button>
       </div>
     </div>
   </div>
@@ -991,8 +1037,8 @@
       <div class="modal-title"><i class="fi fi-rr-exclamation" style="color:var(--warning-text)"></i> Tasdiqlash</div>
       <div class="modal-text" id="confirmModalText">Haqiqatan ham o'chirmoqchimisiz?</div>
       <div class="modal-btn-row">
-        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeConfirmModal()">Yo'q</button>
-        <button type="button" class="modal-btn" style="background:#c62828;" id="confirmYesBtn">Ha</button>
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeConfirmModal()">Yo'q</button>
+        <button type="button" class="modal-btn modal-btn-danger" id="confirmYesBtn">Ha</button>
       </div>
     </div>
   </div>
@@ -1016,8 +1062,8 @@
       <div id="reassignVolunteersContainer" style="max-height:210px; overflow-y:auto; margin-bottom:10px;"></div>
 
       <div class="modal-btn-row">
-        <button type="button" class="modal-btn" style="background:#4b5563;" onclick="closeReassignModal()">Bekor qilish</button>
-        <button type="button" class="modal-btn" style="background:#c62828;" onclick="confirmAdvisorTransferAndDelete()">Biriktirish va O'chirish</button>
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeReassignModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn modal-btn-danger" onclick="confirmAdvisorTransferAndDelete()">Biriktirish va O'chirish</button>
       </div>
     </div>
   </div>
@@ -1046,12 +1092,27 @@
     let activeTabId = null;
     let deletingAdvisorObj = null;
 
-    // Apostrof va maxsus belgilarni onclick ichida xavfsiz uzatish uchun funksiya
-    function escAttr(str) {
+    // JS string ichida (onclick="fn('...')") xavfsiz uzatish uchun
+    function escJsAttr(str) {
       return String(str || "")
         .replace(/\\/g, "\\\\")
         .replace(/'/g, "\\'")
         .replace(/"/g, "&quot;");
+    }
+
+    // HTML input value="..." atributi ichida (so\'m chiqib qolmasligi uchun)
+    function escHtml(str) {
+      return String(str || "")
+        .replace(/\\'/g, "'")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    // Eski yozuvlarda so\'m bo'lsa tozalash
+    function cleanBackslashQuotes(str) {
+      return String(str || "").replace(/\\'/g, "'");
     }
 
     // GORIZONTAL SVAYP (SWIPE) LOGIKASI
@@ -1232,7 +1293,7 @@
                   <div class="dir-sub">📞 ${b.phone} | 📧 ${b.email}${bUnamePart}</div>
                 </div>
                 <div class="dir-actions">
-                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escAttr(b.chatId)}', '${escAttr(b.fio)}', 'Boshqaruvchi')">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escJsAttr(b.chatId)}', '${escJsAttr(b.fio)}', 'Boshqaruvchi')">
                     <i class="fi fi-rr-trash"></i>
                   </button>
                 </div>
@@ -1250,6 +1311,7 @@
       } else {
         directoryData.advisors.forEach((adv, aIdx) => {
           const dCardId = `dir-adv-${aIdx}`;
+          const advInitials = getInitialsJS(adv.fio);
           const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
           let volsHtml = "";
           if (!adv.volunteers || !adv.volunteers.length) {
@@ -1262,10 +1324,10 @@
 
           html += `
             <div class="dir-card" id="${dCardId}">
-              <div class="dir-card-header" onclick="document.getElementById('${dCardId}').classList.toggle('expanded')">
+              <div class="dir-card-header" onclick="toggleDirAdvisorCard('${dCardId}')">
                 <div class="dir-info">
                   <div class="dir-name">
-                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${adv.initials})
+                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${advInitials})
                     <span class="badge">${adv.volunteers.length}</span>
                   </div>
                   <div class="dir-sub">📞 ${adv.phone} | 📧 ${adv.email}${advUnamePart}</div>
@@ -1287,18 +1349,26 @@
       container.innerHTML = html;
     }
 
+    function toggleDirAdvisorCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      const isAlreadyOpen = el.classList.contains('expanded');
+      document.querySelectorAll('.dir-card.expanded[id^="dir-adv-"]').forEach(c => c.classList.remove('expanded'));
+      if (!isAlreadyOpen) el.classList.add('expanded');
+    }
+
     function buildVolunteerItemHtml(v, allowTransfer) {
       let transferSelectHtml = "";
       if (allowTransfer && directoryData.advisors.length > 1) {
         let opts = "";
         directoryData.advisors.forEach(a => {
           const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
-          opts += `<option value="${escAttr(a.chatId)}" data-fio="${escAttr(a.fio)}" ${isCurrent ? 'selected' : ''}>${a.fio} (${a.initials})</option>`;
+          opts += `<option value="${escHtml(a.chatId)}" data-fio="${escHtml(a.fio)}" ${isCurrent ? 'selected' : ''}>${a.fio} (${getInitialsJS(a.fio)})</option>`;
         });
         transferSelectHtml = `
           <div class="vol-transfer-row">
             <span style="color:var(--hint-color); font-weight:500;"><i class="fi fi-rr-exchange"></i> Maslahatchi:</span>
-            <select onchange="changeSingleVolunteerAdvisor('${escAttr(v.chatId)}', this)">
+            <select onchange="changeSingleVolunteerAdvisor('${escJsAttr(v.chatId)}', this)">
               ${opts}
             </select>
           </div>
@@ -1320,7 +1390,7 @@
                 ${vUnameLine}🗓 Sana: ${v.date || '-'}
               </div>
             </div>
-            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escAttr(v.chatId)}', '${escAttr(v.fio)}', 'Topuvchi')">
+            <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escJsAttr(v.chatId)}', '${escJsAttr(v.fio)}', 'Topuvchi')">
               <i class="fi fi-rr-trash"></i>
             </button>
           </div>
@@ -1472,7 +1542,7 @@
 
       let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
       otherAdvisors.forEach(oa => {
-        bulkOpts += `<option value="${escAttr(oa.chatId)}" data-fio="${escAttr(oa.fio)}">${oa.fio} (${oa.initials})</option>`;
+        bulkOpts += `<option value="${escHtml(oa.chatId)}" data-fio="${escHtml(oa.fio)}">${oa.fio} (${getInitialsJS(oa.fio)})</option>`;
       });
       document.getElementById('bulkAdvisorSelect').innerHTML = bulkOpts;
 
@@ -1480,12 +1550,12 @@
       adv.volunteers.forEach(v => {
         let singleOpts = "";
         otherAdvisors.forEach(oa => {
-          singleOpts += `<option value="${escAttr(oa.chatId)}" data-fio="${escAttr(oa.fio)}">${oa.fio} (${oa.initials})</option>`;
+          singleOpts += `<option value="${escHtml(oa.chatId)}" data-fio="${escHtml(oa.fio)}">${oa.fio} (${getInitialsJS(oa.fio)})</option>`;
         });
         vListHtml += `
           <div class="reassign-item">
             <div class="reassign-item-name">👤 ${v.fio} (${v.phone})</div>
-            <select class="indiv-reassign-select" data-vol-id="${escAttr(v.chatId)}">
+            <select class="indiv-reassign-select" data-vol-id="${escHtml(v.chatId)}">
               ${singleOpts}
             </select>
           </div>
@@ -1601,13 +1671,14 @@
       advGroup.style.display = (roleVal === "Ko'ngilli") ? "block" : "none";
     }
 
+    // F.I.O QATORIDA FAQAT RAQAMLARNI CHEKLASH (' va boshqa barcha belgilar ishlaydi)
     function validateLettersOnly(input) {
-      input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁўқғҳЎҚҒҲ\s'\`ʼ]/g, '');
+      input.value = input.value.replace(/[0-9]/g, '');
     }
 
-    // FAQAT RAQAMLARNI QABUL QILISH FUNKSIYASI
-    function validateDigitsOnly(input) {
-      input.value = input.value.replace(/\D/g, '');
+    // TELEFON RAQAMIDA RAQAMLAR VA "+" BELGISIGA RUXSAT BERISH
+    function validatePhoneInput(input) {
+      input.value = input.value.replace(/[^\d+]/g, '');
     }
 
     function toTitleCaseJS(str) {
@@ -1615,9 +1686,16 @@
       return str.toLowerCase().trim().replace(/\s+/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
     }
 
+    // MAKSIMAL 3 TA BOSH HARF (masalan: Aliyev Jasur Parpi o'g'li -> A.J.P)
     function getInitialsJS(fio) {
       if (!fio) return "";
-      return fio.trim().split(/\s+/).filter(Boolean).map(w => w.charAt(0).toUpperCase()).join('.');
+      return fio
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 3)
+        .map(w => w.charAt(0).toUpperCase())
+        .join('.');
     }
 
     function toggleCustomAmount(val) {
@@ -1737,8 +1815,8 @@
           advSelect.innerHTML = '<option value="">-- Maslahatchini tanlang --</option>';
           advisorsList.forEach(adv => {
             const fullFio = toTitleCaseJS(adv.fio);
-            const shortInitials = adv.initials || getInitialsJS(fullFio);
-            advSelect.innerHTML += `<option value="${escAttr(adv.chatId)}" data-fio="${escAttr(fullFio)}">${shortInitials}</option>`;
+            const shortInitials = getInitialsJS(fullFio);
+            advSelect.innerHTML += `<option value="${escHtml(adv.chatId)}" data-fio="${escHtml(fullFio)}">${shortInitials}</option>`;
           });
 
           const optBosh = document.getElementById('optBoshqaruvchi');
@@ -1842,7 +1920,7 @@
 
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        showNotice("Telefon raqami noto'g'ri!\nMisol: 901234567 yoki 998901234567");
+        showNotice("Telefon raqami noto'g'ri!\nMisol: +998901234567 yoki 901234567");
         return;
       }
 
@@ -1873,7 +1951,6 @@
       });
     }
 
-    // XODIMLAR SO'ROVINI CHIQARISH (Apostrof xatosiz, indeks orqali)
     function renderPendingUsers(users) {
       pendingUsersList = users || [];
       const count = pendingUsersList.length;
@@ -1946,7 +2023,7 @@
       const rawPhone = document.getElementById('recipientPhone').value.trim();
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        showNotice("Noto'g'ri raqam kiritildi!\nMisol: 901234567 yoki 998901234567");
+        showNotice("Noto'g'ri raqam kiritildi!\nMisol: +998901234567 yoki 901234567");
         return;
       }
 
@@ -1993,9 +2070,17 @@
       });
     }
 
+    // ARIZA BOSILGANDA AVVALGI OCHIQ TURGANINI AVTOMATIK YOPISH
     function toggleCard(cardId) {
       const el = document.getElementById(cardId);
-      if (el) el.classList.toggle('expanded');
+      if (!el) return;
+      const isAlreadyOpen = el.classList.contains('expanded');
+      document.querySelectorAll('.acc-card.expanded[id^="rec-card-"]').forEach(card => {
+        card.classList.remove('expanded');
+      });
+      if (!isAlreadyOpen) {
+        el.classList.add('expanded');
+      }
     }
 
     function checkRecordChanged(idx) {
@@ -2043,6 +2128,11 @@
       records.forEach((r, idx) => {
         const cleanStatus = normalizeStatusJS(r.status);
         r.status = cleanStatus;
+        r.fio = cleanBackslashQuotes(r.fio);
+        r.amount = cleanBackslashQuotes(r.amount);
+        r.manba = cleanBackslashQuotes(r.manba);
+        r.reason = cleanBackslashQuotes(r.reason);
+        r.address = cleanBackslashQuotes(r.address);
 
         const isOwnManagerRecord = (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
                                    (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1);
@@ -2053,7 +2143,7 @@
 
         const cardId = `rec-card-${idx}`;
         const addrText = String(r.address || "");
-        const addrLink = addrText.startsWith('http') ? `<a href="${addrText}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : addrText;
+        const addrLink = addrText.startsWith('http') ? `<a href="${escHtml(addrText)}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : escHtml(addrText);
 
         let category = "newRecs";
         if (cleanStatus === "Yuborilgan") {
@@ -2148,39 +2238,39 @@
 
         if (canEditRecord) {
           bodyContent = `
-            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${escHtml(r.sender)}</div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
-            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
+            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
-              <input type="text" id="efio-${idx}" value="${escAttr(r.fio)}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
+              <input type="text" id="efio-${idx}" value="${escHtml(r.fio)}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
               <label>Telefon raqami</label>
-              <input type="tel" id="ephone-${idx}" inputmode="numeric" value="${escAttr(r.phone)}" oninput="validateDigitsOnly(this); checkRecordChanged(${idx})">
+              <input type="tel" id="ephone-${idx}" inputmode="tel" value="${escHtml(r.phone)}" oninput="validatePhoneInput(this); checkRecordChanged(${idx})">
               <label>Manba</label>
-              <input type="text" id="emanba-${idx}" value="${escAttr(r.manba)}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="emanba-${idx}" value="${escHtml(r.manba)}" oninput="checkRecordChanged(${idx})">
               <label>Sababi</label>
-              <textarea id="ereason-${idx}" rows="2" oninput="checkRecordChanged(${idx})">${r.reason || ''}</textarea>
+              <textarea id="ereason-${idx}" class="single-line-box" rows="1" oninput="checkRecordChanged(${idx})">${escHtml(r.reason || '')}</textarea>
               <label>Miqdor</label>
-              <input type="text" id="eamount-${idx}" value="${escAttr(r.amount)}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="eamount-${idx}" value="${escHtml(r.amount)}" oninput="checkRecordChanged(${idx})">
               <label>Manzil ${addrLink ? `(${addrLink})` : ''}</label>
-              <input type="text" id="eaddr-${idx}" value="${escAttr(r.address)}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="eaddr-${idx}" value="${escHtml(r.address)}" oninput="checkRecordChanged(${idx})">
 
               <div class="action-row">
-                <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escAttr(cleanStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
+                <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escJsAttr(cleanStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
               </div>
               ${statusButtonsHtml}
             </div>
           `;
         } else {
           bodyContent = `
-            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${r.sender}</div>` : ''}
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${r.amount || '-'}</b></div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${r.phone}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${r.manba}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${r.reason || '-'}</div>
+            ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${escHtml(r.sender)}</div>` : ''}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${escHtml(r.amount || '-')}</b></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${escHtml(r.phone)}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba)}</div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${escHtml(r.reason || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
-            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${r.rejectReason}</div>` : ''}
+            ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             ${statusButtonsHtml}
           `;
         }
@@ -2189,12 +2279,12 @@
           <div class="acc-card" id="${cardId}">
             <div class="acc-header" onclick="toggleCard('${cardId}')">
               <div class="acc-left">
-                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${r.fio}</div>
-                <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${r.date || '-'}</div>
+                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${escHtml(r.fio)}</div>
+                <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${escHtml(r.date || '-')}</div>
                 ${subStatusHtml}
               </div>
               <div class="acc-right">
-                <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${r.amount || '0 so\'m'}</div>
+                <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${escHtml(r.amount || "0 so'm")}</div>
                 <span class="acc-arrow"><i class="fi fi-rr-angle-small-down"></i> Batafsil</span>
               </div>
             </div>
@@ -2251,12 +2341,12 @@
         origFio: rec.fio,
         origPhone: rec.phone,
         sender: rec.sender,
-        fio: fioInput ? toTitleCaseJS(fioInput.value.trim()) : rec.fio,
+        fio: fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio,
         phone: finalPhone,
-        manba: manbaInput ? manbaInput.value.trim() : rec.manba,
-        reason: reasonInput ? reasonInput.value.trim() : rec.reason,
-        amount: amountInput ? amountInput.value.trim() : rec.amount,
-        address: addrInput ? addrInput.value.trim() : rec.address,
+        manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
+        reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
+        amount: amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount,
+        address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
         newStatus: newStatus,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       }).then(() => {
