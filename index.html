@@ -20,7 +20,7 @@
       --card-inner-bg: rgba(0, 0, 0, 0.04);
 
       /* Oq tema (Light Theme) uchun ranglar */
-      --amount-bg: rgba(46, 125, 50, 0.12);
+      --amount-bg: rgba(46, 125, 50, 0.14);
       --amount-text: #2e7d32;
       --success-text: #2e7d32;
       --danger-text: #c62828;
@@ -42,7 +42,7 @@
         --card-inner-bg: rgba(0, 0, 0, 0.18);
 
         /* Qora tema uchun yorqin va ko'rinarli ranglar */
-        --amount-bg: rgba(129, 199, 132, 0.18);
+        --amount-bg: rgba(129, 199, 132, 0.2);
         --amount-text: #81c784;
         --success-text: #81c784;
         --danger-text: #ff8a80;
@@ -164,9 +164,9 @@
       transition: all 0.2s;
     }
     .dots-btn:active, .dots-btn.open {
-      background: rgba(82, 136, 193, 0.25);
-      color: var(--accent-color);
-      border-color: var(--accent-color);
+      background: rgba(36, 129, 204, 0.82);
+      color: #fff;
+      border-color: rgba(36, 129, 204, 0.9);
     }
 
     /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
@@ -236,8 +236,8 @@
 
     /* KICHRAYTIRILGAN SAVATCHA (TRASH) IKONKASI */
     .trash-icon-btn {
-      background: rgba(229, 57, 53, 0.14);
-      border: 1px solid rgba(229, 57, 53, 0.35);
+      background: rgba(229, 57, 53, 0.22);
+      border: 1px solid rgba(229, 57, 53, 0.5);
       color: var(--danger-text);
       width: 26px;
       height: 26px;
@@ -249,12 +249,12 @@
       font-size: 12px;
       flex-shrink: 0;
     }
-    .trash-icon-btn:active { background: rgba(229, 57, 53, 0.3); }
+    .trash-icon-btn:active { background: rgba(229, 57, 53, 0.8); color: #fff; }
 
     /* PROFIL YONIDAGI AKKAUNTDAN CHIQISH TUGMASI */
     .logout-inline-btn {
-      background: rgba(82, 136, 193, 0.14);
-      border: 1px solid rgba(82, 136, 193, 0.38);
+      background: rgba(82, 136, 193, 0.22);
+      border: 1px solid rgba(82, 136, 193, 0.5);
       color: var(--accent-color);
       height: 26px;
       padding: 0 9px;
@@ -269,7 +269,8 @@
       flex-shrink: 0;
     }
     .logout-inline-btn:active {
-      background: rgba(82, 136, 193, 0.28);
+      background: rgba(82, 136, 193, 0.8);
+      color: #fff;
     }
 
     .dir-volunteers-list {
@@ -392,10 +393,11 @@
       transition: all 0.25s ease;
     }
     .tab-btn.active {
-      background: rgba(82, 136, 193, 0.22);
-      color: var(--accent-color);
-      border-color: rgba(82, 136, 193, 0.5);
+      background: rgba(36, 129, 204, 0.82);
+      color: #ffffff;
+      border-color: rgba(82, 136, 193, 0.9);
       font-weight: 600;
+      box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
     }
 
     .tab-btn.compact-plus:not(.active) {
@@ -423,22 +425,22 @@
     }
 
     .tab-btn.has-requests:not(.active) {
-      background: rgba(244, 67, 54, 0.16);
-      border-color: rgba(244, 67, 54, 0.45);
+      background: rgba(229, 57, 53, 0.24);
+      border-color: rgba(229, 57, 53, 0.6);
       color: var(--danger-text);
     }
     .tab-btn.has-requests:not(.active) .badge {
-      background: rgba(229, 57, 53, 0.25);
-      color: var(--danger-text);
+      background: rgba(229, 57, 53, 0.85);
+      color: #ffffff;
     }
     .tab-btn.has-requests.active {
-      background: rgba(229, 57, 53, 0.24);
-      color: var(--danger-text);
-      border-color: rgba(229, 57, 53, 0.55);
+      background: rgba(229, 57, 53, 0.82);
+      color: #ffffff;
+      border-color: rgba(229, 57, 53, 0.9);
     }
 
     .badge {
-      background: rgba(100, 100, 100, 0.2);
+      background: rgba(100, 100, 100, 0.22);
       border-radius: 12px;
       padding: 2px 7px;
       font-size: 11px;
@@ -473,7 +475,6 @@
       font-size: 14px;
       outline: none;
     }
-    /* Sababi yacheykasi avvaldan yuqoridagi inputlar bilan bir xil razmerda bo'lishi uchun */
     textarea.single-line-box {
       height: 43px;
       min-height: 43px;
@@ -525,17 +526,17 @@
       transition: background 0.15s;
     }
     .role-option:last-child { border-bottom: none; }
-    .role-option:hover, .role-option.selected { background: rgba(82, 136, 193, 0.22); color: var(--accent-color); font-weight: 600; }
+    .role-option:hover, .role-option.selected { background: rgba(36, 129, 204, 0.82); color: #fff; font-weight: 600; }
     .role-option.disabled { opacity: 0.4; pointer-events: none; }
 
-    /* SHAFFOF (ПРОЗРАЧНЫЙ) ASOSIY TUGMALAR */
+    /* ME'YORIDA SHAFFOF ASOSIY TUGMALAR */
     .submit-btn {
       width: 100%;
       padding: 13px;
       border-radius: 10px;
-      background: rgba(82, 136, 193, 0.16);
-      color: var(--accent-color);
-      border: 1px solid rgba(82, 136, 193, 0.42);
+      background: rgba(36, 129, 204, 0.82);
+      color: #ffffff;
+      border: 1px solid rgba(82, 136, 193, 0.85);
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
@@ -546,7 +547,7 @@
       gap: 8px;
       transition: all 0.2s;
     }
-    .submit-btn:active { background: rgba(82, 136, 193, 0.28); }
+    .submit-btn:active { background: rgba(36, 129, 204, 0.95); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .acc-card {
@@ -635,7 +636,7 @@
       min-height: 38px;
     }
 
-    /* SHAFFOF (ПРОЗРАЧНЫЙ) AMAL TUGMALARI */
+    /* ME'YORIDA SHAFFOF AMAL TUGMALARI */
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .btn-act {
       flex: 1;
@@ -644,6 +645,7 @@
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
+      color: #ffffff;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -658,29 +660,24 @@
       filter: grayscale(40%);
     }
     .btn-save {
-      background: rgba(82, 136, 193, 0.16);
-      border: 1px solid rgba(82, 136, 193, 0.42);
-      color: var(--accent-color);
+      background: rgba(59, 105, 152, 0.82);
+      border: 1px solid rgba(59, 105, 152, 0.9);
     }
     .btn-approve {
-      background: rgba(46, 125, 50, 0.16);
-      border: 1px solid rgba(46, 125, 50, 0.42);
-      color: var(--success-text);
+      background: rgba(46, 125, 50, 0.82);
+      border: 1px solid rgba(46, 125, 50, 0.9);
     }
     .btn-send, .btn-deliver {
-      background: rgba(21, 101, 192, 0.16);
-      border: 1px solid rgba(21, 101, 192, 0.42);
-      color: var(--info-text);
+      background: rgba(2, 136, 209, 0.82);
+      border: 1px solid rgba(2, 136, 209, 0.9);
     }
     .btn-reject, .btn-delete {
-      background: rgba(229, 57, 53, 0.16);
-      border: 1px solid rgba(229, 57, 53, 0.42);
-      color: var(--danger-text);
+      background: rgba(198, 40, 40, 0.82);
+      border: 1px solid rgba(198, 40, 40, 0.9);
     }
     .btn-dispatch {
-      background: rgba(239, 108, 0, 0.16);
-      border: 1px solid rgba(239, 108, 0, 0.42);
-      color: var(--warning-text);
+      background: rgba(239, 108, 0, 0.82);
+      border: 1px solid rgba(239, 108, 0, 0.9);
     }
     .btn-act:active {
       transform: scale(0.98);
@@ -735,22 +732,22 @@
       width: 100%;
       padding: 11px;
       border-radius: 10px;
-      background: rgba(82, 136, 193, 0.18);
-      color: var(--accent-color);
-      border: 1px solid rgba(82, 136, 193, 0.42);
+      background: rgba(36, 129, 204, 0.82);
+      color: #ffffff;
+      border: 1px solid rgba(82, 136, 193, 0.85);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
     }
     .modal-btn-cancel {
-      background: rgba(120, 130, 140, 0.16);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
+      background: rgba(75, 85, 99, 0.78);
+      color: #ffffff;
+      border: 1px solid rgba(75, 85, 99, 0.85);
     }
     .modal-btn-danger {
-      background: rgba(229, 57, 53, 0.18);
-      color: var(--danger-text);
-      border: 1px solid rgba(229, 57, 53, 0.42);
+      background: rgba(198, 40, 40, 0.82);
+      color: #ffffff;
+      border: 1px solid rgba(198, 40, 40, 0.9);
     }
     .modal-btn-row {
       display: flex;
@@ -917,7 +914,7 @@
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
-      <!-- 2. XODIMLAR SO'ROVI -->
+      <!-- 2. XODIMLAR SO'ROVI (Faqat so'rov kelganda ko'rinadi) -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
@@ -986,7 +983,7 @@
         <div class="form-group">
           <label>Manzili (majburiy)</label>
           <input type="text" id="locDisplay" required placeholder="Manzilni yozing yoki lokatsiya oling">
-          <button type="button" id="locBtn" class="submit-btn" style="margin-top:6px;" onclick="getLocation()">
+          <button type="button" id="locBtn" class="submit-btn" style="background:rgba(43, 82, 120, 0.85); margin-top:6px;" onclick="getLocation()">
             <i class="fi fi-rr-marker"></i> Lokatsiyani olish
           </button>
         </div>
@@ -1092,7 +1089,6 @@
     let activeTabId = null;
     let deletingAdvisorObj = null;
 
-    // JS string ichida (onclick="fn('...')") xavfsiz uzatish uchun
     function escJsAttr(str) {
       return String(str || "")
         .replace(/\\/g, "\\\\")
@@ -1100,7 +1096,6 @@
         .replace(/"/g, "&quot;");
     }
 
-    // HTML input value="..." atributi ichida (so\'m chiqib qolmasligi uchun)
     function escHtml(str) {
       return String(str || "")
         .replace(/\\'/g, "'")
@@ -1110,7 +1105,6 @@
         .replace(/>/g, "&gt;");
     }
 
-    // Eski yozuvlarda so\'m bo'lsa tozalash
     function cleanBackslashQuotes(str) {
       return String(str || "").replace(/\\'/g, "'");
     }
@@ -1671,12 +1665,10 @@
       advGroup.style.display = (roleVal === "Ko'ngilli") ? "block" : "none";
     }
 
-    // F.I.O QATORIDA FAQAT RAQAMLARNI CHEKLASH (' va boshqa barcha belgilar ishlaydi)
     function validateLettersOnly(input) {
       input.value = input.value.replace(/[0-9]/g, '');
     }
 
-    // TELEFON RAQAMIDA RAQAMLAR VA "+" BELGISIGA RUXSAT BERISH
     function validatePhoneInput(input) {
       input.value = input.value.replace(/[^\d+]/g, '');
     }
@@ -1686,7 +1678,6 @@
       return str.toLowerCase().trim().replace(/\s+/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
     }
 
-    // MAKSIMAL 3 TA BOSH HARF (masalan: Aliyev Jasur Parpi o'g'li -> A.J.P)
     function getInitialsJS(fio) {
       if (!fio) return "";
       return fio
@@ -1873,11 +1864,16 @@
         tabSentBtn.style.display = "none";
       }
 
-      if (isStaff) {
+      // Xodimlar so'rovi menyusi faqatgina yangi so'rov kelgandagina ko'rinadi
+      const pendingUsers = data.pendingUsers || [];
+      renderPendingUsers(pendingUsers);
+
+      if (isStaff && pendingUsers.length > 0) {
         tabUsersBtn.style.display = "inline-flex";
-        renderPendingUsers(data.pendingUsers || []);
       } else {
         tabUsersBtn.style.display = "none";
+        if (switchToTabId === 'tab-users') switchToTabId = null;
+        if (activeTabId === 'tab-users') activeTabId = null;
       }
 
       if (isStaff) {
@@ -1894,7 +1890,10 @@
       if (switchToTabId) {
         const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
         openTab(switchToTabId, targetBtnObj);
-      } else if (!activeTabId) {
+      } else if (activeTabId) {
+        const currentBtnObj = document.querySelector(`[onclick*="${activeTabId}"]`) || (isStaff ? tabMyBtn : tabAddBtn);
+        openTab(activeTabId, currentBtnObj);
+      } else {
         if (isStaff) {
           openTab('tab-my', tabMyBtn);
         } else {
@@ -1958,8 +1957,10 @@
       const tabUsersBtn = document.getElementById('tabUsersBtn');
 
       if (count > 0) {
+        tabUsersBtn.style.display = "inline-flex";
         tabUsersBtn.classList.add('has-requests');
       } else {
+        tabUsersBtn.style.display = "none";
         tabUsersBtn.classList.remove('has-requests');
       }
 
@@ -2070,7 +2071,6 @@
       });
     }
 
-    // ARIZA BOSILGANDA AVVALGI OCHIQ TURGANINI AVTOMATIK YOPISH
     function toggleCard(cardId) {
       const el = document.getElementById(cardId);
       if (!el) return;
@@ -2117,7 +2117,26 @@
       return "Yangi";
     }
 
+    // Sanani millisekundga o'girish (eski kiritilgan arizalarni boshida chiqarish uchun)
+    function parseRecordDateMs(dateStr) {
+      if (!dateStr) return 0;
+      const m = String(dateStr).trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+      if (m) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])).getTime();
+      }
+      const parsed = Date.parse(dateStr);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+
     function renderRecords(records) {
+      // Sanasi bo'yicha o'sish tartibida saralash (birinchi kiritilgan boshida, oxirgisi oxirida)
+      records.sort((a, b) => {
+        const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
+        const tB = (typeof b.sortTime === "number" && b.sortTime > 0) ? b.sortTime : parseRecordDateMs(b.date);
+        if (tA !== tB) return tA - tB;
+        return (Number(a.rowIndex) || 0) - (Number(b.rowIndex) || 0);
+      });
+
       let counts = { newRecs: 0, sent: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
       let htmls = { newRecs: "", sent: "", approved: "", rejected: "", dispatched: "", delivered: "" };
 
