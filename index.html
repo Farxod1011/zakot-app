@@ -848,7 +848,7 @@
 
           <div class="form-group">
             <label>Telefon raqamingiz</label>
-            <input type="tel" id="regPhone" inputmode="tel" required placeholder="+998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
+            <input type="tel" id="regPhone" inputmode="tel" required placeholder="998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
           </div>
 
           <div class="form-group">
@@ -954,7 +954,7 @@
 
         <div class="form-group">
           <label>Telefon raqami</label>
-          <input type="tel" id="recipientPhone" inputmode="tel" required placeholder="+998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
+          <input type="tel" id="recipientPhone" inputmode="tel" required placeholder="998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
         </div>
 
         <div class="form-group">
@@ -1706,10 +1706,11 @@
       input.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '';
     }
 
+    // Barcha telefon raqamlarni 998XXXXXXXXX formatiga keltirish (+ belgisisiz)
     function validateAndFormatPhone(phone) {
-      let digitsOnly = phone.replace(/\D/g, '');
-      if (digitsOnly.length === 9) return "+998" + digitsOnly;
-      if (digitsOnly.length === 12 && digitsOnly.startsWith("998")) return "+998" + digitsOnly.substring(3);
+      let digitsOnly = String(phone || "").replace(/\D/g, '');
+      if (digitsOnly.length === 9) return "998" + digitsOnly;
+      if (digitsOnly.length === 12 && digitsOnly.startsWith("998")) return digitsOnly;
       return null;
     }
 
@@ -1864,7 +1865,6 @@
         tabSentBtn.style.display = "none";
       }
 
-      // Xodimlar so'rovi menyusi faqatgina yangi so'rov kelgandagina ko'rinadi
       const pendingUsers = data.pendingUsers || [];
       renderPendingUsers(pendingUsers);
 
@@ -1919,7 +1919,7 @@
 
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        showNotice("Telefon raqami noto'g'ri!\nMisol: +998901234567 yoki 901234567");
+        showNotice("Telefon raqami noto'g'ri!\nMisol: 998901234567 yoki 901234567");
         return;
       }
 
@@ -2024,7 +2024,7 @@
       const rawPhone = document.getElementById('recipientPhone').value.trim();
       const validPhone = validateAndFormatPhone(rawPhone);
       if (!validPhone) {
-        showNotice("Noto'g'ri raqam kiritildi!\nMisol: +998901234567 yoki 901234567");
+        showNotice("Noto'g'ri raqam kiritildi!\nMisol: 998901234567 yoki 901234567");
         return;
       }
 
@@ -2117,7 +2117,6 @@
       return "Yangi";
     }
 
-    // Sanani millisekundga o'girish (eski kiritilgan arizalarni boshida chiqarish uchun)
     function parseRecordDateMs(dateStr) {
       if (!dateStr) return 0;
       const m = String(dateStr).trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
@@ -2129,7 +2128,6 @@
     }
 
     function renderRecords(records) {
-      // Sanasi bo'yicha o'sish tartibida saralash (birinchi kiritilgan boshida, oxirgisi oxirida)
       records.sort((a, b) => {
         const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
         const tB = (typeof b.sortTime === "number" && b.sortTime > 0) ? b.sortTime : parseRecordDateMs(b.date);
@@ -2146,7 +2144,7 @@
 
       records.forEach((r, idx) => {
         const cleanStatus = normalizeStatusJS(r.status);
-        r.status = cleanStatus;
+        const isSentToManager = Boolean(r.sentToManager) || cleanStatus === "Yuborilgan";
         r.fio = cleanBackslashQuotes(r.fio);
         r.amount = cleanBackslashQuotes(r.amount);
         r.manba = cleanBackslashQuotes(r.manba);
@@ -2156,7 +2154,7 @@
         const isOwnManagerRecord = (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
                                    (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1);
 
-        if (isManager && cleanStatus === "Yangi" && !isOwnManagerRecord) {
+        if (isManager && cleanStatus === "Yangi" && !isSentToManager && !isOwnManagerRecord) {
           return;
         }
 
@@ -2165,9 +2163,7 @@
         const addrLink = addrText.startsWith('http') ? `<a href="${escHtml(addrText)}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>` : escHtml(addrText);
 
         let category = "newRecs";
-        if (cleanStatus === "Yuborilgan") {
-          category = isAdvisor ? "sent" : "newRecs";
-        } else if (cleanStatus === "Tasdiqlangan") {
+        if (cleanStatus === "Tasdiqlangan") {
           category = "approved";
         } else if (cleanStatus === "Rad etilgan") {
           category = "rejected";
@@ -2175,23 +2171,24 @@
           category = "dispatched";
         } else if (cleanStatus === "Yetqazilgan") {
           category = "delivered";
+        } else if (isSentToManager) {
+          category = isAdvisor ? "sent" : "newRecs";
         } else {
           category = "newRecs";
         }
 
+        // Tasdiqlanmaguncha barcha joyda holati "Yangi" bo'lib ko'rinadi
+        let displayStatusText = (cleanStatus === "Yangi" || cleanStatus === "Yuborilgan") ? "Yangi" : cleanStatus;
+        let badgeStatusClass = "status-" + String(displayStatusText).replace(/ /g, '-');
         let subStatusHtml = "";
-        let displayStatusText = cleanStatus;
         if (isVolunteer && category === "newRecs") {
-          const stageName = (cleanStatus === "Yuborilgan")
-            ? "Boshqaruvchida"
-            : "Maslahatchida";
-          subStatusHtml = `<div class="acc-substatus">Holati: ${stageName}</div>`;
-          displayStatusText = stageName;
+          const stageName = isSentToManager ? "Boshqaruvchida" : "Maslahatchida";
+          subStatusHtml = `<div class="acc-substatus">Jarayon: ${stageName}</div>`;
         }
 
         let canEditRecord = false;
         if (isVolunteer) {
-          if (cleanStatus === "Yangi") canEditRecord = true;
+          if (!isSentToManager && cleanStatus === "Yangi") canEditRecord = true;
         } else if (isAdvisor) {
           if (category === "newRecs" || category === "sent") canEditRecord = true;
         } else if (isManager) {
@@ -2253,12 +2250,13 @@
           }
         }
 
+        const saveTargetStatus = isSentToManager && displayStatusText === "Yangi" ? "Yuborilgan" : displayStatusText;
         let bodyContent = "";
 
         if (canEditRecord) {
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi (Ko'ngilli):</span> ${escHtml(r.sender)}</div>` : ''}
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge ${badgeStatusClass}">${displayStatusText}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
@@ -2275,7 +2273,7 @@
               <input type="text" id="eaddr-${idx}" value="${escHtml(r.address)}" oninput="checkRecordChanged(${idx})">
 
               <div class="action-row">
-                <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escJsAttr(cleanStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
+                <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escJsAttr(saveTargetStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
               </div>
               ${statusButtonsHtml}
             </div>
@@ -2288,7 +2286,7 @@
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba)}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${escHtml(r.reason || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-marker"></i> Manzili:</span> ${addrLink}</div>
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Holati:</span> <span class="status-badge status-${String(cleanStatus).replace(/ /g, '-')}">${displayStatusText}</span></div>
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge ${badgeStatusClass}">${displayStatusText}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             ${statusButtonsHtml}
           `;
@@ -2349,7 +2347,7 @@
       let finalPhone = rec.phone;
       if (phoneInput) {
         const formatted = validateAndFormatPhone(phoneInput.value.trim());
-        finalPhone = formatted || phoneInput.value.trim();
+        finalPhone = formatted || phoneInput.value.trim().replace(/\D/g, '');
       }
 
       sendPost({
