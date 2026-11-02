@@ -683,6 +683,54 @@
       filter: brightness(1.1);
     }
 
+    /* KONVERTLAR RO'YXATI VA TELEGRAM USLUBIDAGI FAB (+) TUGMASI */
+    .env-summary-bar {
+      background: rgba(82, 136, 193, 0.12);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 11px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .env-count-badge {
+      background: rgba(36, 129, 204, 0.16);
+      color: var(--accent-color);
+      border: 1px solid rgba(36, 129, 204, 0.35);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tg-fab-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #3390ec;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 5px 16px rgba(51, 144, 236, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 500;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .tg-fab-btn:active {
+      transform: scale(0.92);
+      background: #287cd1;
+    }
+
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
 
     .custom-modal {
@@ -913,27 +961,31 @@
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
-      <!-- 2. XODIMLAR SO'ROVI (Faqat so'rov kelganda ko'rinadi) -->
+      <!-- 2. KONVERT (Faqat Boshqaruvchi va Admin uchun, + dan keyin, faqat logotip ko'rinib turadi) -->
+      <button class="tab-btn compact-plus" id="tabEnvelopeBtn" style="display:none;" onclick="openTab('tab-envelopes', this)">
+        <i class="fi fi-rr-envelope" style="font-size:15px;"></i> <span class="add-tab-text" style="margin-left:6px;">Konvert</span>
+      </button>
+      <!-- 3. XODIMLAR SO'ROVI (Faqat so'rov kelganda ko'rinadi) -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
-      <!-- 3. ARIZALAR / MENING ARIZALARIM -->
+      <!-- 4. ARIZALAR / MENING ARIZALARIM -->
       <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <!-- 4. TASDIQLANGAN -->
+      <!-- 5. TASDIQLANGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> <span class="tab-text-label">Tasdiqlangan</span> <span class="badge" id="b-approved">0</span>
       </button>
-      <!-- 5. RAD ETILGAN -->
+      <!-- 6. RAD ETILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-rejected', this)">
         <i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> <span class="tab-text-label">Rad etilgan</span> <span class="badge" id="b-rejected">0</span>
       </button>
-      <!-- 6. BERIB YUBORILGAN -->
+      <!-- 7. BERIB YUBORILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-dispatched', this)">
         <i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> <span class="tab-text-label">Berib yuborilgan</span> <span class="badge" id="b-dispatched">0</span>
       </button>
-      <!-- 7. YETQAZILGAN -->
+      <!-- 8. YETQAZILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-delivered', this)">
         <i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> <span class="tab-text-label">Yetqazilgan</span> <span class="badge" id="b-delivered">0</span>
       </button>
@@ -988,6 +1040,19 @@
           <i class="fi fi-rr-paper-plane"></i> Arizani yuborish
         </button>
       </form>
+    </div>
+
+    <!-- KONVERTLAR RO'YXATI TABI -->
+    <div id="tab-envelopes" class="tab-content" style="padding-bottom: 90px;">
+      <div id="list-envelopes"></div>
+
+      <!-- Telegram uslubidagi pastki o'ng burchak (+) Konvert qo'shish tugmasi -->
+      <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert qo'shish">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.03 2 11C2 13.66 3.28 16.05 5.3 17.7L4.2 21.3C4.07 21.72 4.48 22.1 4.89 21.93L8.77 20.32C9.8 20.63 10.88 20.8 12 20.8C17.52 20.8 22 16.77 22 11.8C22 6.83 17.52 2 12 2Z" fill="currentColor"/>
+          <path d="M12 7.5V15.5M8 11.5H16" stroke="#3390ec" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
 
     <!-- XODIMLARNI TASDIQLASH TABI -->
@@ -1060,6 +1125,25 @@
     </div>
   </div>
 
+  <!-- 5-MODAL: KONVERT QO'SHISH OYNASI -->
+  <div id="envelopeModal" class="custom-modal">
+    <div class="modal-box">
+      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert qo'shish</div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Konvert summasi (so'm)</label>
+        <input type="text" id="envAmountInput" inputmode="numeric" placeholder="Masalan: 1 000 000" oninput="formatNumberInput(this)">
+      </div>
+      <div class="form-group">
+        <label>Nechta yaratilsin (dona)</label>
+        <input type="tel" id="envCountInput" inputmode="numeric" placeholder="Masalan: 10" oninput="validateDigitsOnly(this)">
+      </div>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAddEnvelopeModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" id="saveEnvBtn" onclick="saveNewEnvelope()">Saqlash</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
@@ -1080,6 +1164,7 @@
     let advisorsList = [];
     let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
     let allRecords = [];
+    let allEnvelopes = [];
     let pendingRejectIdx = null;
     let activeTabId = null;
     let deletingAdvisorObj = null;
@@ -1119,6 +1204,7 @@
         e.target.closest('.tab-bar') ||
         e.target.closest('.top-menu-drawer') ||
         e.target.closest('.custom-modal') ||
+        e.target.closest('.tg-fab-btn') ||
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)
       ) {
         ignoreSwipe = true;
@@ -1622,6 +1708,143 @@
       saveRecordUpdate(idx, 'Rad etilgan', reason);
     }
 
+    // KONVERT QO'SHISH VA KO'RSATISH FUNKSIYALARI
+    function openAddEnvelopeModal() {
+      document.getElementById('envAmountInput').value = "";
+      document.getElementById('envCountInput').value = "";
+      document.getElementById('envelopeModal').classList.add('show');
+    }
+
+    function closeAddEnvelopeModal() {
+      document.getElementById('envelopeModal').classList.remove('show');
+    }
+
+    function saveNewEnvelope() {
+      const rawAmount = document.getElementById('envAmountInput').value.trim();
+      const rawCount = document.getElementById('envCountInput').value.trim();
+
+      if (!rawAmount) {
+        showNotice("Iltimos, konvert summasini kiriting!");
+        return;
+      }
+      const countNum = parseInt(rawCount, 10);
+      if (!countNum || countNum <= 0) {
+        showNotice("Iltimos, konvert sonini kiriting!");
+        return;
+      }
+
+      const formattedAmount = rawAmount.indexOf("so'm") !== -1 ? rawAmount : (rawAmount + " so'm");
+      const nowD = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const todayStr = `${pad(nowD.getDate())}.${pad(nowD.getMonth() + 1)}.${nowD.getFullYear()}`;
+
+      // Ro'yxatda darhol ko'rinishi uchun qo'shamiz
+      allEnvelopes.push({
+        rowIndex: 999999,
+        sortTime: nowD.getTime(),
+        date: todayStr,
+        amount: formattedAmount,
+        count: countNum,
+        creator: currentUser ? currentUser.fio : "Boshqaruvchi"
+      });
+      renderEnvelopes(allEnvelopes);
+      closeAddEnvelopeModal();
+
+      sendPost({
+        action: "ADD_ENVELOPE",
+        chatId: chatId,
+        creatorFio: currentUser ? currentUser.fio : "Boshqaruvchi",
+        amount: formattedAmount,
+        count: countNum
+      }).then(() => {
+        showNotice("Konvert muvaffaqiyatli qo'shildi!");
+        setTimeout(() => initApp('tab-envelopes'), 1400);
+      });
+    }
+
+    function renderEnvelopes(envelopes) {
+      const container = document.getElementById('list-envelopes');
+      if (!container) return;
+
+      if (!envelopes || !envelopes.length) {
+        container.innerHTML = '<div class="empty-state">Hozircha konvertlar mavjud emas.<br>Yangi konvert qo\'shish uchun pastdagi (+) tugmasini bosing.</div>';
+        return;
+      }
+
+      let totalCount = 0;
+      let totalSum = 0;
+
+      envelopes.forEach(env => {
+        const c = parseInt(env.count, 10) || 0;
+        const a = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
+        totalCount += c;
+        totalSum += (c * a);
+      });
+
+      const formattedTotalSum = String(totalSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+
+      let html = `
+        <div class="env-summary-bar">
+          <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Jami: ${totalCount} dona</span>
+          <span style="color:var(--amount-text)">💰 ${formattedTotalSum}</span>
+        </div>
+      `;
+
+      envelopes.forEach((env, idx) => {
+        const unitNum = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
+        const cntNum = parseInt(env.count, 10) || 0;
+        const rowTotal = String(unitNum * cntNum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+
+        html += `
+          <div class="acc-card" id="env-card-${idx}">
+            <div class="acc-header" style="cursor:default;">
+              <div class="acc-left">
+                <div class="acc-fio">
+                  <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(env.amount)}
+                </div>
+                <div class="acc-date">
+                  <i class="fi fi-rr-calendar"></i> Sana: ${escHtml(env.date || '-')} | Jami: <b>${escHtml(rowTotal)}</b>
+                </div>
+              </div>
+              <div class="acc-right" style="flex-direction:row; align-items:center; gap:8px;">
+                <span class="env-count-badge">${cntNum} dona</span>
+                <button type="button" class="trash-icon-btn" onclick="deleteEnvelopeItem(${idx})" title="O'chirish">
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function deleteEnvelopeItem(idx) {
+      const env = allEnvelopes[idx];
+      if (!env) return;
+
+      askConfirm(`«${env.amount}» (${env.count} dona) konvertni o'chirmoqchimisiz?`, () => {
+        const card = document.getElementById(`env-card-${idx}`);
+        if (card) {
+          card.style.opacity = "0.3";
+          card.style.pointerEvents = "none";
+        }
+
+        sendPost({
+          action: "DELETE_ENVELOPE",
+          rowIndex: env.rowIndex,
+          amount: env.amount,
+          count: env.count
+        }).then(() => {
+          allEnvelopes.splice(idx, 1);
+          renderEnvelopes(allEnvelopes);
+          showNotice("Konvert o'chirildi!");
+          setTimeout(() => initApp('tab-envelopes'), 1300);
+        });
+      });
+    }
+
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
@@ -1666,6 +1889,10 @@
 
     function validatePhoneInput(input) {
       input.value = input.value.replace(/[^\d+]/g, '');
+    }
+
+    function validateDigitsOnly(input) {
+      input.value = input.value.replace(/\D/g, '');
     }
 
     function toTitleCaseJS(str) {
@@ -1844,11 +2071,24 @@
       renderTopDrawer();
 
       const tabAddBtn = document.getElementById('tabAddBtn');
+      const tabEnvelopeBtn = document.getElementById('tabEnvelopeBtn');
       const tabMyBtn = document.getElementById('tabMyBtn');
       const tabUsersBtn = document.getElementById('tabUsersBtn');
       const myTabLabel = document.getElementById('myTabLabel');
 
-      const isStaff = isAdminUser || currentUser.role === "Boshqaruvchi" || currentUser.role === "Maslahatchi";
+      const isManager = isAdminUser || currentUser.role === "Boshqaruvchi";
+      const isStaff = isManager || currentUser.role === "Maslahatchi";
+
+      // Konvert menyusi faqat Boshqaruvchi va Admin uchun ko'rinadi
+      if (isManager) {
+        tabEnvelopeBtn.style.display = "inline-flex";
+        allEnvelopes = data.envelopes || [];
+        renderEnvelopes(allEnvelopes);
+      } else {
+        tabEnvelopeBtn.style.display = "none";
+        if (switchToTabId === 'tab-envelopes') switchToTabId = null;
+        if (activeTabId === 'tab-envelopes') activeTabId = null;
+      }
 
       const pendingUsers = data.pendingUsers || [];
       renderPendingUsers(pendingUsers);
@@ -1872,6 +2112,7 @@
       allRecords = data.records || [];
       renderRecords(allRecords);
 
+      // Dasturga kirganda Boshqaruvchi (va xodimlar) uchun avvalgidek "Arizalar" (tab-my) oynasi ochiladi
       if (switchToTabId) {
         const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
         openTab(switchToTabId, targetBtnObj);
@@ -2167,8 +2408,6 @@
           subStatusHtml = `<div class="acc-substatus">Holati: ${displayStatusText}</div>`;
         }
 
-        // Tahrirlash huquqi: Ko'ngilli faqat "Yangi" paytida, Maslahatchi esa "Yangi", "Tasdiqlangan", "Rad etilgan" holatlarida.
-        // Boshqaruvchi (Admin) faqat kuzatadi (read-only).
         let canEditRecord = false;
         if (isVolunteer) {
           if (cleanStatus === "Yangi") canEditRecord = true;
@@ -2176,7 +2415,6 @@
           if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
         }
 
-        // Barcha tasdiqlash, rad etish, berib yuborish, yetqazish va o'chirish amallarini Maslahatchi bajaradi
         let statusButtonsHtml = "";
         if (isAdvisor) {
           if (category === "newRecs") {
