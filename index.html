@@ -683,7 +683,7 @@
       filter: brightness(1.1);
     }
 
-    /* KONVERTLAR RO'YXATI VA TELEGRAM USLUBIDAGI FAB (+) TUGMASI */
+    /* KONVERTLAR RO'YXATI VA BIR QATORLI KARTA DIZAYNI */
     .env-summary-bar {
       background: rgba(82, 136, 193, 0.12);
       border: 1px solid var(--border-color);
@@ -695,18 +695,55 @@
       align-items: center;
       font-size: 13px;
       font-weight: 600;
+      white-space: nowrap;
+      gap: 8px;
+    }
+    .env-card-header {
+      padding: 12px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      cursor: default;
+    }
+    .env-card-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+    .env-date-single-line {
+      font-size: 11.5px;
+      color: var(--hint-color);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .env-card-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
     }
     .env-count-badge {
       background: rgba(36, 129, 204, 0.16);
       color: var(--accent-color);
       border: 1px solid rgba(36, 129, 204, 0.35);
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      justify-content: center;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .tg-fab-btn {
       position: fixed;
@@ -724,6 +761,7 @@
       justify-content: center;
       cursor: pointer;
       z-index: 500;
+      font-size: 22px;
       transition: transform 0.2s ease, background 0.2s ease;
     }
     .tg-fab-btn:active {
@@ -1046,12 +1084,9 @@
     <div id="tab-envelopes" class="tab-content" style="padding-bottom: 90px;">
       <div id="list-envelopes"></div>
 
-      <!-- Telegram uslubidagi pastki o'ng burchak (+) Konvert qo'shish tugmasi -->
+      <!-- Pastki o'ng burchakdagi Konvert logotipli suzuvchi tugma -->
       <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert qo'shish">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C6.48 2 2 6.03 2 11C2 13.66 3.28 16.05 5.3 17.7L4.2 21.3C4.07 21.72 4.48 22.1 4.89 21.93L8.77 20.32C9.8 20.63 10.88 20.8 12 20.8C17.52 20.8 22 16.77 22 11.8C22 6.83 17.52 2 12 2Z" fill="currentColor"/>
-          <path d="M12 7.5V15.5M8 11.5H16" stroke="#3390ec" stroke-width="2.4" stroke-linecap="round"/>
-        </svg>
+        <i class="fi fi-rr-envelope"></i>
       </button>
     </div>
 
@@ -1738,7 +1773,6 @@
       const pad = n => String(n).padStart(2, '0');
       const todayStr = `${pad(nowD.getDate())}.${pad(nowD.getMonth() + 1)}.${nowD.getFullYear()}`;
 
-      // Ro'yxatda darhol ko'rinishi uchun qo'shamiz
       allEnvelopes.push({
         rowIndex: 999999,
         sortTime: nowD.getTime(),
@@ -1767,7 +1801,7 @@
       if (!container) return;
 
       if (!envelopes || !envelopes.length) {
-        container.innerHTML = '<div class="empty-state">Hozircha konvertlar mavjud emas.<br>Yangi konvert qo\'shish uchun pastdagi (+) tugmasini bosing.</div>';
+        container.innerHTML = '<div class="empty-state">Hozircha konvertlar mavjud emas.<br>Yangi konvert qo\'shish uchun pastdagi konvert tugmasini bosing.</div>';
         return;
       }
 
@@ -1797,16 +1831,16 @@
 
         html += `
           <div class="acc-card" id="env-card-${idx}">
-            <div class="acc-header" style="cursor:default;">
-              <div class="acc-left">
+            <div class="env-card-header">
+              <div class="env-card-left">
                 <div class="acc-fio">
                   <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(env.amount)}
                 </div>
-                <div class="acc-date">
-                  <i class="fi fi-rr-calendar"></i> Sana: ${escHtml(env.date || '-')} | Jami: <b>${escHtml(rowTotal)}</b>
+                <div class="env-date-single-line">
+                  <i class="fi fi-rr-calendar"></i> <span>Sana: ${escHtml(env.date || '-')} | Jami: <b>${escHtml(rowTotal)}</b></span>
                 </div>
               </div>
-              <div class="acc-right" style="flex-direction:row; align-items:center; gap:8px;">
+              <div class="env-card-right">
                 <span class="env-count-badge">${cntNum} dona</span>
                 <button type="button" class="trash-icon-btn" onclick="deleteEnvelopeItem(${idx})" title="O'chirish">
                   <i class="fi fi-rr-trash"></i>
@@ -1926,7 +1960,6 @@
       input.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '';
     }
 
-    // Barcha telefon raqamlarni 998XXXXXXXXX formatiga keltirish (+ belgisisiz)
     function validateAndFormatPhone(phone) {
       let digitsOnly = String(phone || "").replace(/\D/g, '');
       if (digitsOnly.length === 9) return "998" + digitsOnly;
@@ -2079,7 +2112,6 @@
       const isManager = isAdminUser || currentUser.role === "Boshqaruvchi";
       const isStaff = isManager || currentUser.role === "Maslahatchi";
 
-      // Konvert menyusi faqat Boshqaruvchi va Admin uchun ko'rinadi
       if (isManager) {
         tabEnvelopeBtn.style.display = "inline-flex";
         allEnvelopes = data.envelopes || [];
@@ -2112,7 +2144,6 @@
       allRecords = data.records || [];
       renderRecords(allRecords);
 
-      // Dasturga kirganda Boshqaruvchi (va xodimlar) uchun avvalgidek "Arizalar" (tab-my) oynasi ochiladi
       if (switchToTabId) {
         const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
         openTab(switchToTabId, targetBtnObj);
@@ -2244,7 +2275,6 @@
       });
     }
 
-    // YANGI ARIZA YUBORISH (Faqat F.I.O va Sababi majburiy)
     function submitForm(e) {
       e.preventDefault();
 
