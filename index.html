@@ -779,6 +779,12 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+    /* Yashil rangdagi konvert soni (O'zida mavjud) */
+    .env-count-badge.green-badge {
+      background: var(--amount-bg);
+      color: var(--success-text);
+      border: 1px solid rgba(46, 125, 50, 0.35);
+    }
     .tg-fab-btn {
       position: fixed;
       right: 20px;
@@ -803,31 +809,35 @@
       background: #287cd1;
     }
 
-    /* MASLAHATCHILAR RO'YXATI (KONVERT BO'LIMIDA) */
+    /* MASLAHATCHILAR RO'YXATI (KONVERT BO'LIMIDA, YASHIRIN / ACCORDION SHAKLIDA) */
     .adv-env-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       overflow: hidden;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-    .adv-env-card:active {
-      border-color: var(--accent-color);
+      transition: all 0.2s ease;
     }
     .adv-env-top {
-      padding: 12px 14px;
+      padding: 13px 14px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
-      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
     }
     .adv-env-body {
-      padding: 11px 14px;
+      display: none;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--border-color);
       background: var(--card-inner-bg);
       font-size: 12.5px;
+    }
+    .adv-env-card.expanded .adv-env-body {
+      display: block;
+    }
+    .adv-env-card.expanded .acc-arrow i {
+      transform: rotate(180deg);
     }
     .adv-stat-grid {
       display: grid;
@@ -864,7 +874,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 7px;
-      padding: 4px 8px;
+      padding: 5px 9px;
       font-size: 11.5px;
       color: var(--text-color);
     }
@@ -1221,14 +1231,14 @@
       <!-- Yuqori 2 ta menyu -->
       <div class="sub-tab-bar">
         <button type="button" class="sub-tab-btn active" id="subTabAdvBtn" onclick="openEnvelopeSubTab('advisors')">
-          <i class="fi fi-rr-compass-alt"></i> Maslahatchilar ro'yxati <span class="badge" id="b-env-advisors">0</span>
+          <i class="fi fi-rr-compass-alt"></i> Maslahatchilar <span class="badge" id="b-env-advisors">0</span>
         </button>
         <button type="button" class="sub-tab-btn" id="subTabEnvBtn" onclick="openEnvelopeSubTab('envelopes')">
           <i class="fi fi-rr-envelope"></i> Konvertlar <span class="badge" id="b-env-list">0</span>
         </button>
       </div>
 
-      <!-- 1-oyna: Maslahatchilar ro'yxati -->
+      <!-- 1-oyna: Maslahatchilar -->
       <div id="env-sub-advisors">
         <div id="list-env-advisors"></div>
       </div>
@@ -1425,6 +1435,24 @@
       return String(str || "").replace(/\\'/g, "'");
     }
 
+    // Maslahatchidagi "Yetqazilgan" qilinmagan barcha faol konvertlar soni va summasini hisoblash
+    function getAdvisorActiveEnvelopeSummary(adv) {
+      const envStats = adv.envStats || {};
+      const byDenom = envStats.byDenom || [];
+      let activeCount = 0;
+      let activeSum = 0;
+
+      byDenom.forEach(d => {
+        const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
+        const notDeliveredCnt = Math.max(0, (d.accepted || 0) - (d.delivered || 0)) + (d.pending || 0);
+        activeCount += notDeliveredCnt;
+        activeSum += (notDeliveredCnt * unitVal);
+      });
+
+      const formattedSum = String(activeSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+      return { count: activeCount, sumFormatted: formattedSum };
+    }
+
     // GORIZONTAL SVAYP (SWIPE) LOGIKASI
     let touchStartX = 0;
     let touchStartY = 0;
@@ -1593,7 +1621,6 @@
       }
 
       if (isAdvisor) {
-        // 1. Maslahatchiga yuborilgan va tasdiqlash kutilayotgan ("Jarayonda") konvertlar
         if (pendingTransfers.length > 0) {
           html += `<div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (Jarayonda)</div>`;
           pendingTransfers.forEach((tr, tIdx) => {
@@ -1617,17 +1644,16 @@
           });
         }
 
-        // 2. Maslahatchining o'zida mavjud konvertlar
         const availList = (myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [];
         const st = (myEnvelopeSummary && myEnvelopeSummary.stats) ? myEnvelopeSummary.stats : { inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
         html += `<div class="dir-section-title">✉️ Mening konvertlarim (Bo'sh: ${st.inHandFree} dona)</div>`;
         html += `
           <div class="dir-card">
             <div style="padding:10px 12px; font-size:12px; line-height:1.5;">
-              <div>📥 O'zimda: <b>${st.inHandFree + st.approvedAssigned} dona</b> (Bo'sh: <b>${st.inHandFree}</b>, Tasdiqlangan arizada: <b>${st.approvedAssigned}</b>)</div>
+              <div>📥 O'zimda: <b style="color:var(--success-text);">${st.inHandFree + st.approvedAssigned} dona</b> (Bo'sh: <b style="color:var(--success-text);">${st.inHandFree}</b>, Tasdiqlangan arizada: <b>${st.approvedAssigned}</b>)</div>
               <div>🚚 Topuvchiga berilgan (Berib yuborilgan): <b>${st.dispatched} dona</b></div>
               <div>✅ Topshirilgan (Yetqazilgan): <b>${st.delivered} dona</b></div>
-              ${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b>${a.freeCount} dona bo'sh</b> (Jami: ${a.acceptedCount})</span>`).join('')}</div>` : ''}
+              ${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b style="color:var(--success-text);">${a.freeCount} dona bo'sh</b> (Jami: ${a.acceptedCount})</span>`).join('')}</div>` : ''}
             </div>
           </div>
         `;
@@ -1677,6 +1703,7 @@
           const dCardId = `dir-adv-${aIdx}`;
           const advInitials = getInitialsJS(adv.fio);
           const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
+          const activeEnvInfo = getAdvisorActiveEnvelopeSummary(adv);
           let volsHtml = "";
           if (!adv.volunteers || !adv.volunteers.length) {
             volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
@@ -1694,7 +1721,7 @@
                     <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${advInitials})
                     <span class="badge">${adv.volunteers.length}</span>
                   </div>
-                  <div class="dir-sub">📞 ${adv.phone} | 📧 ${adv.email}${advUnamePart}</div>
+                  <div class="dir-sub">📞 ${adv.phone || '-'} | ✉️ <b>${activeEnvInfo.count} dona</b> (${activeEnvInfo.sumFormatted})${advUnamePart}</div>
                 </div>
                 <div class="dir-actions" onclick="event.stopPropagation()">
                   <button type="button" class="trash-icon-btn" onclick="promptDeleteAdvisor(${aIdx})">
@@ -2036,6 +2063,19 @@
       }
     }
 
+    // Maslahatchi kartasini bosganda ochish va avvalgisini avtomat yopish
+    function toggleEnvAdvisorCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      const isAlreadyOpen = el.classList.contains('expanded');
+      document.querySelectorAll('.adv-env-card.expanded[id^="adv-env-card-"]').forEach(c => {
+        c.classList.remove('expanded');
+      });
+      if (!isAlreadyOpen) {
+        el.classList.add('expanded');
+      }
+    }
+
     function renderEnvelopeAdvisorsList() {
       const container = document.getElementById('list-env-advisors');
       const badgeEl = document.getElementById('b-env-advisors');
@@ -2051,6 +2091,7 @@
 
       let html = "";
       advs.forEach((adv, aIdx) => {
+        const cardId = `adv-env-card-${aIdx}`;
         const initials = adv.initials || getInitialsJS(adv.fio);
         const vols = adv.volunteers || [];
         const envStats = adv.envStats || {
@@ -2063,6 +2104,8 @@
           deliveredCount: 0,
           byDenom: []
         };
+
+        const activeEnvInfo = getAdvisorActiveEnvelopeSummary(adv);
 
         let volsListHtml = "";
         if (!vols.length) {
@@ -2077,13 +2120,21 @@
         if (!envStats.byDenom || !envStats.byDenom.length) {
           denomListHtml = `<span style="font-size:11.5px; color:var(--hint-color);">Hozircha konvert berilmagan</span>`;
         } else {
-          denomListHtml = `<div style="display:flex; flex-direction:column; gap:5px;">` +
+          denomListHtml = `<div style="display:flex; flex-direction:column; gap:6px;">` +
             envStats.byDenom.map(d => {
+              const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
+              const totalCntForDenom = (d.accepted || 0) + (d.pending || 0);
+              const denomTotalSum = String(unitVal * totalCntForDenom).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
               const pendPart = d.pending > 0 ? ` | <span style="color:var(--warning-text); font-weight:600;">⏳ Jarayonda: ${d.pending}</span>` : '';
               return `
-                <div class="adv-chip" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-                  <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> <b>${escHtml(d.amount)}</b> (Jami: <b>${d.accepted} dona</b>${pendPart})</span>
-                  <span style="font-size:11px; color:var(--hint-color);">O'zida: <b>${d.inHand}</b> | Berib yuborilgan: <b>${d.dispatched}</b> | Topshirilgan: <b>${d.delivered}</b></span>
+                <div class="adv-chip" style="display:flex; flex-direction:column; gap:3px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                    <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> <b>${escHtml(d.amount)}</b> (Soni: <b>${d.accepted} dona</b>${pendPart})</span>
+                    <span style="color:var(--amount-text); font-weight:700;">Jami: ${escHtml(denomTotalSum)}</span>
+                  </div>
+                  <div style="font-size:11px; color:var(--hint-color);">
+                    O'zida: <b style="color:var(--success-text);">${d.inHand} dona</b> | Berib yuborilgan: <b>${d.dispatched}</b> | Topshirilgan: <b>${d.delivered}</b>
+                  </div>
                 </div>
               `;
             }).join('') +
@@ -2091,18 +2142,23 @@
         }
 
         html += `
-          <div class="adv-env-card" onclick="openGiveEnvelopeModal(${aIdx})">
-            <div class="adv-env-top">
+          <div class="adv-env-card" id="${cardId}">
+            <div class="adv-env-top" onclick="toggleEnvAdvisorCard('${cardId}')">
               <div class="dir-info">
                 <div class="dir-name" style="font-size:14.5px;">
                   <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i>
                   <span><b>${escHtml(initials)}</b> — ${escHtml(adv.fio)}</span>
                 </div>
-                <div class="dir-sub">📞 ${escHtml(adv.phone || '-')} | 📧 ${escHtml(adv.email || '-')}</div>
+                <div class="dir-sub">
+                  📞 ${escHtml(adv.phone || '-')} | ✉️ <b>${activeEnvInfo.count} dona</b> (<b style="color:var(--amount-text)">${escHtml(activeEnvInfo.sumFormatted)}</b>)
+                </div>
               </div>
-              <span class="env-count-badge" style="font-size:11.5px; padding:5px 9px;">
-                <i class="fi fi-rr-plus-small"></i> Konvert berish
-              </span>
+              <div class="acc-right">
+                <button type="button" class="env-count-badge" style="font-size:11.5px; padding:5px 9px; cursor:pointer;" onclick="event.stopPropagation(); openGiveEnvelopeModal(${aIdx})">
+                  <i class="fi fi-rr-plus-small"></i> Konvert berish
+                </button>
+                <span class="acc-arrow"><i class="fi fi-rr-angle-small-down"></i> Batafsil</span>
+              </div>
             </div>
 
             <div class="adv-env-body">
@@ -2116,8 +2172,8 @@
                 </div>
                 <div class="adv-stat-box">
                   <div style="color:var(--hint-color);">📥 O'zida (Mavjud):</div>
-                  <div style="font-weight:700; font-size:13px; color:var(--accent-color);">
-                    ${envStats.inHandTotal} dona <span style="font-size:10.5px; font-weight:500; color:var(--hint-color);">(Bo'sh: ${envStats.inHandFree})</span>
+                  <div style="font-weight:700; font-size:13px; color:var(--success-text);">
+                    ${envStats.inHandTotal} dona <span style="font-size:10.5px; font-weight:600; color:var(--success-text);">(Bo'sh: ${envStats.inHandFree} dona)</span>
                   </div>
                 </div>
                 <div class="adv-stat-box">
@@ -2170,7 +2226,7 @@
           ];
 
       let html = "";
-      denomItems.forEach((d, idx) => {
+      denomItems.forEach((d) => {
         html += `
           <div class="give-env-row">
             <div>
@@ -2178,7 +2234,7 @@
                 <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(d.amount)}
               </div>
               <div style="font-size:11.5px; color:var(--hint-color);">
-                Mavjud konvert: <b>${d.available} dona</b>
+                O'zingizda mavjud: <b style="color:var(--success-text);">${d.available} dona</b>
               </div>
             </div>
             <input type="tel" class="give-env-input" inputmode="numeric" placeholder="0" data-amount="${escHtml(d.amount)}" oninput="validateDigitsOnly(this)">
@@ -2265,9 +2321,9 @@
                 <div style="font-size:14px; font-weight:600; color:var(--text-color);">
                   <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
                 </div>
-                <div style="font-size:11.5px; color:var(--hint-color);">O'zingizda mavjud</div>
+                <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">O'zingizda mavjud</div>
               </div>
-              <span class="env-count-badge">${item.freeCount} dona</span>
+              <span class="env-count-badge green-badge">${item.freeCount} dona</span>
             </div>
           `;
         });
@@ -2384,7 +2440,6 @@
         </div>
       `;
 
-      // Sana va uning ostidan tagma-tag Jami (ikkalasi ham bir xil sana rangida va bir xil shrift kattaligida)
       envelopes.forEach((env, idx) => {
         const unitNum = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
         const cntNum = parseInt(env.count, 10) || 0;
@@ -2949,7 +3004,6 @@
       const approveBtn = document.getElementById(`eapprove-${idx}`);
       if (approveBtn) {
         if (isAdvisor) {
-          // Maslahatchi faqatgina konvertni tanlaganda (qo'yganda) tasdiqlay oladi
           approveBtn.disabled = !(envSelected && isAmountValid(amountVal));
         } else {
           approveBtn.disabled = !isAmountValid(amountVal);
@@ -3050,10 +3104,7 @@
         const hasValidAmount = isAmountValid(r.amount);
         const isEnvelopeAlreadyAttached = Boolean(r.hasEnvelope);
 
-        // Maslahatchi konvert qo'ymaguncha Tasdiqlash tugmasi aktivlashmaydi
         const canApproveNow = isAdvisor ? (isEnvelopeAlreadyAttached && hasValidAmount) : hasValidAmount;
-
-        // Topuvchiga tasdiqlanganidan keyin summa ko'rinmasligi kerak
         const hideAmountFromVolunteer = isVolunteer && (cleanStatus === "Tasdiqlangan" || cleanStatus === "Berib yuborilgan" || cleanStatus === "Yetqazilgan");
 
         let statusButtonsHtml = "";
