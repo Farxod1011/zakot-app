@@ -579,15 +579,21 @@
       gap: 5px;
     }
 
+    /* ARIZA HOLATI (MENYU LOGOTIPI RANGIDA) */
     .acc-substatus {
       font-size: 11px;
-      color: var(--success-text);
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 4px;
       margin-top: 1px;
     }
+    .substatus-Yangi { color: var(--accent-color); }
+    .substatus-Tasdiqlangan { color: var(--success-text); }
+    .substatus-Rad-etilgan { color: var(--danger-text); }
+    .substatus-Berib-yuborilgan { color: var(--warning-text); }
+    .substatus-Yetqazilgan { color: var(--info-text); }
+
     .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
     .acc-amount {
       font-size: 13px;
@@ -600,6 +606,12 @@
       align-items: center;
       gap: 5px;
     }
+    /* SUMMA BELGILANMAGAN BO'LSA QIZIL RANGDA */
+    .acc-amount.no-amount {
+      color: var(--danger-text);
+      background: rgba(198, 40, 40, 0.15);
+    }
+
     .acc-arrow { font-size: 11px; color: var(--hint-color); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
     .acc-card.expanded .acc-arrow i { transform: rotate(180deg); }
 
@@ -622,11 +634,11 @@
       font-size: 11px;
       font-weight: 600;
     }
+    .status-Yangi { background: rgba(82, 136, 193, 0.15); color: var(--accent-color); }
     .status-Tasdiqlangan { background: rgba(46, 125, 50, 0.15); color: var(--success-text); }
     .status-Rad-etilgan { background: rgba(198, 40, 40, 0.15); color: var(--danger-text); }
     .status-Berib-yuborilgan { background: rgba(239, 108, 0, 0.15); color: var(--warning-text); }
     .status-Yetqazilgan { background: rgba(21, 101, 192, 0.15); color: var(--info-text); }
-    .status-Yangi { background: rgba(100, 100, 100, 0.15); color: var(--text-color); }
 
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
@@ -683,7 +695,7 @@
       filter: brightness(1.1);
     }
 
-    /* KONVERTLAR RO'YXATI VA BIR QATORLI KARTA DIZAYNI */
+    /* KONVERTLAR RO'YXATI DIZAYNI */
     .env-summary-bar {
       background: rgba(82, 136, 193, 0.12);
       border: 1px solid var(--border-color);
@@ -709,20 +721,18 @@
     .env-card-left {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       min-width: 0;
       flex: 1;
     }
     .env-date-single-line {
-      font-size: 11.5px;
+      font-size: 12px;
       color: var(--hint-color);
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .env-card-right {
       display: flex;
@@ -1009,7 +1019,7 @@
       </button>
       <!-- 4. ARIZALAR / MENING ARIZALARIM -->
       <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
-        <i class="fi fi-rr-document-signed"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
+        <i class="fi fi-rr-document-signed" style="color:var(--accent-color)"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
       <!-- 5. TASDIQLANGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
@@ -1348,6 +1358,11 @@
         ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email || '-'}${myUnamePart}</div>`
         : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
 
+      // Topuvchiga o'zining Maslahatchisi ham ko'rinib turishi uchun
+      const volunteerAdvisorLine = isVolunteer
+        ? `<div class="dir-sub" style="margin-top:2px; color:var(--accent-color); font-weight:600;"><i class="fi fi-rr-compass-alt"></i> Maslahatchi: ${escHtml(currentUser.advisorFio || "Biriktirilmagan")}</div>`
+        : '';
+
       let html = `
         <div class="dir-section-title">Mening profilim</div>
         <div class="dir-card">
@@ -1357,6 +1372,7 @@
                 <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${currentUser.fio} (${roleLabel})
               </div>
               ${myPhoneEmail}
+              ${volunteerAdvisorLine}
             </div>
             <div class="dir-actions">
               ${currentUser.role !== "Admin" ? `
@@ -1824,6 +1840,7 @@
         </div>
       `;
 
+      // Sana va uning ostidan tagma-tag Jami chiqariladi
       envelopes.forEach((env, idx) => {
         const unitNum = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
         const cntNum = parseInt(env.count, 10) || 0;
@@ -1837,7 +1854,10 @@
                   <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(env.amount)}
                 </div>
                 <div class="env-date-single-line">
-                  <i class="fi fi-rr-calendar"></i> <span>Sana: ${escHtml(env.date || '-')} | Jami: <b>${escHtml(rowTotal)}</b></span>
+                  <i class="fi fi-rr-calendar"></i> <span>Sana: ${escHtml(env.date || '-')}</span>
+                </div>
+                <div class="env-date-single-line" style="color:var(--text-color);">
+                  <i class="fi fi-rr-coins" style="color:var(--amount-text)"></i> <span>Jami: <b>${escHtml(rowTotal)}</b></span>
                 </div>
               </div>
               <div class="env-card-right">
@@ -2344,10 +2364,16 @@
       }
     }
 
+    function isAmountValid(val) {
+      if (!val) return false;
+      const digits = String(val).replace(/\D/g, '');
+      return digits.length > 0 && parseInt(digits, 10) > 0;
+    }
+
     function checkRecordChanged(idx) {
       const rec = allRecords[idx];
       const saveBtn = document.getElementById(`esave-${idx}`);
-      if (!rec || !saveBtn) return;
+      if (!rec) return;
 
       const fioVal = (document.getElementById(`efio-${idx}`)?.value || "").trim();
       const phoneVal = (document.getElementById(`ephone-${idx}`)?.value || "").trim();
@@ -2356,15 +2382,23 @@
       const amountVal = (document.getElementById(`eamount-${idx}`)?.value || "").trim();
       const addrVal = (document.getElementById(`eaddr-${idx}`)?.value || "").trim();
 
-      const isChanged =
-        fioVal !== String(rec.fio || "").trim() ||
-        phoneVal !== String(rec.phone || "").trim() ||
-        manbaVal !== String(rec.manba || "").trim() ||
-        reasonVal !== String(rec.reason || "").trim() ||
-        amountVal !== String(rec.amount || "").trim() ||
-        addrVal !== String(rec.address || "").trim();
+      if (saveBtn) {
+        const isChanged =
+          fioVal !== String(rec.fio || "").trim() ||
+          phoneVal !== String(rec.phone || "").trim() ||
+          manbaVal !== String(rec.manba || "").trim() ||
+          reasonVal !== String(rec.reason || "").trim() ||
+          amountVal !== String(rec.amount || "").trim() ||
+          addrVal !== String(rec.address || "").trim();
 
-      saveBtn.disabled = !isChanged;
+        saveBtn.disabled = !isChanged;
+      }
+
+      // Summa kiritilmagan bo'lsa Tasdiqlash tugmasini nofaol qilish
+      const approveBtn = document.getElementById(`eapprove-${idx}`);
+      if (approveBtn) {
+        approveBtn.disabled = !isAmountValid(amountVal);
+      }
     }
 
     function normalizeStatusJS(statusStr) {
@@ -2410,6 +2444,7 @@
         r.manba = cleanBackslashQuotes(r.manba);
         r.reason = cleanBackslashQuotes(r.reason);
         r.address = cleanBackslashQuotes(r.address);
+        r.advisor = cleanBackslashQuotes(r.advisor || "");
 
         const cardId = `rec-card-${idx}`;
         const addrText = String(r.address || "");
@@ -2432,26 +2467,40 @@
 
         let displayStatusText = cleanStatus;
         let badgeStatusClass = "status-" + String(displayStatusText).replace(/ /g, '-');
+        let subStatusColorClass = "substatus-" + String(displayStatusText).replace(/ /g, '-');
         let subStatusHtml = "";
 
         if (isManager || isVolunteer) {
-          subStatusHtml = `<div class="acc-substatus">Holati: ${displayStatusText}</div>`;
+          subStatusHtml = `<div class="acc-substatus ${subStatusColorClass}">Holati: ${displayStatusText}</div>`;
         }
+
+        // Admin va Boshqaruvchi o'zlari kiritgan arizalarni o'zlari boshqara oladi
+        const isOwnManagerRecord = isManager && (
+          r.ownerRole === "Admin" ||
+          r.ownerRole === "Boshqaruvchi" ||
+          (r.ownerChatId && String(r.ownerChatId) === String(chatId)) ||
+          (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
+          (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1)
+        );
+
+        const canManageRecord = isAdvisor || isOwnManagerRecord;
 
         let canEditRecord = false;
         if (isVolunteer) {
           if (cleanStatus === "Yangi") canEditRecord = true;
-        } else if (isAdvisor) {
+        } else if (canManageRecord) {
           if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
         }
 
+        const hasValidAmount = isAmountValid(r.amount);
+
         let statusButtonsHtml = "";
-        if (isAdvisor) {
+        if (canManageRecord) {
           if (category === "newRecs") {
             statusButtonsHtml = `
               <div class="action-row">
                 <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
-                <button type="button" class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button type="button" class="btn-act btn-approve" id="eapprove-${idx}" ${hasValidAmount ? '' : 'disabled'} onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
               </div>
             `;
           } else if (category === "approved") {
@@ -2464,7 +2513,7 @@
           } else if (category === "rejected") {
             statusButtonsHtml = `
               <div class="action-row" onclick="event.stopPropagation()">
-                <button type="button" class="btn-act btn-approve" onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
+                <button type="button" class="btn-act btn-approve" id="eapprove-${idx}" ${hasValidAmount ? '' : 'disabled'} onclick="saveRecordUpdate(${idx}, 'Tasdiqlangan', '')"><i class="fi fi-rr-check"></i> Tasdiqlash</button>
                 <button type="button" class="btn-act btn-delete" onclick="deleteRecord(${idx})"><i class="fi fi-rr-trash"></i> O'chirish</button>
               </div>
             `;
@@ -2477,11 +2526,16 @@
           }
         }
 
+        const advisorInfoRow = isManager
+          ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-compass-alt"></i> Maslahatchi:</span> ${escHtml(r.advisor || (isOwnManagerRecord ? "O'zi (" + (isAdminUser ? "Admin" : "Boshqaruvchi") + ")" : "Biriktirilmagan"))}</div>`
+          : '';
+
         let bodyContent = "";
 
         if (canEditRecord) {
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi:</span> ${escHtml(r.sender)}</div>` : ''}
+            ${advisorInfoRow}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-info"></i> Hozirgi holati:</span> <span class="status-badge ${badgeStatusClass}">${displayStatusText}</span></div>
             ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
@@ -2494,7 +2548,7 @@
               <label>Sababi</label>
               <textarea id="ereason-${idx}" class="single-line-box" rows="1" oninput="checkRecordChanged(${idx})">${escHtml(r.reason || '')}</textarea>
               <label>Miqdor</label>
-              <input type="text" id="eamount-${idx}" value="${escHtml(r.amount)}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="eamount-${idx}" value="${escHtml(r.amount)}" placeholder="Summani kiriting (masalan: 1 000 000 so'm)" oninput="checkRecordChanged(${idx})">
               <label>Manzil ${addrText.startsWith('http') ? `(${addrLink})` : ''}</label>
               <input type="text" id="eaddr-${idx}" value="${escHtml(r.address)}" oninput="checkRecordChanged(${idx})">
 
@@ -2507,7 +2561,8 @@
         } else {
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi:</span> ${escHtml(r.sender)}</div>` : ''}
-            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b>${escHtml(r.amount || '-')}</b></div>
+            ${advisorInfoRow}
+            <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--danger-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b></div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${escHtml(r.phone || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${escHtml(r.reason || '-')}</div>
@@ -2527,7 +2582,7 @@
                 ${subStatusHtml}
               </div>
               <div class="acc-right">
-                <div class="acc-amount"><i class="fi fi-rr-coins"></i> ${escHtml(r.amount || "Belgilanmagan")}</div>
+                <div class="acc-amount ${hasValidAmount ? '' : 'no-amount'}"><i class="fi fi-rr-coins"></i> ${escHtml(hasValidAmount ? r.amount : "Belgilanmagan")}</div>
                 <span class="acc-arrow"><i class="fi fi-rr-angle-small-down"></i> Batafsil</span>
               </div>
             </div>
@@ -2558,15 +2613,26 @@
       const rec = allRecords[idx];
       if (!rec) return;
 
-      const card = document.getElementById(`rec-card-${idx}`);
-      if (card) card.style.opacity = "0.5";
-
       const fioInput = document.getElementById(`efio-${idx}`);
       const phoneInput = document.getElementById(`ephone-${idx}`);
       const manbaInput = document.getElementById(`emanba-${idx}`);
       const reasonInput = document.getElementById(`ereason-${idx}`);
       const amountInput = document.getElementById(`eamount-${idx}`);
       const addrInput = document.getElementById(`eaddr-${idx}`);
+
+      let finalAmount = amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount;
+
+      if (newStatus === "Tasdiqlangan" && !isAmountValid(finalAmount)) {
+        showNotice("Iltimos, tasdiqlashdan oldin zakot miqdorini (summani) kiriting!");
+        return;
+      }
+
+      if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
+        finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+      }
+
+      const card = document.getElementById(`rec-card-${idx}`);
+      if (card) card.style.opacity = "0.5";
 
       let finalPhone = rec.phone;
       if (phoneInput) {
@@ -2591,7 +2657,7 @@
         phone: finalPhone,
         manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
         reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
-        amount: amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount,
+        amount: finalAmount,
         address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
         newStatus: newStatus,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
