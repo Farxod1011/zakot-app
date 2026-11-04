@@ -1435,22 +1435,69 @@
       return String(str || "").replace(/\\'/g, "'");
     }
 
-    // Maslahatchidagi "Yetqazilgan" qilinmagan barcha faol konvertlar soni va summasini hisoblash
-    function getAdvisorActiveEnvelopeSummary(adv) {
-      const envStats = adv.envStats || {};
-      const byDenom = envStats.byDenom || [];
+    // Maslahatchiga haqiqatda berilgan konvertlarni ajratib olish (eski konvertsiz arizalar 0 bo'lib chiqmasligi uchun)
+    function getNormalizedAdvisorEnvStats(adv) {
+      const rawStats = adv.envStats || {};
+      const rawDenoms = rawStats.byDenom || [];
+      const validDenoms = [];
+
+      let totalAccepted = 0;
+      let pendingCount = 0;
+      let inHandTotal = 0;
+      let inHandFree = 0;
+      let dispatchedCount = 0;
+      let deliveredCount = 0;
       let activeCount = 0;
       let activeSum = 0;
 
-      byDenom.forEach(d => {
+      rawDenoms.forEach(d => {
+        const acc = Number(d.accepted) || 0;
+        const pend = Number(d.pending) || 0;
+        // Agar Boshqaruvchi tomonidan bu konvert umuman berilmagan bo'lsa (0 dona), ro'yxatga qo'shmaymiz
+        if (acc <= 0 && pend <= 0) return;
+
+        const deliv = Math.min(acc, Number(d.delivered) || 0);
+        const disp = Math.min(Math.max(0, acc - deliv), Number(d.dispatched) || 0);
+        const appr = Math.min(Math.max(0, acc - deliv - disp), Number(d.approvedAssigned) || 0);
+        const free = Math.max(0, acc - deliv - disp - appr);
+        const inHand = free + appr;
+
         const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
-        const notDeliveredCnt = Math.max(0, (d.accepted || 0) - (d.delivered || 0)) + (d.pending || 0);
+        const notDeliveredCnt = Math.max(0, acc - deliv) + pend;
+
+        totalAccepted += acc;
+        pendingCount += pend;
+        inHandTotal += inHand;
+        inHandFree += free;
+        dispatchedCount += disp;
+        deliveredCount += deliv;
         activeCount += notDeliveredCnt;
         activeSum += (notDeliveredCnt * unitVal);
+
+        validDenoms.push({
+          amount: d.amount,
+          accepted: acc,
+          pending: pend,
+          inHand: inHand,
+          inHandFree: free,
+          dispatched: disp,
+          delivered: deliv
+        });
       });
 
-      const formattedSum = String(activeSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
-      return { count: activeCount, sumFormatted: formattedSum };
+      const formattedActiveSum = String(activeSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+
+      return {
+        totalAccepted,
+        pendingCount,
+        inHandTotal,
+        inHandFree,
+        dispatchedCount,
+        deliveredCount,
+        activeCount,
+        formattedActiveSum,
+        byDenom: validDenoms
+      };
     }
 
     // GORIZONTAL SVAYP (SWIPE) LOGIKASI
@@ -1644,7 +1691,7 @@
           });
         }
 
-        const availList = (myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [];
+        const availList = ((myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : []).filter(a => (a.acceptedCount || 0) > 0);
         const st = (myEnvelopeSummary && myEnvelopeSummary.stats) ? myEnvelopeSummary.stats : { inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
         html += `<div class="dir-section-title">✉️ Mening konvertlarim (Bo'sh: ${st.inHandFree} dona)</div>`;
         html += `
@@ -1701,9 +1748,9 @@
       } else {
         directoryData.advisors.forEach((adv, aIdx) => {
           const dCardId = `dir-adv-${aIdx}`;
-          const advInitials = getInitialsJS(adv.fio);
+          const advInitials = adv.initials || getInitialsJS(adv.fio);
           const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
-          const activeEnvInfo = getAdvisorActiveEnvelopeSummary(adv);
+          const normEnv = getNormalizedAdvisorEnvStats(adv);
           let volsHtml = "";
           if (!adv.volunteers || !adv.volunteers.length) {
             volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
@@ -1718,10 +1765,11 @@
               <div class="dir-card-header" onclick="toggleDirAdvisorCard('${dCardId}')">
                 <div class="dir-info">
                   <div class="dir-name">
-                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${adv.fio} (${advInitials})
+                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(advInitials)}</b>)
                     <span class="badge">${adv.volunteers.length}</span>
                   </div>
-                  <div class="dir-sub">📞 ${adv.phone || '-'} | ✉️ <b>${activeEnvInfo.count} dona</b> (${activeEnvInfo.sumFormatted})${advUnamePart}</div>
+                  <div class="dir-sub">📞 ${escHtml(adv.phone || '-')}${advUnamePart}</div>
+                  <div class="dir-sub">✉️ <b>${normEnv.activeCount} dona</b> (<b style="color:var(--amount-text)">${escHtml(normEnv.formattedActiveSum)}</b>)</div>
                 </div>
                 <div class="dir-actions" onclick="event.stopPropagation()">
                   <button type="button" class="trash-icon-btn" onclick="promptDeleteAdvisor(${aIdx})">
@@ -2094,18 +2142,7 @@
         const cardId = `adv-env-card-${aIdx}`;
         const initials = adv.initials || getInitialsJS(adv.fio);
         const vols = adv.volunteers || [];
-        const envStats = adv.envStats || {
-          totalAccepted: 0,
-          pendingCount: 0,
-          inHandTotal: 0,
-          inHandFree: 0,
-          approvedAssigned: 0,
-          dispatchedCount: 0,
-          deliveredCount: 0,
-          byDenom: []
-        };
-
-        const activeEnvInfo = getAdvisorActiveEnvelopeSummary(adv);
+        const envStats = getNormalizedAdvisorEnvStats(adv);
 
         let volsListHtml = "";
         if (!vols.length) {
@@ -2147,10 +2184,11 @@
               <div class="dir-info">
                 <div class="dir-name" style="font-size:14.5px;">
                   <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i>
-                  <span><b>${escHtml(initials)}</b> — ${escHtml(adv.fio)}</span>
+                  <span>${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)</span>
                 </div>
-                <div class="dir-sub">
-                  📞 ${escHtml(adv.phone || '-')} | ✉️ <b>${activeEnvInfo.count} dona</b> (<b style="color:var(--amount-text)">${escHtml(activeEnvInfo.sumFormatted)}</b>)
+                <div class="dir-sub">📞 ${escHtml(adv.phone || '-')}</div>
+                <div class="dir-sub" style="margin-top:1px;">
+                  ✉️ <b>${envStats.activeCount} dona</b> (<b style="color:var(--amount-text)">${escHtml(envStats.formattedActiveSum)}</b>)
                 </div>
               </div>
               <div class="acc-right">
@@ -2209,7 +2247,7 @@
       givingTargetAdvisor = adv;
 
       const initials = adv.initials || getInitialsJS(adv.fio);
-      document.getElementById('giveEnvAdvisorName').innerText = `${initials} — ${adv.fio}`;
+      document.getElementById('giveEnvAdvisorName').innerText = `${adv.fio} (${initials})`;
       document.getElementById('giveCustomEnvAmount').value = "";
       document.getElementById('giveCustomEnvCount').value = "";
 
