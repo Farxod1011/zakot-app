@@ -165,7 +165,7 @@
     }
     .vol-transfer-row select { padding: 6px 8px; font-size: 12px; border-radius: 7px; flex: 1; }
 
-    /* BARCHASINI BELGILASH QATORI (MASLAHATCHI KONVERT QABUL QILISHIDA) */
+    /* BARCHASINI BELGILASH QATORI */
     .bulk-accept-bar {
       background: var(--card-bg); border: 1px solid rgba(239, 108, 0, 0.45);
       border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
@@ -230,12 +230,15 @@
       padding: 2px 7px; font-size: 11px; font-weight: 600;
     }
 
-    /* KONVERT BO'LIMI ICHIDAGI 2 TA YUQORI MENYU */
-    .sub-tab-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+    /* KONVERT BO'LIMI ICHIDAGI 3 TA YUQORI MENYU (Maslahatchilar | Konvertlar | Hisobot) */
+    .sub-tab-bar {
+      display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+    }
+    .sub-tab-bar::-webkit-scrollbar { display: none; }
     .sub-tab-btn {
-      flex: 1; padding: 9px 12px; border-radius: 18px; font-size: 13px; font-weight: 500;
+      flex: 1; padding: 9px 10px; border-radius: 18px; font-size: 12.5px; font-weight: 500;
       color: var(--text-color); background: var(--card-bg); border: 1px solid var(--border-color);
-      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s ease;
     }
     .sub-tab-btn.active {
       background: rgba(36, 129, 204, 0.82); color: #ffffff; border-color: rgba(82, 136, 193, 0.9);
@@ -248,14 +251,14 @@
     }
     .global-rep-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 10px; padding: 9px 11px; display: flex; flex-direction: column; gap: 3px;
+      border-radius: 10px; padding: 12px 12px; display: flex; flex-direction: column; gap: 4px;
     }
     .global-rep-label {
-      font-size: 11px; color: var(--hint-color); font-weight: 600;
+      font-size: 11.5px; color: var(--hint-color); font-weight: 600;
       display: flex; align-items: center; gap: 5px;
     }
-    .global-rep-val { font-size: 13.5px; font-weight: 700; color: var(--text-color); }
-    .global-rep-sum { font-size: 11.5px; font-weight: 600; color: var(--amount-text); }
+    .global-rep-val { font-size: 15px; font-weight: 700; color: var(--text-color); }
+    .global-rep-sum { font-size: 12px; font-weight: 600; color: var(--amount-text); }
 
     .tab-content {
       display: none; padding: 14px; min-height: calc(100vh - 105px); animation: fadeTab 0.2s ease;
@@ -651,18 +654,17 @@
       </form>
     </div>
 
-    <!-- KONVERT BO'LIMI -->
+    <!-- KONVERT BO'LIMI (3 TA ICHKI MENYU: Maslahatchilar | Konvertlar | Hisobot) -->
     <div id="tab-envelopes" class="tab-content" style="padding-bottom: 90px;">
-      <!-- BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI -->
-      <div id="globalEnvelopeReportBox"></div>
-
-      <!-- Yuqori 2 ta menyu -->
       <div class="sub-tab-bar">
         <button type="button" class="sub-tab-btn active" id="subTabAdvBtn" onclick="openEnvelopeSubTab('advisors')">
           <i class="fi fi-rr-compass-alt"></i> Maslahatchilar <span class="badge" id="b-env-advisors">0</span>
         </button>
         <button type="button" class="sub-tab-btn" id="subTabEnvBtn" onclick="openEnvelopeSubTab('envelopes')">
           <i class="fi fi-rr-envelope"></i> Konvertlar <span class="badge" id="b-env-list">0</span>
+        </button>
+        <button type="button" class="sub-tab-btn" id="subTabRepBtn" onclick="openEnvelopeSubTab('report')">
+          <i class="fi fi-rr-chart-pie-alt"></i> Hisobot
         </button>
       </div>
 
@@ -678,6 +680,11 @@
         <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert shabloni qo'shish">
           <i class="fi fi-rr-envelope"></i>
         </button>
+      </div>
+
+      <!-- 3-oyna: Umumiy Hisobot (Yashirin, faqat Hisobot menyusiga kirganda chiqadi) -->
+      <div id="env-sub-report" style="display:none;">
+        <div id="globalEnvelopeReportBox"></div>
       </div>
     </div>
 
@@ -751,7 +758,7 @@
     </div>
   </div>
 
-  <!-- 5-MODAL: KONVERT SHABLONI QO'SHISH OYNASI (Faqat summa kiritiladi) -->
+  <!-- 5-MODAL: KONVERT SHABLONI QO'SHISH OYNASI -->
   <div id="envelopeModal" class="custom-modal">
     <div class="modal-box">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert shabloni</div>
@@ -1073,7 +1080,6 @@
       }
 
       if (isAdvisor) {
-        // Barchasini belgilash va tanlab qabul qilish imkoniyati
         if (pendingTransfers.length > 0) {
           html += `
             <div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (${pendingTransfers.length})</div>
@@ -1257,7 +1263,6 @@
       });
     }
 
-    // Bitta-bitta "Oldim" bosilganda: 5 soniya ichida boshqalarini ham bosishga imkon beradi va backend bitta xabar yuboradi
     function acceptIncomingEnvelope(transferId, tIdx) {
       const card = document.getElementById('pend-env-' + tIdx);
       if (card) {
@@ -1568,7 +1573,7 @@
       saveRecordUpdate(idx, 'Rad etilgan', reason);
     }
 
-    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI
+    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI ("Hisobot" bo'limi ichida)
     function renderGlobalEnvelopeReport() {
       const box = document.getElementById('globalEnvelopeReportBox');
       if (!box) return;
@@ -1604,18 +1609,27 @@
       activeEnvelopeSubTab = subName;
       const advBtn = document.getElementById('subTabAdvBtn');
       const envBtn = document.getElementById('subTabEnvBtn');
+      const repBtn = document.getElementById('subTabRepBtn');
       const advView = document.getElementById('env-sub-advisors');
       const envView = document.getElementById('env-sub-envelopes');
+      const repView = document.getElementById('env-sub-report');
+
+      advBtn.classList.remove('active');
+      envBtn.classList.remove('active');
+      if (repBtn) repBtn.classList.remove('active');
+
+      advView.style.display = 'none';
+      envView.style.display = 'none';
+      if (repView) repView.style.display = 'none';
 
       if (subName === 'envelopes') {
-        advBtn.classList.remove('active');
         envBtn.classList.add('active');
-        advView.style.display = 'none';
         envView.style.display = 'block';
+      } else if (subName === 'report') {
+        if (repBtn) repBtn.classList.add('active');
+        if (repView) repView.style.display = 'block';
       } else {
-        envBtn.classList.remove('active');
         advBtn.classList.add('active');
-        envView.style.display = 'none';
         advView.style.display = 'block';
       }
     }
@@ -1848,7 +1862,6 @@
       });
     }
 
-    // ARIZAGA KONVERT TANLASH OYNASI (Maslahatchi o'z hamyonidan, Boshqaruvchi o'z shablonlaridan tanlaydi)
     function openSelectEnvelopeForRecord(recIdx) {
       pickingEnvelopeRecordIdx = recIdx;
       const container = document.getElementById('pickEnvelopeListContainer');
@@ -2635,7 +2648,6 @@
         const hasValidAmount = isAmountValid(r.amount);
         const isEnvelopeAlreadyAttached = cleanStatus === "Rad etilgan" ? false : Boolean(r.hasEnvelope);
 
-        // Ham Maslahatchi, ham o'z arizasini tasdiqlayotgan Boshqaruvchi konvert tanlamaguncha Tasdiqlash aktivlashmaydi
         const canApproveNow = isEnvelopeAlreadyAttached && hasValidAmount;
         const hideAmountFromVolunteer = isVolunteer && (cleanStatus === "Tasdiqlangan" || cleanStatus === "Berib yuborilgan" || cleanStatus === "Yetqazilgan");
 
@@ -2796,7 +2808,6 @@
         }
       }
 
-      // Agar ariza Rad etilsa, summa bo'shatiladi va konvert hamyonga qaytadi
       let envelopeAmountPayload = undefined;
       if (newStatus === "Rad etilgan") {
         finalAmount = "";
