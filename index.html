@@ -19,7 +19,6 @@
       --border-color: rgba(0, 0, 0, 0.12);
       --card-inner-bg: rgba(0, 0, 0, 0.04);
 
-      /* Oq tema (Light Theme) uchun ranglar */
       --amount-bg: rgba(46, 125, 50, 0.14);
       --amount-text: #2e7d32;
       --success-text: #2e7d32;
@@ -28,7 +27,6 @@
       --info-text: #1565c0;
     }
 
-    /* Qora tema (Dark Theme) uchun ranglar */
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-color: var(--tg-theme-bg-color, #17212b);
@@ -41,7 +39,6 @@
         --border-color: rgba(255, 255, 255, 0.08);
         --card-inner-bg: rgba(0, 0, 0, 0.18);
 
-        /* Qora tema uchun yorqin va ko'rinarli ranglar */
         --amount-bg: rgba(129, 199, 132, 0.2);
         --amount-text: #81c784;
         --success-text: #81c784;
@@ -54,25 +51,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
 
-    i.fi {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      vertical-align: middle;
-      line-height: 1;
-    }
+    i.fi { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; line-height: 1; }
 
-    /* YANGILASH IKONKASI AYLANISHI */
-    @keyframes spinRefresh {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .spin-icon {
-      animation: spinRefresh 0.75s linear infinite;
-      transform-origin: center;
-    }
+    @keyframes spinRefresh { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spin-icon { animation: spinRefresh 0.75s linear infinite; transform-origin: center; }
 
-    /* QUMSOAT ANIMATSIYASI */
     @keyframes hourglassFlip {
       0% { transform: rotate(0deg); }
       16.67% { transform: rotate(180deg); }
@@ -80,18 +63,9 @@
       66.67% { transform: rotate(360deg); }
       100% { transform: rotate(360deg); }
     }
-    .hourglass-anim {
-      display: inline-flex;
-      animation: hourglassFlip 3s ease-in-out infinite;
-      transform-origin: center;
-    }
+    .hourglass-anim { display: inline-flex; animation: hourglassFlip 3s ease-in-out infinite; transform-origin: center; }
 
-    /* YUKLANMOQDA UCH NUQTA ANIMATSIYASI */
-    .loading-dots-wrap {
-      display: inline-block;
-      width: 18px;
-      text-align: left;
-    }
+    .loading-dots-wrap { display: inline-block; width: 18px; text-align: left; }
     .loading-dots-wrap .dot { opacity: 0; }
     .loading-dots-wrap .d1 { animation: dotAnim1 1.5s infinite; }
     .loading-dots-wrap .d2 { animation: dotAnim2 1.5s infinite; }
@@ -104,13 +78,8 @@
     .screen.active { display: block; }
 
     .center-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 85vh;
-      padding: 20px;
-      text-align: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 85vh; padding: 20px; text-align: center;
     }
     .status-icon { font-size: 48px; margin-bottom: 16px; color: var(--accent-color); }
     .status-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
@@ -118,372 +87,182 @@
 
     /* YUQORI BAR VA 3-NUQTA */
     .role-banner {
-      padding: 6px 12px;
-      background: rgba(82, 136, 193, 0.15);
-      border-bottom: 1px solid var(--border-color);
-      font-size: 12px;
-      color: var(--accent-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 6px 12px; background: rgba(82, 136, 193, 0.15); border-bottom: 1px solid var(--border-color);
+      font-size: 12px; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center;
     }
-    .role-banner-left {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .role-banner-left { display: inline-flex; align-items: center; gap: 6px; }
     .dots-btn {
-      background: var(--card-inner-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      width: 22px;
-      height: 24px;
-      min-width: 24px;
-      border-radius: 5px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s;
-      position: relative;
+      background: var(--card-inner-bg); border: 1px solid var(--border-color); color: var(--text-color);
+      width: 22px; height: 24px; min-width: 24px; border-radius: 5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 12px; transition: all 0.2s; position: relative;
     }
-    .dots-btn:active, .dots-btn.open {
-      background: rgba(36, 129, 204, 0.82);
-      color: #fff;
-      border-color: rgba(36, 129, 204, 0.9);
-    }
+    .dots-btn:active, .dots-btn.open { background: rgba(36, 129, 204, 0.82); color: #fff; border-color: rgba(36, 129, 204, 0.9); }
     .dots-btn.has-alert::after {
-      content: "";
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #e53935;
+      content: ""; position: absolute; top: -3px; right: -3px;
+      width: 8px; height: 8px; border-radius: 50%; background: #e53935;
     }
 
     /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
     .top-menu-drawer {
-      display: none;
-      background: var(--drawer-bg);
-      border-bottom: 2px solid rgba(82, 136, 193, 0.35);
-      padding: 12px 14px;
-      max-height: 75vh;
-      overflow-y: auto;
+      display: none; background: var(--drawer-bg); border-bottom: 2px solid rgba(82, 136, 193, 0.35);
+      padding: 12px 14px; max-height: 75vh; overflow-y: auto;
     }
     .top-menu-drawer.open { display: block; }
 
     .dir-section-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--hint-color);
-      margin: 10px 0 6px;
-      font-weight: 700;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--hint-color); margin: 10px 0 6px; font-weight: 700;
     }
     .dir-section-title:first-child { margin-top: 0; }
 
     .dir-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      overflow: hidden;
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 10px; margin-bottom: 8px; overflow: hidden;
     }
     .dir-card-header {
-      padding: 10px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      gap: 8px;
+      padding: 10px 12px; display: flex; justify-content: space-between;
+      align-items: center; cursor: pointer; gap: 8px;
     }
-    .dir-info {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-width: 0;
-      flex: 1;
-    }
+    .dir-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
     .dir-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      font-size: 14px; font-weight: 600; color: var(--text-color);
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
-    .dir-sub {
-      font-size: 12px;
-      color: var(--hint-color);
-      line-height: 1.4;
-      word-break: break-word;
-    }
-    .dir-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
+    .dir-sub { font-size: 12px; color: var(--hint-color); line-height: 1.4; word-break: break-word; }
+    .dir-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-    /* KICHRAYTIRILGAN SAVATCHA (TRASH) IKONKASI */
     .trash-icon-btn {
-      background: rgba(229, 57, 53, 0.22);
-      border: 1px solid rgba(229, 57, 53, 0.5);
-      color: var(--danger-text);
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-      flex-shrink: 0;
+      background: rgba(229, 57, 53, 0.22); border: 1px solid rgba(229, 57, 53, 0.5); color: var(--danger-text);
+      width: 26px; height: 26px; border-radius: 6px; display: inline-flex;
+      align-items: center; justify-content: center; cursor: pointer; font-size: 12px; flex-shrink: 0;
     }
     .trash-icon-btn:active { background: rgba(229, 57, 53, 0.8); color: #fff; }
 
-    /* PROFIL YONIDAGI AKKAUNTDAN CHIQISH TUGMASI */
     .logout-inline-btn {
-      background: rgba(82, 136, 193, 0.22);
-      border: 1px solid rgba(82, 136, 193, 0.5);
-      color: var(--accent-color);
-      height: 26px;
-      padding: 0 9px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      cursor: pointer;
-      font-size: 11.5px;
-      font-weight: 600;
-      flex-shrink: 0;
+      background: rgba(82, 136, 193, 0.22); border: 1px solid rgba(82, 136, 193, 0.5); color: var(--accent-color);
+      height: 26px; padding: 0 9px; border-radius: 6px; display: inline-flex;
+      align-items: center; justify-content: center; gap: 5px; cursor: pointer;
+      font-size: 11.5px; font-weight: 600; flex-shrink: 0;
     }
-    .logout-inline-btn:active {
-      background: rgba(82, 136, 193, 0.8);
-      color: #fff;
-    }
+    .logout-inline-btn:active { background: rgba(82, 136, 193, 0.8); color: #fff; }
 
     .dir-volunteers-list {
-      display: none;
-      padding: 10px 12px;
-      background: var(--card-inner-bg);
-      border-top: 1px solid var(--border-color);
+      display: none; padding: 10px 12px; background: var(--card-inner-bg); border-top: 1px solid var(--border-color);
     }
     .dir-card.expanded .dir-volunteers-list { display: block; }
 
     .vol-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 9px 10px;
-      margin-bottom: 8px;
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 9px 10px; margin-bottom: 8px;
     }
     .vol-item:last-child { margin-bottom: 0; }
-    .vol-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .vol-details {
-      font-size: 12px;
-      color: var(--hint-color);
-      line-height: 1.45;
-      margin-top: 3px;
-    }
+    .vol-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .vol-details { font-size: 12px; color: var(--hint-color); line-height: 1.45; margin-top: 3px; }
     .vol-transfer-row {
-      margin-top: 8px;
-      padding-top: 7px;
-      border-top: 1px dashed var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      margin-top: 8px; padding-top: 7px; border-top: 1px dashed var(--border-color);
+      display: flex; align-items: center; gap: 6px; font-size: 12px;
     }
-    .vol-transfer-row select {
-      padding: 6px 8px;
-      font-size: 12px;
-      border-radius: 7px;
-      flex: 1;
+    .vol-transfer-row select { padding: 6px 8px; font-size: 12px; border-radius: 7px; flex: 1; }
+
+    /* BARCHASINI BELGILASH QATORI (MASLAHATCHI KONVERT QABUL QILISHIDA) */
+    .bulk-accept-bar {
+      background: var(--card-bg); border: 1px solid rgba(239, 108, 0, 0.45);
+      border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .bulk-chk-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12.5px; font-weight: 600; color: var(--text-color); cursor: pointer; margin: 0;
+    }
+    .env-chk-input {
+      width: 17px !important; height: 17px !important; margin: 0;
+      accent-color: #2e7d32; cursor: pointer; flex-shrink: 0;
     }
 
     /* MAVJUD AKKAUNTLAR RO'YXATI */
     .saved-acc-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 13px 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 13px 14px; margin-bottom: 10px; display: flex; justify-content: space-between;
+      align-items: center; cursor: pointer; transition: all 0.2s ease;
     }
-    .saved-acc-card:active {
-      border-color: var(--accent-color);
-      transform: scale(0.99);
-    }
-    .saved-acc-left {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      text-align: left;
-    }
-    .saved-acc-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .saved-acc-meta {
-      font-size: 12px;
-      color: var(--hint-color);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
+    .saved-acc-card:active { border-color: var(--accent-color); transform: scale(0.99); }
+    .saved-acc-left { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+    .saved-acc-name { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
+    .saved-acc-meta { font-size: 12px; color: var(--hint-color); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
     /* TAB BAR */
     .tab-bar {
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px;
-      overflow-x: auto;
-      white-space: nowrap;
-      scroll-behavior: smooth;
-      background: var(--bg-color);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      scrollbar-width: none;
+      display: flex; gap: 8px; padding: 10px 12px; overflow-x: auto; white-space: nowrap;
+      scroll-behavior: smooth; background: var(--bg-color); backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color);
+      position: sticky; top: 0; z-index: 100; scrollbar-width: none;
     }
     .tab-bar::-webkit-scrollbar { display: none; }
 
     .tab-btn {
-      flex-shrink: 0;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-color);
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      transition: all 0.25s ease;
+      flex-shrink: 0; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      color: var(--text-color); background: var(--card-bg); border: 1px solid var(--border-color);
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.25s ease;
     }
     .tab-btn.active {
-      background: rgba(36, 129, 204, 0.82);
-      color: #ffffff;
-      border-color: rgba(82, 136, 193, 0.9);
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
+      background: rgba(36, 129, 204, 0.82); color: #ffffff; border-color: rgba(82, 136, 193, 0.9);
+      font-weight: 600; box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
     }
 
-    .tab-btn.compact-plus:not(.active) {
-      padding: 8px 11px;
-      gap: 0;
-    }
-    .tab-btn.compact-plus:not(.active) .add-tab-text {
-      display: none;
-    }
-
-    .tab-btn.compact-users:not(.active) {
-      padding: 8px 11px;
-      gap: 5px;
-    }
-    .tab-btn.compact-users:not(.active) .users-tab-text {
-      display: none;
-    }
-
-    .tab-btn.compact-tab:not(.active) {
-      padding: 8px 11px;
-      gap: 5px;
-    }
-    .tab-btn.compact-tab:not(.active) .tab-text-label {
-      display: none;
-    }
+    .tab-btn.compact-plus:not(.active) { padding: 8px 11px; gap: 0; }
+    .tab-btn.compact-plus:not(.active) .add-tab-text { display: none; }
+    .tab-btn.compact-users:not(.active) { padding: 8px 11px; gap: 5px; }
+    .tab-btn.compact-users:not(.active) .users-tab-text { display: none; }
+    .tab-btn.compact-tab:not(.active) { padding: 8px 11px; gap: 5px; }
+    .tab-btn.compact-tab:not(.active) .tab-text-label { display: none; }
 
     .tab-btn.has-requests:not(.active) {
-      background: rgba(229, 57, 53, 0.24);
-      border-color: rgba(229, 57, 53, 0.6);
-      color: var(--danger-text);
+      background: rgba(229, 57, 53, 0.24); border-color: rgba(229, 57, 53, 0.6); color: var(--danger-text);
     }
-    .tab-btn.has-requests:not(.active) .badge {
-      background: rgba(229, 57, 53, 0.85);
-      color: #ffffff;
-    }
+    .tab-btn.has-requests:not(.active) .badge { background: rgba(229, 57, 53, 0.85); color: #ffffff; }
     .tab-btn.has-requests.active {
-      background: rgba(229, 57, 53, 0.82);
-      color: #ffffff;
-      border-color: rgba(229, 57, 53, 0.9);
+      background: rgba(229, 57, 53, 0.82); color: #ffffff; border-color: rgba(229, 57, 53, 0.9);
     }
 
     .badge {
-      background: rgba(100, 100, 100, 0.22);
-      border-radius: 12px;
-      padding: 2px 7px;
-      font-size: 11px;
-      font-weight: 600;
+      background: rgba(100, 100, 100, 0.22); border-radius: 12px;
+      padding: 2px 7px; font-size: 11px; font-weight: 600;
     }
 
-    /* KONVERT BO'LIMI ICHIDAGI 2 TA YUQORI MENYU (SUB-TAB BAR) */
-    .sub-tab-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+    /* KONVERT BO'LIMI ICHIDAGI 2 TA YUQORI MENYU */
+    .sub-tab-bar { display: flex; gap: 8px; margin-bottom: 12px; }
     .sub-tab-btn {
-      flex: 1;
-      padding: 9px 12px;
-      border-radius: 18px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-color);
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s ease;
+      flex: 1; padding: 9px 12px; border-radius: 18px; font-size: 13px; font-weight: 500;
+      color: var(--text-color); background: var(--card-bg); border: 1px solid var(--border-color);
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;
     }
     .sub-tab-btn.active {
-      background: rgba(36, 129, 204, 0.82);
-      color: #ffffff;
-      border-color: rgba(82, 136, 193, 0.9);
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
+      background: rgba(36, 129, 204, 0.82); color: #ffffff; border-color: rgba(82, 136, 193, 0.9);
+      font-weight: 600; box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
     }
 
+    /* BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI (4 TA KATAK) */
+    .global-env-report-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+    }
+    .global-rep-card {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 9px 11px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .global-rep-label {
+      font-size: 11px; color: var(--hint-color); font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .global-rep-val { font-size: 13.5px; font-weight: 700; color: var(--text-color); }
+    .global-rep-sum { font-size: 11.5px; font-weight: 600; color: var(--amount-text); }
+
     .tab-content {
-      display: none;
-      padding: 14px;
-      min-height: calc(100vh - 105px);
-      animation: fadeTab 0.2s ease;
+      display: none; padding: 14px; min-height: calc(100vh - 105px); animation: fadeTab 0.2s ease;
     }
     .tab-content.active { display: block; }
 
-    @keyframes fadeTab {
-      from { opacity: 0.4; transform: translateY(3px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeTab { from { opacity: 0.4; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
     .form-container { padding: 18px 14px; }
     .form-header { font-size: 18px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
@@ -491,127 +270,54 @@
     .form-group { margin-bottom: 13px; text-align: left; }
     label { display: block; font-size: 13px; color: var(--hint-color); margin-bottom: 5px; font-weight: 500; }
     input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: var(--card-bg);
-      color: var(--text-color);
-      font-size: 14px;
-      outline: none;
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--card-bg); color: var(--text-color); font-size: 14px; outline: none;
     }
-    textarea.single-line-box {
-      height: 43px;
-      min-height: 43px;
-      padding: 11px 12px;
-      line-height: 1.35;
-      resize: vertical;
-    }
+    textarea.single-line-box { height: 43px; min-height: 43px; padding: 11px 12px; line-height: 1.35; resize: vertical; }
     input::placeholder, textarea::placeholder { color: var(--hint-color); opacity: 0.8; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
 
     .role-dropdown { position: relative; user-select: none; }
     .role-selected {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: var(--card-bg);
-      color: var(--text-color);
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--card-bg); color: var(--text-color); font-size: 14px; font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     }
     .role-selected span { display: inline-flex; align-items: center; gap: 8px; }
     .role-options {
-      display: none;
-      position: absolute;
-      top: calc(100% + 5px);
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      overflow: hidden;
-      z-index: 200;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;
+      overflow: hidden; z-index: 200; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
     .role-options.open { display: block; }
     .role-option {
-      padding: 12px 14px;
-      font-size: 14px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.15s;
+      padding: 12px 14px; font-size: 14px; border-bottom: 1px solid var(--border-color);
+      cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s;
     }
     .role-option:last-child { border-bottom: none; }
     .role-option:hover, .role-option.selected { background: rgba(36, 129, 204, 0.82); color: #fff; font-weight: 600; }
     .role-option.disabled { opacity: 0.4; pointer-events: none; }
 
-    /* ME'YORIDA SHAFFOF ASOSIY TUGMALAR */
     .submit-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 10px;
-      background: rgba(36, 129, 204, 0.82);
-      color: #ffffff;
-      border: 1px solid rgba(82, 136, 193, 0.85);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
+      width: 100%; padding: 13px; border-radius: 10px; background: rgba(36, 129, 204, 0.82);
+      color: #ffffff; border: 1px solid rgba(82, 136, 193, 0.85); font-size: 15px; font-weight: 600;
+      cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
     }
     .submit-btn:active { background: rgba(36, 129, 204, 0.95); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .acc-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      border: 1px solid var(--border-color);
-      overflow: hidden;
-      transition: all 0.2s ease;
+      background: var(--card-bg); border-radius: 12px; margin-bottom: 10px;
+      border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease;
     }
-    .acc-header {
-      padding: 13px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
+    .acc-header { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
     .acc-left { display: flex; flex-direction: column; gap: 4px; }
     .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
     .acc-date { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-    .pending-role-highlight {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--danger-text);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .pending-role-highlight { font-size: 13.5px; font-weight: 600; color: var(--danger-text); display: inline-flex; align-items: center; gap: 5px; }
 
-    /* ARIZA HOLATI (MENYU LOGOTIPI RANGIDA) */
-    .acc-substatus {
-      font-size: 11px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 1px;
-    }
+    .acc-substatus { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
     .substatus-Yangi { color: var(--accent-color); }
     .substatus-Tasdiqlangan { color: var(--success-text); }
     .substatus-Rad-etilgan { color: var(--danger-text); }
@@ -620,43 +326,24 @@
 
     .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
     .acc-amount {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--amount-text);
-      background: var(--amount-bg);
-      padding: 4px 9px;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      font-size: 13px; font-weight: 600; color: var(--amount-text); background: var(--amount-bg);
+      padding: 4px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
     }
-    .acc-amount.no-amount {
-      color: var(--danger-text);
-      background: rgba(198, 40, 40, 0.15);
-    }
+    .acc-amount.no-amount { color: var(--danger-text); background: rgba(198, 40, 40, 0.15); }
 
     .acc-arrow { font-size: 11px; color: var(--hint-color); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
     .acc-card.expanded .acc-arrow i { transform: rotate(180deg); }
 
     .acc-body {
-      display: none;
-      padding: 12px 14px 14px;
-      border-top: 1px solid var(--border-color);
-      background: var(--card-inner-bg);
-      font-size: 13px;
+      display: none; padding: 12px 14px 14px; border-top: 1px solid var(--border-color);
+      background: var(--card-inner-bg); font-size: 13px;
     }
     .acc-card.expanded .acc-body { display: block; }
 
     .detail-row { margin-bottom: 7px; color: var(--text-color); line-height: 1.4; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .detail-label { color: var(--hint-color); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
 
-    .status-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-    }
+    .status-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
     .status-Yangi { background: rgba(82, 136, 193, 0.15); color: var(--accent-color); }
     .status-Tasdiqlangan { background: rgba(46, 125, 50, 0.15); color: var(--success-text); }
     .status-Rad-etilgan { background: rgba(198, 40, 40, 0.15); color: var(--danger-text); }
@@ -666,343 +353,96 @@
 
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
-    .edit-box textarea.single-line-box {
-      height: 38px;
-      min-height: 38px;
-    }
+    .edit-box textarea.single-line-box { height: 38px; min-height: 38px; }
 
-    /* ME'YORIDA SHAFFOF AMAL TUGMALARI */
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .btn-act {
-      flex: 1;
-      min-width: 110px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #ffffff;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
+      flex: 1; min-width: 110px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;
     }
-    .btn-act:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      pointer-events: none;
-      filter: grayscale(40%);
-    }
-    .btn-save {
-      background: rgba(59, 105, 152, 0.82);
-      border: 1px solid rgba(59, 105, 152, 0.9);
-    }
-    .btn-approve {
-      background: rgba(46, 125, 50, 0.82);
-      border: 1px solid rgba(46, 125, 50, 0.9);
-    }
-    .btn-send, .btn-deliver {
-      background: rgba(2, 136, 209, 0.82);
-      border: 1px solid rgba(2, 136, 209, 0.9);
-    }
-    .btn-reject, .btn-delete {
-      background: rgba(198, 40, 40, 0.82);
-      border: 1px solid rgba(198, 40, 40, 0.9);
-    }
-    .btn-dispatch {
-      background: rgba(239, 108, 0, 0.82);
-      border: 1px solid rgba(239, 108, 0, 0.9);
-    }
-    .btn-act:active {
-      transform: scale(0.98);
-      filter: brightness(1.1);
-    }
+    .btn-act:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; filter: grayscale(40%); }
+    .btn-save { background: rgba(59, 105, 152, 0.82); border: 1px solid rgba(59, 105, 152, 0.9); }
+    .btn-approve { background: rgba(46, 125, 50, 0.82); border: 1px solid rgba(46, 125, 50, 0.9); }
+    .btn-send, .btn-deliver { background: rgba(2, 136, 209, 0.82); border: 1px solid rgba(2, 136, 209, 0.9); }
+    .btn-reject, .btn-delete { background: rgba(198, 40, 40, 0.82); border: 1px solid rgba(198, 40, 40, 0.9); }
+    .btn-dispatch { background: rgba(239, 108, 0, 0.82); border: 1px solid rgba(239, 108, 0, 0.9); }
+    .btn-act:active { transform: scale(0.98); filter: brightness(1.1); }
 
-    /* KONVERTLAR RO'YXATI DIZAYNI */
-    .env-summary-bar {
-      background: rgba(82, 136, 193, 0.12);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 11px 14px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      gap: 8px;
-    }
-    .env-card-header {
-      padding: 12px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      cursor: default;
-    }
-    .env-card-left {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-width: 0;
-      flex: 1;
-    }
-    .env-date-single-line {
-      font-size: 12px;
-      color: var(--hint-color);
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-    }
-    .env-card-right {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 7px;
-      flex-shrink: 0;
-    }
+    /* KONVERTLAR SHABLONI VA MASLAHATCHILAR RO'YXATI */
+    .env-card-header { padding: 12px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: default; }
+    .env-card-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+    .env-date-single-line { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .env-card-right { display: flex; flex-direction: row; align-items: center; gap: 7px; flex-shrink: 0; }
     .env-count-badge {
-      background: rgba(36, 129, 204, 0.16);
-      color: var(--accent-color);
-      border: 1px solid rgba(36, 129, 204, 0.35);
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      white-space: nowrap;
-      flex-shrink: 0;
+      background: rgba(36, 129, 204, 0.16); color: var(--accent-color); border: 1px solid rgba(36, 129, 204, 0.35);
+      padding: 5px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0;
     }
-    /* Yashil rangdagi konvert soni (O'zida mavjud) */
     .env-count-badge.green-badge {
-      background: var(--amount-bg);
-      color: var(--success-text);
-      border: 1px solid rgba(46, 125, 50, 0.35);
+      background: var(--amount-bg); color: var(--success-text); border: 1px solid rgba(46, 125, 50, 0.35);
     }
     .tg-fab-btn {
-      position: fixed;
-      right: 20px;
-      bottom: 24px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #3390ec;
-      color: #ffffff;
-      border: none;
-      box-shadow: 0 5px 16px rgba(51, 144, 236, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 500;
-      font-size: 22px;
+      position: fixed; right: 20px; bottom: 24px; width: 56px; height: 56px; border-radius: 50%;
+      background: #3390ec; color: #ffffff; border: none; box-shadow: 0 5px 16px rgba(51, 144, 236, 0.45);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 500; font-size: 22px;
       transition: transform 0.2s ease, background 0.2s ease;
     }
-    .tg-fab-btn:active {
-      transform: scale(0.92);
-      background: #287cd1;
-    }
+    .tg-fab-btn:active { transform: scale(0.92); background: #287cd1; }
 
-    /* MASLAHATCHILAR RO'YXATI (KONVERT BO'LIMIDA, YASHIRIN / ACCORDION SHAKLIDA) */
     .adv-env-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      overflow: hidden;
-      transition: all 0.2s ease;
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s ease;
     }
-    .adv-env-top {
-      padding: 13px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-    .adv-env-body {
-      display: none;
-      padding: 12px 14px 14px;
-      border-top: 1px solid var(--border-color);
-      background: var(--card-inner-bg);
-      font-size: 12.5px;
-    }
-    .adv-env-card.expanded .adv-env-body {
-      display: block;
-    }
-    .adv-env-card.expanded .acc-arrow i {
-      transform: rotate(180deg);
-    }
-    .adv-stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 9px;
-    }
-    .adv-stat-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 7px 9px;
-      font-size: 11.5px;
-      line-height: 1.35;
-    }
-    .adv-sub-block {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed var(--border-color);
-    }
-    .adv-sub-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--hint-color);
-      text-transform: uppercase;
-      margin-bottom: 5px;
-    }
-    .adv-chip-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .adv-chip {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 7px;
-      padding: 5px 9px;
-      font-size: 11.5px;
-      color: var(--text-color);
-    }
+    .adv-env-top { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
+    .adv-env-body { display: none; padding: 12px 14px 14px; border-top: 1px solid var(--border-color); background: var(--card-inner-bg); font-size: 12.5px; }
+    .adv-env-card.expanded .adv-env-body { display: block; }
+    .adv-env-card.expanded .acc-arrow i { transform: rotate(180deg); }
+    .adv-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 9px; }
+    .adv-stat-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 9px; font-size: 11.5px; line-height: 1.35; }
+    .adv-sub-block { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+    .adv-sub-title { font-size: 11px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 5px; }
+    .adv-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); }
 
-    /* KONVERT BERISH VA TANLASH MODAL ELEMENTLARI */
     .give-env-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      background: var(--card-inner-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 9px 11px;
-      margin-bottom: 8px;
-      text-align: left;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      background: var(--card-inner-bg); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; text-align: left;
     }
-    .give-env-input {
-      width: 82px !important;
-      padding: 8px 10px !important;
-      text-align: center;
-      font-weight: 600;
-    }
+    .give-env-input { width: 82px !important; padding: 8px 10px !important; text-align: center; font-weight: 600; }
     .pick-env-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-inner-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 12px 13px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--card-inner-bg); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 12px 13px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
     }
-    .pick-env-item:active {
-      background: rgba(36, 129, 204, 0.2);
-      border-color: var(--accent-color);
-    }
+    .pick-env-item:active { background: rgba(36, 129, 204, 0.2); border-color: var(--accent-color); }
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
 
     .custom-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999;
+      align-items: center; justify-content: center; padding: 20px;
     }
     .custom-modal.show { display: flex; }
     .modal-box {
-      background: var(--modal-bg);
-      border-radius: 16px;
-      padding: 22px 20px;
-      width: 100%;
-      max-width: 350px;
-      text-align: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-      border: 1px solid var(--border-color);
-      max-height: 85vh;
-      overflow-y: auto;
+      background: var(--modal-bg); border-radius: 16px; padding: 22px 20px; width: 100%; max-width: 350px;
+      text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.25); border: 1px solid var(--border-color);
+      max-height: 85vh; overflow-y: auto;
     }
-    .modal-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .modal-text {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 18px;
-      color: var(--text-color);
-      line-height: 1.45;
-    }
+    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color); display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .modal-text { font-size: 14px; font-weight: 500; margin-bottom: 18px; color: var(--text-color); line-height: 1.45; }
     .modal-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 10px;
-      background: rgba(36, 129, 204, 0.82);
-      color: #ffffff;
-      border: 1px solid rgba(82, 136, 193, 0.85);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+      width: 100%; padding: 11px; border-radius: 10px; background: rgba(36, 129, 204, 0.82);
+      color: #ffffff; border: 1px solid rgba(82, 136, 193, 0.85); font-size: 14px; font-weight: 600; cursor: pointer;
     }
-    .modal-btn-cancel {
-      background: rgba(75, 85, 99, 0.78);
-      color: #ffffff;
-      border: 1px solid rgba(75, 85, 99, 0.85);
-    }
-    .modal-btn-danger {
-      background: rgba(198, 40, 40, 0.82);
-      color: #ffffff;
-      border: 1px solid rgba(198, 40, 40, 0.9);
-    }
-    .modal-btn-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
+    .modal-btn-cancel { background: rgba(75, 85, 99, 0.78); color: #ffffff; border: 1px solid rgba(75, 85, 99, 0.85); }
+    .modal-btn-danger { background: rgba(198, 40, 40, 0.82); color: #ffffff; border: 1px solid rgba(198, 40, 40, 0.9); }
+    .modal-btn-row { display: flex; gap: 8px; margin-top: 14px; }
 
-    .reassign-item {
-      text-align: left;
-      background: var(--card-inner-bg);
-      padding: 8px 10px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      border: 1px solid var(--border-color);
-    }
-    .reassign-item-name {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    .reassign-item select {
-      padding: 7px;
-      font-size: 12px;
-    }
+    .reassign-item { text-align: left; background: var(--card-inner-bg); padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+    .reassign-item-name { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .reassign-item select { padding: 7px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -1019,20 +459,15 @@
   <!-- 2. RO'YXATDAN O'TISH VA MAVJUD AKKAUNTLAR -->
   <div id="screen-register" class="screen">
     <div class="form-container">
-
-      <!-- A) MAVJUD AKKAUNTLAR RO'YXATI -->
       <div id="existingAccountsView" style="display:none;">
         <div class="form-header"><i class="fi fi-rr-users" style="color:var(--accent-color)"></i> Akkauntni tanlang</div>
         <div class="form-sub">Mavjud akkauntingizga kiring yoki yangi ro'yxatdan o'ting.</div>
-
         <div id="existingAccountsList"></div>
-
         <button type="button" class="submit-btn" onclick="openRegistrationFormView()">
           <i class="fi fi-rr-user-add"></i> Ro'yxatdan o'tish
         </button>
       </div>
 
-      <!-- B) YANGI RO'YXATDAN O'TISH FORMASI -->
       <div id="regFormView">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <div class="form-header" style="margin-bottom:0;"><i class="fi fi-rr-user-add" style="color:var(--accent-color)"></i> Ro'yxatdan o'tish</div>
@@ -1092,7 +527,6 @@
           </button>
         </form>
       </div>
-
     </div>
   </div>
 
@@ -1135,47 +569,38 @@
       <span onclick="initApp(activeTabId)" style="cursor:pointer;"><i class="fi fi-rr-refresh refresh-icon-el"></i> Yangilash</span>
     </div>
 
-    <!-- 3-NUQTA BOSILGANDA KENGAYADIGAN RO'YXAT OYNA -->
     <div id="topMenuDrawer" class="top-menu-drawer">
       <div id="topDrawerContent"></div>
     </div>
 
     <div class="tab-bar">
-      <!-- 1. "+" ARIZA QO'SHISH -->
       <button class="tab-btn active" id="tabAddBtn" onclick="openTab('tab-add', this)">
         <i class="fi fi-rr-plus-small" style="font-size:16px;"></i> <span class="add-tab-text">Ariza qo'shish</span>
       </button>
-      <!-- 2. KONVERT (Faqat Boshqaruvchi va Admin uchun, + dan keyin, faqat logotip ko'rinib turadi) -->
       <button class="tab-btn compact-plus" id="tabEnvelopeBtn" style="display:none;" onclick="openTab('tab-envelopes', this)">
         <i class="fi fi-rr-envelope" style="font-size:15px;"></i> <span class="add-tab-text" style="margin-left:6px;">Konvert</span>
       </button>
-      <!-- 3. XODIMLAR SO'ROVI (Faqat so'rov kelganda ko'rinadi) -->
       <button class="tab-btn compact-users" id="tabUsersBtn" style="display:none;" onclick="openTab('tab-users', this)">
         <i class="fi fi-rr-users-alt"></i> <span class="users-tab-text">Xodimlar so'rovi</span> <span class="badge" id="b-users">0</span>
       </button>
-      <!-- 4. ARIZALAR / MENING ARIZALARIM -->
       <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed" style="color:var(--accent-color)"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <!-- 5. TASDIQLANGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> <span class="tab-text-label">Tasdiqlangan</span> <span class="badge" id="b-approved">0</span>
       </button>
-      <!-- 6. RAD ETILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-rejected', this)">
         <i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> <span class="tab-text-label">Rad etilgan</span> <span class="badge" id="b-rejected">0</span>
       </button>
-      <!-- 7. BERIB YUBORILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-dispatched', this)">
         <i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> <span class="tab-text-label">Berib yuborilgan</span> <span class="badge" id="b-dispatched">0</span>
       </button>
-      <!-- 8. YETQAZILGAN -->
       <button class="tab-btn compact-tab" onclick="openTab('tab-delivered', this)">
         <i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> <span class="tab-text-label">Yetqazilgan</span> <span class="badge" id="b-delivered">0</span>
       </button>
     </div>
 
-    <!-- ARIZA QO'SHISH (Faqat F.I.O va Sababi majburiy) -->
+    <!-- ARIZA QO'SHISH -->
     <div id="tab-add" class="tab-content active">
       <form id="zakotForm" onsubmit="submitForm(event)">
         <div class="form-group">
@@ -1226,8 +651,11 @@
       </form>
     </div>
 
-    <!-- KONVERT BO'LIMI (2 TA ICHKI MENYU BILAN) -->
+    <!-- KONVERT BO'LIMI -->
     <div id="tab-envelopes" class="tab-content" style="padding-bottom: 90px;">
+      <!-- BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI -->
+      <div id="globalEnvelopeReportBox"></div>
+
       <!-- Yuqori 2 ta menyu -->
       <div class="sub-tab-bar">
         <button type="button" class="sub-tab-btn active" id="subTabAdvBtn" onclick="openEnvelopeSubTab('advisors')">
@@ -1243,12 +671,11 @@
         <div id="list-env-advisors"></div>
       </div>
 
-      <!-- 2-oyna: Hozirgi Konvert oynasi -->
+      <!-- 2-oyna: Konvert shablonlari -->
       <div id="env-sub-envelopes" style="display:none;">
         <div id="list-envelopes"></div>
 
-        <!-- Pastki o'ng burchakdagi Konvert logotipli suzuvchi tugma -->
-        <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert qo'shish">
+        <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert shabloni qo'shish">
           <i class="fi fi-rr-envelope"></i>
         </button>
       </div>
@@ -1324,17 +751,13 @@
     </div>
   </div>
 
-  <!-- 5-MODAL: KONVERT QO'SHISH OYNASI -->
+  <!-- 5-MODAL: KONVERT SHABLONI QO'SHISH OYNASI (Faqat summa kiritiladi) -->
   <div id="envelopeModal" class="custom-modal">
     <div class="modal-box">
-      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert qo'shish</div>
+      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert shabloni</div>
       <div class="form-group" style="margin-top:10px;">
         <label>Konvert summasi (so'm)</label>
         <input type="text" id="envAmountInput" inputmode="numeric" placeholder="Masalan: 1 000 000" oninput="formatNumberInput(this)">
-      </div>
-      <div class="form-group">
-        <label>Nechta yaratilsin (dona)</label>
-        <input type="tel" id="envCountInput" inputmode="numeric" placeholder="Masalan: 10" oninput="validateDigitsOnly(this)">
       </div>
       <div class="modal-btn-row">
         <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAddEnvelopeModal()">Bekor qilish</button>
@@ -1362,10 +785,6 @@
         </div>
       </div>
 
-      <div style="font-size:11px; color:var(--hint-color); text-align:left; margin-bottom:6px;">
-        * Agar kiritilgan son mavjud konvertdan ko'p bo'lsa, yetmagan qismi avtomat yaratilib beriladi.
-      </div>
-
       <div class="modal-btn-row">
         <button type="button" class="modal-btn modal-btn-cancel" onclick="closeGiveEnvelopeModal()">Bekor qilish</button>
         <button type="button" class="modal-btn" id="confirmGiveEnvBtn" onclick="submitGiveEnvelopes()">Berish</button>
@@ -1373,12 +792,12 @@
     </div>
   </div>
 
-  <!-- 7-MODAL: MASLAHATCHI ARIZAGA KONVERT TANLASH OYNASI -->
+  <!-- 7-MODAL: ARIZAGA KONVERT TANLASH OYNASI -->
   <div id="pickEnvelopeModal" class="custom-modal">
     <div class="modal-box" style="max-width:350px;">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvertni tanlang</div>
-      <div class="modal-text" style="margin-bottom:12px; font-size:12.5px; color:var(--hint-color);">
-        Ushbu arizani tasdiqlash uchun o'zingizda mavjud konvertlardan birini tanlang:
+      <div class="modal-text" id="pickEnvelopeDescText" style="margin-bottom:12px; font-size:12.5px; color:var(--hint-color);">
+        Ushbu arizani tasdiqlash uchun konvertni tanlang:
       </div>
       <div id="pickEnvelopeListContainer" style="max-height:260px; overflow-y:auto; margin-bottom:10px;"></div>
       <button type="button" class="modal-btn modal-btn-cancel" onclick="closePickEnvelopeModal()">Yopish</button>
@@ -1407,6 +826,7 @@
     let allRecords = [];
     let allEnvelopes = [];
     let envelopeStockList = [];
+    let globalEnvReportData = { createdCount: 0, createdSum: 0, approvedCount: 0, approvedSum: 0, dispatchedCount: 0, dispatchedSum: 0, deliveredCount: 0, deliveredSum: 0 };
     let myEnvelopeSummary = { pendingTransfers: [], available: [], stats: { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 } };
     let pendingRejectIdx = null;
     let activeTabId = null;
@@ -1414,28 +834,25 @@
     let deletingAdvisorObj = null;
     let givingTargetAdvisor = null;
     let pickingEnvelopeRecordIdx = null;
+    let singleAcceptDebounceTimer = null;
 
     function escJsAttr(str) {
-      return String(str || "")
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, "&quot;");
+      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
     }
 
     function escHtml(str) {
-      return String(str || "")
-        .replace(/\\'/g, "'")
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      return String(str || "").replace(/\\'/g, "'").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function cleanBackslashQuotes(str) {
       return String(str || "").replace(/\\'/g, "'");
     }
 
-    // Maslahatchiga haqiqatda berilgan konvertlarni ajratib olish (eski konvertsiz arizalar 0 bo'lib chiqmasligi uchun)
+    function formatSumText(num) {
+      const n = Number(num) || 0;
+      return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+    }
+
     function getNormalizedAdvisorEnvStats(adv) {
       const rawStats = adv.envStats || {};
       const rawDenoms = rawStats.byDenom || [];
@@ -1453,7 +870,6 @@
       rawDenoms.forEach(d => {
         const acc = Number(d.accepted) || 0;
         const pend = Number(d.pending) || 0;
-        // Agar Boshqaruvchi tomonidan bu konvert umuman berilmagan bo'lsa (0 dona), ro'yxatga qo'shmaymiz
         if (acc <= 0 && pend <= 0) return;
 
         const deliv = Math.min(acc, Number(d.delivered) || 0);
@@ -1485,8 +901,6 @@
         });
       });
 
-      const formattedActiveSum = String(activeSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
-
       return {
         totalAccepted,
         pendingCount,
@@ -1495,12 +909,12 @@
         dispatchedCount,
         deliveredCount,
         activeCount,
-        formattedActiveSum,
+        formattedActiveSum: formatSumText(activeSum),
         byDenom: validDenoms
       };
     }
 
-    // GORIZONTAL SVAYP (SWIPE) LOGIKASI
+    // GORIZONTAL SVAYP
     let touchStartX = 0;
     let touchStartY = 0;
     let ignoreSwipe = false;
@@ -1535,11 +949,7 @@
       const diffY = touchEndY - touchStartY;
 
       if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
-        if (diffX < 0) {
-          switchAdjacentTab(1);
-        } else {
-          switchAdjacentTab(-1);
-        }
+        switchAdjacentTab(diffX < 0 ? 1 : -1);
       }
     }, { passive: true });
 
@@ -1548,10 +958,8 @@
         btn => window.getComputedStyle(btn).display !== 'none'
       );
       if (!visibleBtns.length) return;
-
       const currentIdx = visibleBtns.findIndex(btn => btn.classList.contains('active'));
       if (currentIdx === -1) return;
-
       const nextIdx = currentIdx + direction;
       if (nextIdx >= 0 && nextIdx < visibleBtns.length) {
         visibleBtns[nextIdx].click();
@@ -1560,11 +968,8 @@
 
     function setRefreshSpinning(isSpinning) {
       document.querySelectorAll('.refresh-icon-el').forEach(icon => {
-        if (isSpinning) {
-          icon.classList.add('spin-icon');
-        } else {
-          icon.classList.remove('spin-icon');
-        }
+        if (isSpinning) icon.classList.add('spin-icon');
+        else icon.classList.remove('spin-icon');
       });
     }
 
@@ -1668,20 +1073,36 @@
       }
 
       if (isAdvisor) {
+        // Barchasini belgilash va tanlab qabul qilish imkoniyati
         if (pendingTransfers.length > 0) {
-          html += `<div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (Jarayonda)</div>`;
+          html += `
+            <div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (${pendingTransfers.length})</div>
+            <div class="bulk-accept-bar">
+              <label class="bulk-chk-label">
+                <input type="checkbox" id="selectAllPendEnv" class="env-chk-input" checked onchange="toggleSelectAllPendingEnvelopes(this.checked)">
+                <span>Barchasini belgilash</span>
+              </label>
+              <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 12px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
+                <i class="fi fi-rr-check-double"></i> Tanlab qabul qilish
+              </button>
+            </div>
+          `;
+
           pendingTransfers.forEach((tr, tIdx) => {
             html += `
               <div class="dir-card" id="pend-env-${tIdx}" style="border-color:rgba(239, 108, 0, 0.45);">
                 <div class="dir-card-header" style="cursor:default;">
-                  <div class="dir-info">
-                    <div class="dir-name">
-                      <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i> ${escHtml(tr.amount)} — ${tr.count} dona
+                  <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
+                    <input type="checkbox" class="env-chk-input pend-env-chk" value="${escHtml(tr.id)}" data-idx="${tIdx}" checked onchange="updateSelectAllPendState()">
+                    <div class="dir-info">
+                      <div class="dir-name">
+                        <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i> ${escHtml(tr.amount)} — ${tr.count} dona
+                      </div>
+                      <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | <span class="status-badge status-Jarayonda">Jarayonda</span></div>
                     </div>
-                    <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | Holati: <span class="status-badge status-Jarayonda">Jarayonda</span></div>
                   </div>
                   <div class="dir-actions">
-                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 12px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 11px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                       <i class="fi fi-rr-check"></i> Oldim
                     </button>
                   </div>
@@ -1788,22 +1209,79 @@
       container.innerHTML = html;
     }
 
-    function acceptIncomingEnvelope(transferId, tIdx) {
-      const card = document.getElementById('pend-env-' + tIdx);
-      if (card) {
-        card.style.opacity = "0.4";
-        card.style.pointerEvents = "none";
+    function toggleSelectAllPendingEnvelopes(isChecked) {
+      document.querySelectorAll('.pend-env-chk').forEach(chk => {
+        if (!chk.disabled) chk.checked = isChecked;
+      });
+    }
+
+    function updateSelectAllPendState() {
+      const allChks = Array.from(document.querySelectorAll('.pend-env-chk')).filter(c => !c.disabled);
+      const selectAllEl = document.getElementById('selectAllPendEnv');
+      if (!selectAllEl || !allChks.length) return;
+      selectAllEl.checked = allChks.every(c => c.checked);
+    }
+
+    function acceptSelectedEnvelopes() {
+      const checkedBoxes = Array.from(document.querySelectorAll('.pend-env-chk:checked')).filter(c => !c.disabled);
+      if (!checkedBoxes.length) {
+        showNotice("Iltimos, qabul qilish uchun kamida bitta konvertni belgilang!");
+        return;
+      }
+
+      const ids = checkedBoxes.map(c => c.value);
+      checkedBoxes.forEach(c => {
+        c.disabled = true;
+        const idx = c.getAttribute('data-idx');
+        const card = document.getElementById('pend-env-' + idx);
+        if (card) {
+          card.style.opacity = "0.4";
+          card.style.pointerEvents = "none";
+        }
+      });
+
+      const bulkBtn = document.getElementById('bulkAcceptEnvBtn');
+      if (bulkBtn) {
+        bulkBtn.disabled = true;
+        bulkBtn.innerText = "Qabul qilinmoqda...";
       }
 
       sendPost({
         action: "ACCEPT_ADVISOR_ENVELOPE",
         chatId: chatId,
         advisorFio: currentUser ? currentUser.fio : "",
-        transferId: transferId
+        transferIds: ids
       }).then(() => {
-        showNotice("Konvert qabul qilindi va hisobingizga o'tdi!");
-        setTimeout(() => initApp(activeTabId), 1300);
+        showNotice("Tanlangan konvertlar qabul qilindi!");
+        setTimeout(() => initApp(activeTabId), 1400);
       });
+    }
+
+    // Bitta-bitta "Oldim" bosilganda: 5 soniya ichida boshqalarini ham bosishga imkon beradi va backend bitta xabar yuboradi
+    function acceptIncomingEnvelope(transferId, tIdx) {
+      const card = document.getElementById('pend-env-' + tIdx);
+      if (card) {
+        card.style.opacity = "0.35";
+        card.style.pointerEvents = "none";
+      }
+      const chk = card ? card.querySelector('.pend-env-chk') : null;
+      if (chk) {
+        chk.checked = false;
+        chk.disabled = true;
+      }
+      updateSelectAllPendState();
+
+      sendPost({
+        action: "ACCEPT_ADVISOR_ENVELOPE",
+        chatId: chatId,
+        advisorFio: currentUser ? currentUser.fio : "",
+        transferId: transferId
+      });
+
+      if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
+      singleAcceptDebounceTimer = setTimeout(() => {
+        initApp(activeTabId);
+      }, 5200);
     }
 
     function toggleDirAdvisorCard(cardId) {
@@ -2090,7 +1568,38 @@
       saveRecordUpdate(idx, 'Rad etilgan', reason);
     }
 
-    // KONVERT BO'LIMIDAGI 2 TA ICHKI MENYU VA MASLAHATCHILAR RO'YXATI
+    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI
+    function renderGlobalEnvelopeReport() {
+      const box = document.getElementById('globalEnvelopeReportBox');
+      if (!box) return;
+      const r = globalEnvReportData || {};
+
+      box.innerHTML = `
+        <div class="global-env-report-grid">
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Yaratilgan (Berilgan)</div>
+            <div class="global-rep-val">${r.createdCount || 0} dona</div>
+            <div class="global-rep-sum">${formatSumText(r.createdSum || 0)}</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> Tasdiqlangan</div>
+            <div class="global-rep-val" style="color:var(--success-text)">${r.approvedCount || 0} dona</div>
+            <div class="global-rep-sum">${formatSumText(r.approvedSum || 0)}</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> Berib yuborilgan</div>
+            <div class="global-rep-val" style="color:var(--warning-text)">${r.dispatchedCount || 0} dona</div>
+            <div class="global-rep-sum">${formatSumText(r.dispatchedSum || 0)}</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> Yetqazilgan</div>
+            <div class="global-rep-val" style="color:var(--info-text)">${r.deliveredCount || 0} dona</div>
+            <div class="global-rep-sum">${formatSumText(r.deliveredSum || 0)}</div>
+          </div>
+        </div>
+      `;
+    }
+
     function openEnvelopeSubTab(subName) {
       activeEnvelopeSubTab = subName;
       const advBtn = document.getElementById('subTabAdvBtn');
@@ -2111,7 +1620,6 @@
       }
     }
 
-    // Maslahatchi kartasini bosganda ochish va avvalgisini avtomat yopish
     function toggleEnvAdvisorCard(cardId) {
       const el = document.getElementById(cardId);
       if (!el) return;
@@ -2161,7 +1669,7 @@
             envStats.byDenom.map(d => {
               const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
               const totalCntForDenom = (d.accepted || 0) + (d.pending || 0);
-              const denomTotalSum = String(unitVal * totalCntForDenom).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+              const denomTotalSum = formatSumText(unitVal * totalCntForDenom);
               const pendPart = d.pending > 0 ? ` | <span style="color:var(--warning-text); font-weight:600;">⏳ Jarayonda: ${d.pending}</span>` : '';
               return `
                 <div class="adv-chip" style="display:flex; flex-direction:column; gap:3px;">
@@ -2241,6 +1749,22 @@
       container.innerHTML = html;
     }
 
+    function getEnvelopeTemplatesList() {
+      if (allEnvelopes && allEnvelopes.length > 0) {
+        return allEnvelopes.map(e => ({ amount: e.amount }));
+      }
+      if (envelopeStockList && envelopeStockList.length > 0) {
+        return envelopeStockList.map(e => ({ amount: e.amount }));
+      }
+      return [
+        { amount: "500 000 so'm" },
+        { amount: "1 000 000 so'm" },
+        { amount: "2 000 000 so'm" },
+        { amount: "3 000 000 so'm" },
+        { amount: "5 000 000 so'm" }
+      ];
+    }
+
     function openGiveEnvelopeModal(advIdx) {
       const adv = (directoryData.advisors || [])[advIdx];
       if (!adv) return;
@@ -2252,16 +1776,7 @@
       document.getElementById('giveCustomEnvCount').value = "";
 
       const listContainer = document.getElementById('giveEnvListContainer');
-
-      let denomItems = (envelopeStockList && envelopeStockList.length)
-        ? envelopeStockList.slice()
-        : [
-            { amount: "500 000 so'm", available: 0 },
-            { amount: "1 000 000 so'm", available: 0 },
-            { amount: "2 000 000 so'm", available: 0 },
-            { amount: "3 000 000 so'm", available: 0 },
-            { amount: "5 000 000 so'm", available: 0 }
-          ];
+      const denomItems = getEnvelopeTemplatesList();
 
       let html = "";
       denomItems.forEach((d) => {
@@ -2271,11 +1786,9 @@
               <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
                 <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(d.amount)}
               </div>
-              <div style="font-size:11.5px; color:var(--hint-color);">
-                O'zingizda mavjud: <b style="color:var(--success-text);">${d.available} dona</b>
-              </div>
+              <div style="font-size:11.5px; color:var(--hint-color);">Konvert shabloni</div>
             </div>
-            <input type="tel" class="give-env-input" inputmode="numeric" placeholder="0" data-amount="${escHtml(d.amount)}" oninput="validateDigitsOnly(this)">
+            <input type="tel" class="give-env-input" inputmode="numeric" placeholder="Soni" data-amount="${escHtml(d.amount)}" oninput="validateDigitsOnly(this)">
           </div>
         `;
       });
@@ -2330,42 +1843,66 @@
         btn.disabled = false;
         btn.innerText = "Berish";
         closeGiveEnvelopeModal();
-        showNotice(`Konvertlar «${targetAdv.fio}»ga yuborildi! Maslahatchi «Oldim» deb tasdiqlagach uning hisobiga o'tadi.`);
+        showNotice(`Konvertlar «${targetAdv.fio}»ga yuborildi! Maslahatchi tasdiqlagach uning hisobiga o'tadi.`);
         setTimeout(() => initApp('tab-envelopes'), 1400);
       });
     }
 
-    // MASLAHATCHI ARIZAGA KONVERT TANLASH OYNASI
+    // ARIZAGA KONVERT TANLASH OYNASI (Maslahatchi o'z hamyonidan, Boshqaruvchi o'z shablonlaridan tanlaydi)
     function openSelectEnvelopeForRecord(recIdx) {
       pickingEnvelopeRecordIdx = recIdx;
       const container = document.getElementById('pickEnvelopeListContainer');
-      const availList = (myEnvelopeSummary && myEnvelopeSummary.available)
-        ? myEnvelopeSummary.available.filter(a => a.freeCount > 0)
-        : [];
+      const descEl = document.getElementById('pickEnvelopeDescText');
+      const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
 
-      if (!availList.length) {
-        container.innerHTML = `
-          <div class="empty-state" style="padding:20px 10px;">
-            Sizda hozircha bo'sh konvertlar mavjud emas.<br><br>
-            Agar Boshqaruvchi sizga konvert yuborgan bo'lsa, yuqoridagi <b>⋮</b> menyudan <b>«Oldim»</b> tugmasini bosib qabul qilib oling.
-          </div>
-        `;
-      } else {
+      if (isManager) {
+        if (descEl) descEl.innerText = "Arizani tasdiqlash uchun yaratilgan konvert shablonlaridan birini tanlang:";
+        const templates = getEnvelopeTemplatesList();
         let html = "";
-        availList.forEach(item => {
+        templates.forEach(item => {
           html += `
             <div class="pick-env-item" onclick="selectEnvelopeForRecord('${escJsAttr(item.amount)}')">
               <div style="text-align:left;">
                 <div style="font-size:14px; font-weight:600; color:var(--text-color);">
                   <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
                 </div>
-                <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">O'zingizda mavjud</div>
+                <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">Konvert shabloni</div>
               </div>
-              <span class="env-count-badge green-badge">${item.freeCount} dona</span>
+              <span class="env-count-badge green-badge">Tanlash</span>
             </div>
           `;
         });
         container.innerHTML = html;
+      } else {
+        if (descEl) descEl.innerText = "Ushbu arizani tasdiqlash uchun o'zingizda mavjud konvertlardan birini tanlang:";
+        const availList = (myEnvelopeSummary && myEnvelopeSummary.available)
+          ? myEnvelopeSummary.available.filter(a => a.freeCount > 0)
+          : [];
+
+        if (!availList.length) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:20px 10px;">
+              Sizda hozircha bo'sh konvertlar mavjud emas.<br><br>
+              Agar Boshqaruvchi sizga konvert yuborgan bo'lsa, yuqoridagi <b>⋮</b> menyudan <b>«Oldim»</b> tugmasini bosib qabul qilib oling.
+            </div>
+          `;
+        } else {
+          let html = "";
+          availList.forEach(item => {
+            html += `
+              <div class="pick-env-item" onclick="selectEnvelopeForRecord('${escJsAttr(item.amount)}')">
+                <div style="text-align:left;">
+                  <div style="font-size:14px; font-weight:600; color:var(--text-color);">
+                    <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
+                  </div>
+                  <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">O'zingizda mavjud</div>
+                </div>
+                <span class="env-count-badge green-badge">${item.freeCount} dona</span>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        }
       }
 
       document.getElementById('pickEnvelopeModal').classList.add('show');
@@ -2394,10 +1931,9 @@
       checkRecordChanged(idx);
     }
 
-    // KONVERT QO'SHISH VA KO'RSATISH FUNKSIYALARI
+    // KONVERT SHABLONI QO'SHISH VA KO'RSATISH FUNKSIYALARI
     function openAddEnvelopeModal() {
       document.getElementById('envAmountInput').value = "";
-      document.getElementById('envCountInput').value = "";
       document.getElementById('envelopeModal').classList.add('show');
     }
 
@@ -2407,15 +1943,8 @@
 
     function saveNewEnvelope() {
       const rawAmount = document.getElementById('envAmountInput').value.trim();
-      const rawCount = document.getElementById('envCountInput').value.trim();
-
       if (!rawAmount) {
         showNotice("Iltimos, konvert summasini kiriting!");
-        return;
-      }
-      const countNum = parseInt(rawCount, 10);
-      if (!countNum || countNum <= 0) {
-        showNotice("Iltimos, konvert sonini kiriting!");
         return;
       }
 
@@ -2429,7 +1958,6 @@
         sortTime: nowD.getTime(),
         date: todayStr,
         amount: formattedAmount,
-        count: countNum,
         creator: currentUser ? currentUser.fio : "Boshqaruvchi"
       });
       renderEnvelopes(allEnvelopes);
@@ -2439,10 +1967,9 @@
         action: "ADD_ENVELOPE",
         chatId: chatId,
         creatorFio: currentUser ? currentUser.fio : "Boshqaruvchi",
-        amount: formattedAmount,
-        count: countNum
+        amount: formattedAmount
       }).then(() => {
-        showNotice("Konvert muvaffaqiyatli qo'shildi!");
+        showNotice("Konvert shabloni muvaffaqiyatli qo'shildi!");
         setTimeout(() => initApp('tab-envelopes'), 1400);
       });
     }
@@ -2452,37 +1979,16 @@
       const badgeListEl = document.getElementById('b-env-list');
       if (!container) return;
 
-      let totalCount = 0;
-      let totalSum = 0;
+      const list = envelopes || [];
+      if (badgeListEl) badgeListEl.innerText = list.length;
 
-      (envelopes || []).forEach(env => {
-        const c = parseInt(env.count, 10) || 0;
-        const a = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
-        totalCount += c;
-        totalSum += (c * a);
-      });
-
-      if (badgeListEl) badgeListEl.innerText = totalCount;
-
-      if (!envelopes || !envelopes.length) {
-        container.innerHTML = '<div class="empty-state">Hozircha konvertlar mavjud emas.<br>Yangi konvert qo\'shish uchun pastdagi konvert tugmasini bosing.</div>';
+      if (!list.length) {
+        container.innerHTML = '<div class="empty-state">Hozircha konvert shablonlari mavjud emas.<br>Yangi shablon qo\'shish uchun pastdagi konvert tugmasini bosing.</div>';
         return;
       }
 
-      const formattedTotalSum = String(totalSum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
-
-      let html = `
-        <div class="env-summary-bar">
-          <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Jami: ${totalCount} dona</span>
-          <span style="color:var(--amount-text)">💰 ${formattedTotalSum}</span>
-        </div>
-      `;
-
-      envelopes.forEach((env, idx) => {
-        const unitNum = parseInt(String(env.amount || "").replace(/\D/g, ''), 10) || 0;
-        const cntNum = parseInt(env.count, 10) || 0;
-        const rowTotal = String(unitNum * cntNum).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
-
+      let html = "";
+      list.forEach((env, idx) => {
         html += `
           <div class="acc-card" id="env-card-${idx}">
             <div class="env-card-header">
@@ -2491,14 +1997,11 @@
                   <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(env.amount)}
                 </div>
                 <div class="env-date-single-line">
-                  <i class="fi fi-rr-calendar"></i> <span>Sana: ${escHtml(env.date || '-')}</span>
-                </div>
-                <div class="env-date-single-line">
-                  <i class="fi fi-rr-coins"></i> <span>Jami: ${escHtml(rowTotal)}</span>
+                  <i class="fi fi-rr-calendar"></i> <span>Qo'shilgan sana: ${escHtml(env.date || '-')}</span>
                 </div>
               </div>
               <div class="env-card-right">
-                <span class="env-count-badge">${cntNum} dona</span>
+                <span class="env-count-badge">Shablon</span>
                 <button type="button" class="trash-icon-btn" onclick="deleteEnvelopeItem(${idx})" title="O'chirish">
                   <i class="fi fi-rr-trash"></i>
                 </button>
@@ -2515,7 +2018,7 @@
       const env = allEnvelopes[idx];
       if (!env) return;
 
-      askConfirm(`«${env.amount}» (${env.count} dona) konvertni o'chirmoqchimisiz?`, () => {
+      askConfirm(`«${env.amount}» konvert shablonini o'chirmoqchimisiz?`, () => {
         const card = document.getElementById(`env-card-${idx}`);
         if (card) {
           card.style.opacity = "0.3";
@@ -2525,12 +2028,11 @@
         sendPost({
           action: "DELETE_ENVELOPE",
           rowIndex: env.rowIndex,
-          amount: env.amount,
-          count: env.count
+          amount: env.amount
         }).then(() => {
           allEnvelopes.splice(idx, 1);
           renderEnvelopes(allEnvelopes);
-          showNotice("Konvert o'chirildi!");
+          showNotice("Konvert shabloni o'chirildi!");
           setTimeout(() => initApp('tab-envelopes'), 1300);
         });
       });
@@ -2593,13 +2095,7 @@
 
     function getInitialsJS(fio) {
       if (!fio) return "";
-      return fio
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 3)
-        .map(w => w.charAt(0).toUpperCase())
-        .join('.');
+      return fio.trim().split(/\s+/).filter(Boolean).slice(0, 3).map(w => w.charAt(0).toUpperCase()).join('.');
     }
 
     function toggleCustomAmount(val) {
@@ -2713,6 +2209,7 @@
           advisorsList = data.advisors || [];
           directoryData = data.directory || { boshqaruvchi: null, advisors: [], myVolunteers: [] };
           envelopeStockList = data.envelopeStock || [];
+          globalEnvReportData = data.globalEnvReport || { createdCount: 0, createdSum: 0, approvedCount: 0, approvedSum: 0, dispatchedCount: 0, dispatchedSum: 0, deliveredCount: 0, deliveredSum: 0 };
           myEnvelopeSummary = data.myEnvelopeSummary || { pendingTransfers: [], available: [], stats: { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 } };
 
           const advSelect = document.getElementById('regAdvisor');
@@ -2774,6 +2271,7 @@
       if (isManager) {
         tabEnvelopeBtn.style.display = "inline-flex";
         allEnvelopes = data.envelopes || [];
+        renderGlobalEnvelopeReport();
         renderEnvelopeAdvisorsList();
         renderEnvelopes(allEnvelopes);
         openEnvelopeSubTab(activeEnvelopeSubTab || 'advisors');
@@ -3038,14 +2536,9 @@
         saveBtn.disabled = !isChanged;
       }
 
-      const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
       const approveBtn = document.getElementById(`eapprove-${idx}`);
       if (approveBtn) {
-        if (isAdvisor) {
-          approveBtn.disabled = !(envSelected && isAmountValid(amountVal));
-        } else {
-          approveBtn.disabled = !isAmountValid(amountVal);
-        }
+        approveBtn.disabled = !(envSelected && isAmountValid(amountVal));
       }
     }
 
@@ -3088,7 +2581,7 @@
         const cleanStatus = normalizeStatusJS(r.status);
         r.status = cleanStatus;
         r.fio = cleanBackslashQuotes(r.fio);
-        r.amount = cleanBackslashQuotes(r.amount);
+        r.amount = cleanStatus === "Rad etilgan" ? "" : cleanBackslashQuotes(r.amount);
         r.manba = cleanBackslashQuotes(r.manba);
         r.reason = cleanBackslashQuotes(r.reason);
         r.address = cleanBackslashQuotes(r.address);
@@ -3140,9 +2633,10 @@
         }
 
         const hasValidAmount = isAmountValid(r.amount);
-        const isEnvelopeAlreadyAttached = Boolean(r.hasEnvelope);
+        const isEnvelopeAlreadyAttached = cleanStatus === "Rad etilgan" ? false : Boolean(r.hasEnvelope);
 
-        const canApproveNow = isAdvisor ? (isEnvelopeAlreadyAttached && hasValidAmount) : hasValidAmount;
+        // Ham Maslahatchi, ham o'z arizasini tasdiqlayotgan Boshqaruvchi konvert tanlamaguncha Tasdiqlash aktivlashmaydi
+        const canApproveNow = isEnvelopeAlreadyAttached && hasValidAmount;
         const hideAmountFromVolunteer = isVolunteer && (cleanStatus === "Tasdiqlangan" || cleanStatus === "Berib yuborilgan" || cleanStatus === "Yetqazilgan");
 
         let statusButtonsHtml = "";
@@ -3182,7 +2676,7 @@
           : '';
 
         let amountInputHtml = "";
-        if (isAdvisor) {
+        if (canManageRecord) {
           const envStatusNote = isEnvelopeAlreadyAttached
             ? `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--success-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-check-circle"></i> Konvert biriktirilgan: <b>${escHtml(r.amount)}</b></div>`
             : `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--warning-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-envelope"></i> Tasdiqlash uchun ustiga bosib konvert tanlang</div>`;
@@ -3285,8 +2779,6 @@
       const rec = allRecords[idx];
       if (!rec) return;
 
-      const isAdvisor = !isAdminUser && (currentUser && currentUser.role === "Maslahatchi");
-
       const fioInput = document.getElementById(`efio-${idx}`);
       const phoneInput = document.getElementById(`ephone-${idx}`);
       const manbaInput = document.getElementById(`emanba-${idx}`);
@@ -3295,20 +2787,22 @@
       const addrInput = document.getElementById(`eaddr-${idx}`);
 
       let finalAmount = amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount;
-      const envSelected = amountInput ? (amountInput.getAttribute('data-env-selected') === '1') : Boolean(rec.hasEnvelope);
+      let envSelected = amountInput ? (amountInput.getAttribute('data-env-selected') === '1') : Boolean(rec.hasEnvelope);
 
       if (newStatus === "Tasdiqlangan") {
-        if (isAdvisor && !envSelected) {
+        if (!envSelected || !isAmountValid(finalAmount)) {
           showNotice("Iltimos, tasdiqlashdan oldin Miqdor ustiga bosib konvertni tanlang!");
-          return;
-        }
-        if (!isAmountValid(finalAmount)) {
-          showNotice("Iltimos, tasdiqlashdan oldin zakot miqdorini (konvertni) kiriting!");
           return;
         }
       }
 
-      if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
+      // Agar ariza Rad etilsa, summa bo'shatiladi va konvert hamyonga qaytadi
+      let envelopeAmountPayload = undefined;
+      if (newStatus === "Rad etilgan") {
+        finalAmount = "";
+        envSelected = false;
+        envelopeAmountPayload = "";
+      } else if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
         finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
       }
 
@@ -3339,9 +2833,10 @@
         manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
         reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
         amount: finalAmount,
+        envelopeAmount: envelopeAmountPayload,
         address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
         newStatus: newStatus,
-        hasEnvelope: Boolean(envSelected || newStatus === "Tasdiqlangan" || newStatus === "Berib yuborilgan" || newStatus === "Yetqazilgan"),
+        hasEnvelope: newStatus === "Rad etilgan" ? false : Boolean(envSelected || newStatus === "Tasdiqlangan" || newStatus === "Berib yuborilgan" || newStatus === "Yetqazilgan"),
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
