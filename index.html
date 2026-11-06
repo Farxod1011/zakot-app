@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -108,7 +107,6 @@
     .top-menu-drawer {
       display: none; background: var(--drawer-bg); border-bottom: 2px solid rgba(82, 136, 193, 0.35);
       padding: 12px 14px; max-height: 75vh; overflow-y: auto;
-      transition: transform 0.26s ease-out, opacity 0.26s ease-out;
     }
     .top-menu-drawer.open { display: block; }
 
@@ -250,10 +248,7 @@
     .global-rep-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
       border-radius: 10px; padding: 12px 12px; display: flex; flex-direction: column; gap: 4px;
-      transition: border-color 0.2s, transform 0.15s;
     }
-    .global-rep-card:active { transform: scale(0.98); border-color: var(--accent-color); }
-    .global-rep-card.selected-rep { border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color); }
     .global-rep-label { font-size: 11.5px; color: var(--hint-color); font-weight: 600; display: flex; align-items: center; gap: 5px; }
     .global-rep-val { font-size: 15px; font-weight: 700; color: var(--text-color); }
     .global-rep-sum { font-size: 12px; font-weight: 600; color: var(--amount-text); }
@@ -340,7 +335,6 @@
     }
     .acc-card.expanded .acc-body { display: block; }
 
-    /* 1-rasmdagi Sababi, Topuvchi, Manzili o'z qatorida to'g'ridan yozilishi va sig'masa pastga tushishi uchun */
     .detail-row { margin-bottom: 7px; color: var(--text-color); line-height: 1.45; display: block; word-break: break-word; }
     .detail-label { color: var(--hint-color); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; margin-right: 4px; }
 
@@ -836,11 +830,11 @@
     let pendingRejectIdx = null;
     let activeTabId = null;
     let activeEnvelopeSubTab = 'advisors';
-    let activeReportDetailType = null;
     let deletingAdvisorObj = null;
     let givingTargetAdvisor = null;
     let pickingEnvelopeRecordIdx = null;
     let singleAcceptDebounceTimer = null;
+    let activeReportDetailType = null;
 
     function escJsAttr(str) {
       return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -860,7 +854,7 @@
     }
 
     function getNormalizedAdvisorEnvStats(adv) {
-      const rawStats = (adv && adv.envStats) ? adv.envStats : {};
+      const rawStats = adv.envStats || {};
       const rawDenoms = rawStats.byDenom || [];
       const validDenoms = [];
 
@@ -868,7 +862,6 @@
       let pendingCount = 0;
       let inHandTotal = 0;
       let inHandFree = 0;
-      let approvedAssignedCount = 0;
       let dispatchedCount = 0;
       let deliveredCount = 0;
       let activeCount = 0;
@@ -892,7 +885,6 @@
         pendingCount += pend;
         inHandTotal += inHand;
         inHandFree += free;
-        approvedAssignedCount += appr;
         dispatchedCount += disp;
         deliveredCount += deliv;
         activeCount += notDeliveredCnt;
@@ -904,7 +896,6 @@
           pending: pend,
           inHand: inHand,
           inHandFree: free,
-          approvedAssigned: appr,
           dispatched: disp,
           delivered: deliv
         });
@@ -915,7 +906,6 @@
         pendingCount,
         inHandTotal,
         inHandFree,
-        approvedAssignedCount,
         dispatchedCount,
         deliveredCount,
         activeCount,
@@ -924,7 +914,7 @@
       };
     }
 
-    // GORIZONTAL VA VERTIKAL SVAYP (Yuqori menyuni pastdan tepaga svayp qilib yopish bilan)
+    // GORIZONTAL VA VERTIKAL SVAYP
     let touchStartX = 0;
     let touchStartY = 0;
     let ignoreSwipe = false;
@@ -960,10 +950,20 @@
       const diffY = touchEndY - touchStartY;
 
       const drawer = document.getElementById('topMenuDrawer');
+      const dotsBtn = document.getElementById('dotsMenuBtn');
+
       if (drawer && drawer.classList.contains('open')) {
-        const atBottom = (drawer.scrollTop + drawer.clientHeight) >= (drawer.scrollHeight - 8);
-        if (diffY < -35 && Math.abs(diffY) > Math.abs(diffX) && (!isTouchInDrawer || atBottom)) {
-          closeTopDrawerSmoothly();
+        if (diffY < -45 && Math.abs(diffY) > Math.abs(diffX) * 1.2) {
+          drawer.style.transition = "transform 0.28s ease-out, opacity 0.28s ease-out";
+          drawer.style.transform = "translateY(-18px)";
+          drawer.style.opacity = "0";
+          setTimeout(() => {
+            drawer.classList.remove('open');
+            dotsBtn.classList.remove('open');
+            drawer.style.transform = "";
+            drawer.style.opacity = "";
+            drawer.style.transition = "";
+          }, 280);
         }
         return;
       }
@@ -972,20 +972,6 @@
         switchAdjacentTab(diffX < 0 ? 1 : -1);
       }
     }, { passive: true });
-
-    function closeTopDrawerSmoothly() {
-      const drawer = document.getElementById('topMenuDrawer');
-      const btn = document.getElementById('dotsMenuBtn');
-      if (!drawer || !drawer.classList.contains('open')) return;
-      drawer.style.transform = "translateY(-18px)";
-      drawer.style.opacity = "0";
-      setTimeout(() => {
-        drawer.classList.remove('open');
-        if (btn) btn.classList.remove('open');
-        drawer.style.transform = "";
-        drawer.style.opacity = "";
-      }, 260);
-    }
 
     function switchAdjacentTab(direction) {
       const visibleBtns = Array.from(document.querySelectorAll('.tab-bar .tab-btn')).filter(
@@ -1048,25 +1034,21 @@
     function toggleTopDrawer() {
       const drawer = document.getElementById('topMenuDrawer');
       const btn = document.getElementById('dotsMenuBtn');
-      if (drawer.classList.contains('open')) {
-        closeTopDrawerSmoothly();
-      } else {
-        drawer.classList.add('open');
-        btn.classList.add('open');
-      }
+      drawer.classList.toggle('open');
+      btn.classList.toggle('open');
     }
 
     function renderTopDrawer() {
       const container = document.getElementById('topDrawerContent');
       const dotsBtn = document.getElementById('dotsMenuBtn');
-      if (!currentUser || !container) return;
+      if (!currentUser) return;
 
       const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
       const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
       const roleLabel = isAdminUser ? "Admin" : currentUser.role;
       const myUnamePart = hasValidUsername(currentUser.username) ? ` | 🔗 ${currentUser.username}` : '';
       const myPhoneEmail = (currentUser.phone || currentUser.email)
-        ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email \vert{}\vert{} '-'}${myUnamePart}</div>`
+        ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email || '-'}${myUnamePart}</div>`
         : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
 
       const volunteerAdvisorLine = isVolunteer
@@ -1089,7 +1071,8 @@
                 <i class="fi fi-rr-user" style="color:var(--accent-color)"></i>
                 <span>${escHtml(currentUser.fio)} (${escHtml(roleLabel)})</span>
               </div>
-              ${myPhoneEmail}${volunteerAdvisorLine}
+              ${myPhoneEmail}
+              ${volunteerAdvisorLine}
             </div>
             <div class="dir-actions">
               ${currentUser.role !== "Admin" ? `
@@ -1134,13 +1117,13 @@
                     <div class="dir-info">
                       <div class="dir-name">
                         <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i>
-                        <span>${escHtml(tr.amount)} —${tr.count} dona</span>
+                        <span>${escHtml(tr.amount)} — ${tr.count} dona</span>
                       </div>
                       <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | <span class="status-badge status-Jarayonda">Jarayonda</span></div>
                     </div>
                   </div>
                   <div class="dir-actions">
-                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 11px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}',${tIdx})">
+                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 11px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                       <i class="fi fi-rr-check"></i> Oldim
                     </button>
                   </div>
@@ -1158,17 +1141,17 @@
             <div style="padding:10px 12px; font-size:12px; line-height:1.5;">
               <div>📥 O'zimda: <b style="color:var(--success-text);">${st.inHandFree + st.approvedAssigned} dona</b> (Bo'sh: <b style="color:var(--success-text);">${st.inHandFree}</b>, Tasdiqlangan arizada: <b>${st.approvedAssigned}</b>)</div>
               <div>🚚 Topuvchiga berilgan (Berib yuborilgan): <b>${st.dispatched} dona</b></div>
-              <div>✅ Topshirilgan (Yetqazilgan): <b>${st.delivered} dona</b></div>${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b style="color:var(--success-text);">${a.freeCount} dona bo'sh</b> (Jami:${a.acceptedCount})</span>`).join('')}</div>` : ''}
+              <div>✅ Topshirilgan (Yetqazilgan): <b>${st.delivered} dona</b></div>
+              ${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b style="color:var(--success-text);">${a.freeCount} dona bo'sh</b> (Jami: ${a.acceptedCount})</span>`).join('')}</div>` : ''}
             </div>
           </div>
         `;
 
-        const myVols = directoryData.myVolunteers || [];
-        html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${myVols.length})</div>`;
-        if (!myVols.length) {
+        html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
+        if (!directoryData.myVolunteers.length) {
           html += `<div style="font-size:13px; color:var(--hint-color); padding:8px 0; font-weight:500;">Hozircha biriktirilgan topuvchilar yo'q</div>`;
         } else {
-          myVols.forEach(v => {
+          directoryData.myVolunteers.forEach(v => {
             html += buildVolunteerItemHtml(v, false);
           });
         }
@@ -1201,20 +1184,20 @@
         }
       }
 
-      const advList = directoryData.advisors || [];
-      html += `<div class="dir-section-title">Maslahatchilar (${advList.length})</div>`;
-      if (!advList.length) {
+      html += `<div class="dir-section-title">Maslahatchilar (${directoryData.advisors.length})</div>`;
+      if (!directoryData.advisors.length) {
         html += `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Maslahatchilar mavjud emas</div>`;
       } else {
-        advList.forEach((adv, aIdx) => {
-          const dCardId = `dir-adv-${aIdx}`; const advInitials = (adv.initials \vert{}\vert{} getInitialsJS(adv.fio)).trim(); const advUnamePart = hasValidUsername(adv.username) ? ` \vert{} 🔗 ${adv.username}` : '';
+        directoryData.advisors.forEach((adv, aIdx) => {
+          const dCardId = `dir-adv-${aIdx}`;
+          const advInitials = (adv.initials || getInitialsJS(adv.fio)).trim();
+          const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
           const normEnv = getNormalizedAdvisorEnvStats(adv);
-          const vols = adv.volunteers || [];
           let volsHtml = "";
-          if (!vols.length) {
+          if (!adv.volunteers || !adv.volunteers.length) {
             volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
           } else {
-            vols.forEach(v => {
+            adv.volunteers.forEach(v => {
               volsHtml += buildVolunteerItemHtml(v, true);
             });
           }
@@ -1226,9 +1209,9 @@
                   <div class="dir-name">
                     <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i>
                     <span>${escHtml(adv.fio)} (<b>${escHtml(advInitials)}</b>)</span>
-                    <span class="badge">${vols.length}</span>
+                    <span class="badge">${adv.volunteers.length}</span>
                   </div>
-                  <div class="dir-sub">📞 ${escHtml(adv.phone \vert{}\vert{} '-')}${advUnamePart}</div>
+                  <div class="dir-sub">📞 ${escHtml(adv.phone || '-')}${advUnamePart}</div>
                   <div class="dir-sub">✉️ <b>${normEnv.activeCount} dona</b> (<b style="color:var(--amount-text)">${escHtml(normEnv.formattedActiveSum)}</b>)</div>
                 </div>
                 <div class="dir-actions" onclick="event.stopPropagation()">
@@ -1332,10 +1315,9 @@
 
     function buildVolunteerItemHtml(v, allowTransfer) {
       let transferSelectHtml = "";
-      const advs = directoryData.advisors || [];
-      if (allowTransfer && advs.length > 1) {
+      if (allowTransfer && directoryData.advisors.length > 1) {
         let opts = "";
-        advs.forEach(a => {
+        directoryData.advisors.forEach(a => {
           const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
           opts += `<option value="${escHtml(a.chatId)}" data-fio="${escHtml(a.fio)}" ${isCurrent ? 'selected' : ''}>${a.fio} (${getInitialsJS(a.fio)})</option>`;
         });
@@ -1371,9 +1353,7 @@
           ${transferSelectHtml}
         </div>
       `;
-    }
-
-    function changeSingleVolunteerAdvisor(volChatId, selectEl) {
+    } function changeSingleVolunteerAdvisor(volChatId, selectEl) {
       const newAdvId = selectEl.value;
       const newAdvFio = selectEl.options[selectEl.selectedIndex]?.getAttribute('data-fio') || "";
 
@@ -1456,7 +1436,8 @@
                 <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${acc.fio}
               </div>
               <div class="saved-acc-meta">
-                <span>Pozitsiya: <b>${acc.role}</b></span>${acc.phone ? `<span>| 📞 ${acc.phone}</span>` : ''}
+                <span>Pozitsiya: <b>${acc.role}</b></span>
+                ${acc.phone ? `<span>| 📞 ${acc.phone}</span>` : ''}
               </div>
             </div>
             <div>
@@ -1488,7 +1469,30 @@
           targetRole: roleLabel === "Topuvchi" ? "Ko'ngilli" : roleLabel,
           targetFio: targetFio
         }).then(() => {
-          showNotice(`${targetFio} o'chirildi!`); setTimeout(() => initApp(activeTabId), 1300); }); }); }  function promptDeleteAdvisor(advIdx) { const adv = (directoryData.advisors \vert{}\vert{} [])[advIdx]; if (!adv) return;  if (!adv.volunteers \vert{}\vert{} adv.volunteers.length === 0) { promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi"); return; }  const otherAdvisors = (directoryData.advisors \vert{}\vert{} []).filter(a => String(a.chatId) !== String(adv.chatId)); if (otherAdvisors.length === 0) { showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak."); return; }  deletingAdvisorObj = adv; document.getElementById('reassignModalDesc').innerText = `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
+          showNotice(`${targetFio} o'chirildi!`);
+          setTimeout(() => initApp(activeTabId), 1300);
+        });
+      });
+    }
+
+    function promptDeleteAdvisor(advIdx) {
+      const adv = directoryData.advisors[advIdx];
+      if (!adv) return;
+
+      if (!adv.volunteers || adv.volunteers.length === 0) {
+        promptDeleteUser(adv.chatId, adv.fio, "Maslahatchi");
+        return;
+      }
+
+      const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId));
+      if (otherAdvisors.length === 0) {
+        showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak.");
+        return;
+      }
+
+      deletingAdvisorObj = adv;
+      document.getElementById('reassignModalDesc').innerText =
+        `«${adv.fio}»ni o'chirishdan oldin unga biriktirilgan ${adv.volunteers.length} ta Topuvchini boshqa Maslahatchiga biriktiring:`;
 
       let bulkOpts = `<option value="">-- Maslahatchini tanlang --</option>`;
       otherAdvisors.forEach(oa => {
@@ -1591,22 +1595,22 @@
 
       box.innerHTML = `
         <div class="global-env-report-grid">
-          <div class="global-rep-card ${activeReportDetailType === 'created' ? 'selected-rep' : ''}" id="rep-card-created" style="cursor:pointer;" onclick="showReportBreakdown('created')">
+          <div class="global-rep-card" style="cursor:pointer;" onclick="showReportBreakdown('created')">
             <div class="global-rep-label"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Yaratilgan (Berilgan)</div>
             <div class="global-rep-val">${r.createdCount || 0} dona</div>
             <div class="global-rep-sum">${formatSumText(r.createdSum || 0)}</div>
           </div>
-          <div class="global-rep-card ${activeReportDetailType === 'approved' ? 'selected-rep' : ''}" id="rep-card-approved" style="cursor:pointer;" onclick="showReportBreakdown('approved')">
+          <div class="global-rep-card" style="cursor:pointer;" onclick="showReportBreakdown('approved')">
             <div class="global-rep-label"><i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> Tasdiqlangan</div>
             <div class="global-rep-val" style="color:var(--success-text)">${r.approvedCount || 0} dona</div>
             <div class="global-rep-sum">${formatSumText(r.approvedSum || 0)}</div>
           </div>
-          <div class="global-rep-card ${activeReportDetailType === 'dispatched' ? 'selected-rep' : ''}" id="rep-card-dispatched" style="cursor:pointer;" onclick="showReportBreakdown('dispatched')">
+          <div class="global-rep-card" style="cursor:pointer;" onclick="showReportBreakdown('dispatched')">
             <div class="global-rep-label"><i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> Berib yuborilgan</div>
             <div class="global-rep-val" style="color:var(--warning-text)">${r.dispatchedCount || 0} dona</div>
             <div class="global-rep-sum">${formatSumText(r.dispatchedSum || 0)}</div>
           </div>
-          <div class="global-rep-card ${activeReportDetailType === 'delivered' ? 'selected-rep' : ''}" id="rep-card-delivered" style="cursor:pointer;" onclick="showReportBreakdown('delivered')">
+          <div class="global-rep-card" style="cursor:pointer;" onclick="showReportBreakdown('delivered')">
             <div class="global-rep-label"><i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> Yetqazilgan</div>
             <div class="global-rep-val" style="color:var(--info-text)">${r.deliveredCount || 0} dona</div>
             <div class="global-rep-sum">${formatSumText(r.deliveredSum || 0)}</div>
@@ -1624,22 +1628,18 @@
       const container = document.getElementById('reportBreakdownContainer');
       if (!container) return;
 
-      document.querySelectorAll('.global-rep-card').forEach(c => c.classList.remove('selected-rep'));
-
       if (!keepOpen && activeReportDetailType === type) {
         activeReportDetailType = null;
         container.innerHTML = "";
         return;
       }
       activeReportDetailType = type;
-      const activeCard = document.getElementById('rep-card-' + type);
-      if (activeCard) activeCard.classList.add('selected-rep');
 
       const titles = {
-        created: "📦 Yaratilgan (Berilgan) konvertlar — kimda qancha:",
-        approved: "🟢 Tasdiqlangan arizalardagi konvertlar — kimda qancha:",
-        dispatched: "🚚 Topuvchilarga berib yuborilgan konvertlar — kimda qancha:",
-        delivered: "✅ Egalariga yetqazilgan konvertlar — kimda qancha:"
+        created: "📦 Yaratilgan (Maslahatchilarga berilgan) konvertlar:",
+        approved: "🟢 Tasdiqlangan (Maslahatchilardagi) konvertlar:",
+        dispatched: "🚚 Topuvchilarga berib yuborilgan konvertlar:",
+        delivered: "✅ Egalariga yetqazilgan konvertlar:"
       };
 
       const advs = directoryData.advisors || [];
@@ -1647,12 +1647,12 @@
 
       advs.forEach(adv => {
         const initials = (adv.initials || getInitialsJS(adv.fio)).trim();
-        const normSt = getNormalizedAdvisorEnvStats(adv);
+        const rawDenoms = (adv.envStats && adv.envStats.byDenom) ? adv.envStats.byDenom : [];
         let personCount = 0;
         let personSum = 0;
         let chips = [];
 
-        normSt.byDenom.forEach(d => {
+        rawDenoms.forEach(d => {
           const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
           let cnt = 0;
           if (type === 'created') {
@@ -1672,6 +1672,7 @@
           }
         });
 
+        const normSt = getNormalizedAdvisorEnvStats(adv);
         if (personCount > 0) {
           rowsHtml += `
             <div class="dir-card" style="padding:10px 12px; margin-bottom:8px;">
