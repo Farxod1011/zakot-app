@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Zakot Tizimi</title>
+  <script src="https://telegram.org/js/telegram.org/js/telegram-web-app.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Flaticon UIcons kutubxonasi -->
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
@@ -49,7 +50,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+    body { background-color: var(--bg-color); color: var(--text-color); overflow-x: hidden; -webkit-touch-callout: none; }
 
     i.fi { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; line-height: 1; }
 
@@ -106,7 +107,7 @@
     /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
     .top-menu-drawer {
       display: none; background: var(--drawer-bg); border-bottom: 2px solid rgba(82, 136, 193, 0.35);
-      padding: 12px 14px; max-height: 75vh; overflow-y: auto;
+      padding: 12px 14px; max-height: 72vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
     .top-menu-drawer.open { display: block; }
 
@@ -169,15 +170,26 @@
     .bulk-accept-bar {
       background: var(--card-bg); border: 1px solid rgba(239, 108, 0, 0.45);
       border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .bulk-rec-bar {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
     }
     .bulk-chk-label {
       display: inline-flex; align-items: center; gap: 7px;
-      font-size: 12.5px; font-weight: 600; color: var(--text-color); cursor: pointer; margin: 0;
+      font-size: 12.5px; font-weight: 600; color: var(--text-color); cursor: pointer; margin: 0; user-select: none;
     }
     .env-chk-input {
-      width: 17px !important; height: 17px !important; margin: 0;
+      width: 18px !important; height: 18px !important; margin: 0;
       accent-color: #2e7d32; cursor: pointer; flex-shrink: 0;
+    }
+    .rec-chk-wrap {
+      display: none; align-items: center; justify-content: center; margin-right: 4px;
+    }
+    .rec-chk-wrap.visible {
+      display: inline-flex;
     }
 
     /* MAVJUD AKKAUNTLAR RO'YXATI */
@@ -302,11 +314,14 @@
 
     .acc-card {
       background: var(--card-bg); border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease;
+      border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease; user-select: none;
     }
-    .acc-header { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .acc-left { display: flex; flex-direction: column; gap: 4px; }
-    .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; }
+    .acc-card.selected-card {
+      border-color: var(--success-text); box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.35);
+    }
+    .acc-header { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 8px; }
+    .acc-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+    .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
     .acc-date { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
     .pending-role-highlight { font-size: 13.5px; font-weight: 600; color: var(--danger-text); display: inline-flex; align-items: center; gap: 5px; }
@@ -319,7 +334,7 @@
     .substatus-Berib-yuborilgan { color: var(--warning-text); }
     .substatus-Yetqazilgan { color: var(--info-text); }
 
-    .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+    .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
     .acc-amount {
       font-size: 13px; font-weight: 600; color: var(--amount-text); background: var(--amount-bg);
       padding: 4px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
@@ -347,8 +362,16 @@
     .status-Jarayonda { background: rgba(239, 108, 0, 0.18); color: var(--warning-text); }
 
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-    .edit-box input, .edit-box textarea { padding: 9px 11px; font-size: 13px; }
+    .edit-box input, .edit-box textarea, .edit-box select { padding: 9px 11px; font-size: 13px; }
     .edit-box textarea.single-line-box { height: 38px; min-height: 38px; }
+
+    .deliverer-select-box {
+      margin-top: 10px; padding: 9px 10px; border-radius: 9px;
+      background: var(--card-bg); border: 1px dashed rgba(239, 108, 0, 0.55);
+    }
+    .deliverer-select-box label {
+      color: var(--warning-text); font-weight: 600; font-size: 12px; margin-bottom: 5px;
+    }
 
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
     .btn-act {
@@ -398,6 +421,11 @@
     .adv-sub-title { font-size: 11px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 5px; }
     .adv-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
     .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); }
+
+    .rep-rec-row {
+      background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 7px 9px; margin-top: 5px; font-size: 11.5px; line-height: 1.4;
+    }
 
     .give-env-row {
       display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -581,16 +609,16 @@
       <button class="tab-btn compact-tab" id="tabMyBtn" onclick="openTab('tab-my', this)">
         <i class="fi fi-rr-document-signed" style="color:var(--accent-color)"></i> <span class="tab-text-label" id="myTabLabel">Mening arizalarim</span> <span class="badge" id="b-all">0</span>
       </button>
-      <button class="tab-btn compact-tab" onclick="openTab('tab-approved', this)">
+      <button class="tab-btn compact-tab" id="tabApprovedBtn" onclick="openTab('tab-approved', this)">
         <i class="fi fi-rr-check-circle" style="color:var(--success-text)"></i> <span class="tab-text-label">Tasdiqlangan</span> <span class="badge" id="b-approved">0</span>
       </button>
-      <button class="tab-btn compact-tab" onclick="openTab('tab-rejected', this)">
+      <button class="tab-btn compact-tab" id="tabRejectedBtn" style="display:none;" onclick="openTab('tab-rejected', this)">
         <i class="fi fi-rr-cross-circle" style="color:var(--danger-text)"></i> <span class="tab-text-label">Rad etilgan</span> <span class="badge" id="b-rejected">0</span>
       </button>
-      <button class="tab-btn compact-tab" onclick="openTab('tab-dispatched', this)">
+      <button class="tab-btn compact-tab" id="tabDispatchedBtn" onclick="openTab('tab-dispatched', this)">
         <i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> <span class="tab-text-label">Berib yuborilgan</span> <span class="badge" id="b-dispatched">0</span>
       </button>
-      <button class="tab-btn compact-tab" onclick="openTab('tab-delivered', this)">
+      <button class="tab-btn compact-tab" id="tabDeliveredBtn" onclick="openTab('tab-delivered', this)">
         <i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> <span class="tab-text-label">Yetqazilgan</span> <span class="badge" id="b-delivered">0</span>
       </button>
     </div>
@@ -821,7 +849,7 @@
     let myAccountsList = [];
     let pendingUsersList = [];
     let advisorsList = [];
-    let directoryData = { boshqaruvchi: null, advisors: [], myVolunteers: [] };
+    let directoryData = { boshqaruvchi: null, advisors: [], reportAdvisors: [], myVolunteers: [] };
     let allRecords = [];
     let allEnvelopes = [];
     let envelopeStockList = [];
@@ -833,8 +861,20 @@
     let deletingAdvisorObj = null;
     let givingTargetAdvisor = null;
     let pickingEnvelopeRecordIdx = null;
+    let bulkApprovingIndices = null;
     let singleAcceptDebounceTimer = null;
+    let appRefreshTimer = null;
     let activeReportDetailType = null;
+
+    /* Ochiq turgan arizani yangilanish vaqtida yopilib qolmasligi uchun saqlash */
+    let expandedRecordKey = null;
+    let unsavedRecordEdits = {};
+
+    /* Barchasini belgilash va bosib turib belgilash (long-press) holati */
+    let selectionModeByCat = { newRecs: false, approved: false, dispatched: false };
+    let selectedRecordKeysByCat = { newRecs: {}, approved: {}, dispatched: {} };
+    let longPressTimer = null;
+    let longPressTriggered = false;
 
     function escJsAttr(str) {
       return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -846,6 +886,24 @@
 
     function cleanBackslashQuotes(str) {
       return String(str || "").replace(/\\'/g, "'");
+    }
+
+    function extractCleanFioJS(senderStr) {
+      if (!senderStr) return "";
+      return toTitleCaseJS(String(senderStr).replace(/\s*\(@[^)]*\)/g, "").replace(/\s*\([^)]*\)/g, "").trim());
+    }
+
+    function getRecordUniqueKey(r) {
+      if (!r) return "";
+      return `${r.sheetName || ''}|${r.rowIndex || ''}|${String(r.fio || '').trim().toLowerCase()}`;
+    }
+
+    function scheduleAppRefresh(tabId, delayMs) {
+      if (appRefreshTimer) clearTimeout(appRefreshTimer);
+      appRefreshTimer = setTimeout(() => {
+        appRefreshTimer = null;
+        initApp(tabId || activeTabId);
+      }, delayMs || 1400);
     }
 
     function formatSumText(num) {
@@ -870,11 +928,11 @@
       rawDenoms.forEach(d => {
         const acc = Number(d.accepted) || 0;
         const pend = Number(d.pending) || 0;
-        if (acc <= 0 && pend <= 0) return;
+        const deliv = Number(d.delivered) || 0;
+        const disp = Number(d.dispatched) || 0;
+        const appr = Number(d.approvedAssigned) || 0;
+        if (acc <= 0 && pend <= 0 && deliv <= 0 && disp <= 0 && appr <= 0) return;
 
-        const deliv = Math.min(acc, Number(d.delivered) || 0);
-        const disp = Math.min(Math.max(0, acc - deliv), Number(d.dispatched) || 0);
-        const appr = Math.min(Math.max(0, acc - deliv - disp), Number(d.approvedAssigned) || 0);
         const free = Math.max(0, acc - deliv - disp - appr);
         const inHand = free + appr;
 
@@ -896,6 +954,7 @@
           pending: pend,
           inHand: inHand,
           inHandFree: free,
+          approvedAssigned: appr,
           dispatched: disp,
           delivered: deliv
         });
@@ -914,7 +973,7 @@
       };
     }
 
-    // GORIZONTAL VA VERTIKAL SVAYP
+    // GORIZONTAL VA VERTIKAL SVAYP (Yuqori menyu faqat menyu tagidagi asosiy oyna yuqoriga oxirigacha tortilganda yopiladi)
     let touchStartX = 0;
     let touchStartY = 0;
     let ignoreSwipe = false;
@@ -953,7 +1012,8 @@
       const dotsBtn = document.getElementById('dotsMenuBtn');
 
       if (drawer && drawer.classList.contains('open')) {
-        if (diffY < -45 && Math.abs(diffY) > Math.abs(diffX) * 1.2) {
+        /* Menyu ichida surilganda yopilmaydi, faqat menyu tagidagi asosiy oyna yuqoriga oxirigacha tortilganda yopiladi */
+        if (!isTouchInDrawer && diffY < -170 && Math.abs(diffY) > Math.abs(diffX) * 1.4) {
           drawer.style.transition = "transform 0.28s ease-out, opacity 0.28s ease-out";
           drawer.style.transform = "translateY(-18px)";
           drawer.style.opacity = "0";
@@ -1102,9 +1162,14 @@
                 <input type="checkbox" id="selectAllPendEnv" class="env-chk-input" checked onchange="toggleSelectAllPendingEnvelopes(this.checked)">
                 <span>Barchasini belgilash</span>
               </label>
-              <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 12px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
-                <i class="fi fi-rr-check-double"></i> Tanlab qabul qilish
-              </button>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 11px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
+                  <i class="fi fi-rr-check-double"></i> Oldim
+                </button>
+                <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 11px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
+                  <i class="fi fi-rr-cross-small"></i> Olmadim
+                </button>
+              </div>
             </div>
           `;
 
@@ -1123,8 +1188,11 @@
                     </div>
                   </div>
                   <div class="dir-actions">
-                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 11px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                       <i class="fi fi-rr-check"></i> Oldim
+                    </button>
+                    <button type="button" class="btn-act btn-reject" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                      <i class="fi fi-rr-cross-small"></i> Olmadim
                     </button>
                   </div>
                 </div>
@@ -1275,7 +1343,44 @@
         transferIds: ids
       }).then(() => {
         showNotice("Tanlangan konvertlar qabul qilindi!");
-        setTimeout(() => initApp(activeTabId), 1400);
+        scheduleAppRefresh(activeTabId, 1400);
+      });
+    }
+
+    function rejectSelectedEnvelopes() {
+      const checkedBoxes = Array.from(document.querySelectorAll('.pend-env-chk:checked')).filter(c => !c.disabled);
+      if (!checkedBoxes.length) {
+        showNotice("Iltimos, rad etish uchun kamida bitta konvertni belgilang!");
+        return;
+      }
+
+      askConfirm("Tanlangan konvertlarni haqiqatan ham olmadingizmi (Rad etilsinmi)?", () => {
+        const ids = checkedBoxes.map(c => c.value);
+        checkedBoxes.forEach(c => {
+          c.disabled = true;
+          const idx = c.getAttribute('data-idx');
+          const card = document.getElementById('pend-env-' + idx);
+          if (card) {
+            card.style.opacity = "0.4";
+            card.style.pointerEvents = "none";
+          }
+        });
+
+        const bulkRejBtn = document.getElementById('bulkRejectEnvBtn');
+        if (bulkRejBtn) {
+          bulkRejBtn.disabled = true;
+          bulkRejBtn.innerText = "Rad etilmoqda...";
+        }
+
+        sendPost({
+          action: "REJECT_ADVISOR_ENVELOPE",
+          chatId: chatId,
+          advisorFio: currentUser ? currentUser.fio : "",
+          transferIds: ids
+        }).then(() => {
+          showNotice("Tanlangan konvertlar «Olmadim» deb belgilandi!");
+          scheduleAppRefresh(activeTabId, 1400);
+        });
       });
     }
 
@@ -1303,6 +1408,34 @@
       singleAcceptDebounceTimer = setTimeout(() => {
         initApp(activeTabId);
       }, 5200);
+    }
+
+    function rejectIncomingEnvelope(transferId, tIdx) {
+      askConfirm("Ushbu konvertni olmadingizmi?", () => {
+        const card = document.getElementById('pend-env-' + tIdx);
+        if (card) {
+          card.style.opacity = "0.35";
+          card.style.pointerEvents = "none";
+        }
+        const chk = card ? card.querySelector('.pend-env-chk') : null;
+        if (chk) {
+          chk.checked = false;
+          chk.disabled = true;
+        }
+        updateSelectAllPendState();
+
+        sendPost({
+          action: "REJECT_ADVISOR_ENVELOPE",
+          chatId: chatId,
+          advisorFio: currentUser ? currentUser.fio : "",
+          transferId: transferId
+        });
+
+        if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
+        singleAcceptDebounceTimer = setTimeout(() => {
+          initApp(activeTabId);
+        }, 4800);
+      });
     }
 
     function toggleDirAdvisorCard(cardId) {
@@ -1353,7 +1486,9 @@
           ${transferSelectHtml}
         </div>
       `;
-    } function changeSingleVolunteerAdvisor(volChatId, selectEl) {
+    }
+
+    function changeSingleVolunteerAdvisor(volChatId, selectEl) {
       const newAdvId = selectEl.value;
       const newAdvFio = selectEl.options[selectEl.selectedIndex]?.getAttribute('data-fio') || "";
 
@@ -1365,8 +1500,8 @@
           newAdvisorFio: newAdvFio
         }]
       }).then(() => {
-        showNotice("Topuvchi boshqa Maslahatchiga biriktirildi!");
-        setTimeout(() => initApp(activeTabId), 1200);
+        showNotice("Topuvchi boshqa Maslahatchiga biriktirildi! (Avval tasdiqlangan konvertlar eski Maslahatchi hisobotida qoladi)");
+        scheduleAppRefresh(activeTabId, 1300);
       });
     }
 
@@ -1392,7 +1527,7 @@
           localStorage.setItem(STORAGE_LOGOUT_KEY, "1");
           document.getElementById('topMenuDrawer').classList.remove('open');
           document.getElementById('dotsMenuBtn').classList.remove('open');
-          setTimeout(() => initApp(), 1200);
+          scheduleAppRefresh(null, 1200);
         });
       });
     }
@@ -1455,6 +1590,7 @@
       localStorage.removeItem(STORAGE_LOGOUT_KEY);
       localStorage.setItem(STORAGE_ACC_KEY, chosen.accountKey || (chosen.role + "|" + chosen.fio));
       activeTabId = null;
+      expandedRecordKey = null;
       initApp();
     }
 
@@ -1470,7 +1606,7 @@
           targetFio: targetFio
         }).then(() => {
           showNotice(`${targetFio} o'chirildi!`);
-          setTimeout(() => initApp(activeTabId), 1300);
+          scheduleAppRefresh(activeTabId, 1300);
         });
       });
     }
@@ -1560,8 +1696,8 @@
         targetFio: targetAdvFio,
         reassignments: reassignments
       }).then(() => {
-        showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi!`);
-        setTimeout(() => initApp(activeTabId), 1400);
+        showNotice(`Topuvchilar qayta biriktirildi va Maslahatchi «${targetAdvFio}» o'chirildi! (Uning hisoboti tarixda saqlanib qoladi)`);
+        scheduleAppRefresh(activeTabId, 1400);
       });
     }
 
@@ -1587,7 +1723,7 @@
       saveRecordUpdate(idx, 'Rad etilgan', reason);
     }
 
-    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI (Ustiga bosilganda kimda qancha konvert borligi chiqadi)
+    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI (Tasdiqlovchi va Yetqazuvchi bilan)
     function renderGlobalEnvelopeReport() {
       const box = document.getElementById('globalEnvelopeReportBox');
       if (!box) return;
@@ -1637,16 +1773,19 @@
 
       const titles = {
         created: "📦 Yaratilgan (Maslahatchilarga berilgan) konvertlar:",
-        approved: "🟢 Tasdiqlangan (Maslahatchilardagi) konvertlar:",
-        dispatched: "🚚 Topuvchilarga berib yuborilgan konvertlar:",
-        delivered: "✅ Egalariga yetqazilgan konvertlar:"
+        approved: "🟢 Tasdiqlangan konvertlar (Tasdiqlovchi bilan):",
+        dispatched: "🚚 Berib yuborilgan konvertlar (Yetqazuvchi bilan):",
+        delivered: "✅ Yetqazilgan konvertlar (Yetqazgan shaxs bilan):"
       };
 
-      const advs = directoryData.advisors || [];
+      const advs = (directoryData.reportAdvisors && directoryData.reportAdvisors.length)
+        ? directoryData.reportAdvisors
+        : (directoryData.advisors || []);
       let rowsHtml = "";
 
       advs.forEach(adv => {
         const initials = (adv.initials || getInitialsJS(adv.fio)).trim();
+        const deletedTag = adv.isDeleted ? ` <span style="font-size:11px; color:var(--danger-text); font-weight:500;">(O'chirilgan)</span>` : '';
         const rawDenoms = (adv.envStats && adv.envStats.byDenom) ? adv.envStats.byDenom : [];
         let personCount = 0;
         let personSum = 0;
@@ -1672,25 +1811,44 @@
           }
         });
 
+        let recordsListHtml = "";
+        if (type !== 'created' && adv.envStats && adv.envStats.recordsBreakdown) {
+          const recItems = adv.envStats.recordsBreakdown[type] || [];
+          if (recItems.length > 0) {
+            recordsListHtml = `<div style="margin-top:7px; padding-top:6px; border-top:1px dashed var(--border-color);">` +
+              recItems.map(item => {
+                if (type === 'approved') {
+                  return `<div class="rep-rec-row">👤 Olgan (Ariza): <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>✅ Tasdiqladi: <b>${escHtml(item.approver)}</b> | Topuvchi: ${escHtml(item.sender)}</div>`;
+                } else if (type === 'dispatched') {
+                  return `<div class="rep-rec-row">👤 Zakot oluvchi: <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>🚚 Konvertni oldi (Yetqazuvchi): <b style="color:var(--warning-text);">${escHtml(item.deliverer)}</b> | Tasdiqladi: ${escHtml(item.approver)}</div>`;
+                } else {
+                  return `<div class="rep-rec-row">👤 Zakot oluvchi: <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>✅ Konvertni yetqazdi: <b style="color:var(--info-text);">${escHtml(item.deliverer)}</b> | Tasdiqladi: ${escHtml(item.approver)}</div>`;
+                }
+              }).join('') +
+              `</div>`;
+          }
+        }
+
         const normSt = getNormalizedAdvisorEnvStats(adv);
         if (personCount > 0) {
           rowsHtml += `
             <div class="dir-card" style="padding:10px 12px; margin-bottom:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
                 <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
-                  <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)
+                  <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)${deletedTag}
                 </div>
                 <span class="env-count-badge green-badge">${personCount} dona | ${formatSumText(personSum)}</span>
               </div>
               ${type === 'created' ? `<div style="font-size:11.5px; color:var(--hint-color); margin-bottom:6px;">📥 Hozir o'zida mavjud: <b style="color:var(--success-text);">${normSt.inHandTotal} dona</b> (Bo'sh: <b>${normSt.inHandFree}</b>) | ⏳ Jarayonda: <b>${normSt.pendingCount}</b></div>` : ''}
               <div class="adv-chip-list">${chips.join('')}</div>
+              ${recordsListHtml}
             </div>
           `;
         }
       });
 
       if (!rowsHtml) {
-        rowsHtml = `<div class="empty-state" style="padding:18px 10px;">Ushbu holat bo'yicha maslahatchilarda konvertlar mavjud emas.</div>`;
+        rowsHtml = `<div class="empty-state" style="padding:18px 10px;">Ushbu holat bo'yicha konvertlar mavjud emas.</div>`;
       }
 
       container.innerHTML = `
@@ -1852,9 +2010,517 @@
             </div>
           </div>
         `;
-      });
+        });
 
       container.innerHTML = html;
+    }
+
+    /* QO'SHIMCHA USLUBLAR (Barchasini belgilash, uzoq bosib turish, Yetqazuvchi va Olmadim tugmalari uchun) */
+    (function injectExtraStyles() {
+      if (document.getElementById('zakot-extra-styles')) return;
+      const st = document.createElement('style');
+      st.id = 'zakot-extra-styles';
+      st.innerHTML = `
+        .rec-bulk-bar {
+          background: var(--card-bg); border: 1px solid var(--border-color);
+          border-radius: 11px; padding: 9px 12px; margin-bottom: 10px;
+          display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        .rec-chk-box {
+          display: none; width: 18px !important; height: 18px !important;
+          accent-color: var(--accent-color); cursor: pointer; flex-shrink: 0; margin-right: 4px;
+        }
+        .selection-mode-active .rec-chk-box,
+        .rec-chk-box:checked {
+          display: inline-block !important;
+        }
+        .acc-card.selected-card {
+          border-color: var(--accent-color) !important;
+          box-shadow: 0 0 0 1px var(--accent-color);
+        }
+        .deliverer-select-box {
+          margin-top: 10px; padding: 9px 11px; border-radius: 9px;
+          background: var(--card-bg); border: 1px solid rgba(36, 129, 204, 0.45);
+        }
+        .deliverer-select-box label {
+          color: var(--accent-color); font-weight: 600; font-size: 12px; margin-bottom: 5px;
+        }
+        .deliverer-select-box select {
+          padding: 8px 10px; font-size: 13px; font-weight: 600;
+        }
+        .rep-rec-item {
+          background: var(--card-bg); border: 1px solid var(--border-color);
+          border-radius: 8px; padding: 7px 10px; margin-top: 5px; font-size: 11.5px; line-height: 1.4;
+        }
+      `;
+      document.head.appendChild(st);
+    })();
+
+    /* OCHIQ ARIZALAR VA MENYULAR HOLATINI SAQLASH */
+    let expandedRecordKey = null;
+    let expandedEnvAdvisorId = null;
+    let expandedDirAdvisorId = null;
+    let selectedRecordKeys = new Set();
+    let selectionModeByCategory = { newRecs: false, approved: false, dispatched: false };
+    let longPressTimer = null;
+    let longPressTriggered = false;
+    let bulkApprovingRecordIndices = null;
+    let draftInputsCache = {};
+
+    function extractCleanFioJS(senderStr) {
+      if (!senderStr) return "";
+      return toTitleCaseJS(String(senderStr).replace(/\s*\(@[^)]*\)/g, "").replace(/\s*\([^)]*\)/g, "").trim());
+    }
+
+    function getRecordUniqueKey(rec) {
+      if (!rec) return "";
+      return `${rec.sheetName || ''}|${rec.rowIndex || ''}|${normKeyStr(rec.fio)}|${String(rec.phone || '').replace(/\D/g, '')}`;
+    }
+
+    function normKeyStr(s) {
+      return String(s || "").trim().toLowerCase();
+    }
+
+    /* YUQORI 3-NUQTA MENYUSINI FAQAT ASOSIY OYNANI YUQORIGA OXIRIGACHA TORTGANDA YOPISH */
+    let mainWinTouchStartX = 0;
+    let mainWinTouchStartY = 0;
+    let mainWinTouchOutsideDrawer = false;
+
+    document.addEventListener('touchstart', function(e) {
+      const drawer = document.getElementById('topMenuDrawer');
+      if (drawer && drawer.classList.contains('open')) {
+        ignoreSwipe = true;
+        const inDrawer = Boolean(e.target.closest('#topMenuDrawer'));
+        const inBanner = Boolean(e.target.closest('.role-banner'));
+        mainWinTouchOutsideDrawer = (!inDrawer && !inBanner);
+        mainWinTouchStartX = e.changedTouches[0].clientX;
+        mainWinTouchStartY = e.changedTouches[0].clientY;
+      }
+    }, true);
+
+    document.addEventListener('touchend', function(e) {
+      const drawer = document.getElementById('topMenuDrawer');
+      const dotsBtn = document.getElementById('dotsMenuBtn');
+      if (drawer && drawer.classList.contains('open')) {
+        ignoreSwipe = true;
+        if (!mainWinTouchOutsideDrawer) return;
+
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = endX - mainWinTouchStartX;
+        const diffY = endY - mainWinTouchStartY;
+
+        /* Asosiy oynani yuqoriga oxirigacha (kuchli/baland) tortganda yopiladi */
+        const pulledAllWayUp = (diffY < -180 || (diffY < -95 && endY < 130)) && Math.abs(diffY) > Math.abs(diffX) * 1.3;
+        if (pulledAllWayUp) {
+          drawer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
+          drawer.style.transform = "translateY(-18px)";
+          drawer.style.opacity = "0";
+          setTimeout(() => {
+            drawer.classList.remove('open');
+            if (dotsBtn) dotsBtn.classList.remove('open');
+            drawer.style.transform = "";
+            drawer.style.opacity = "";
+            drawer.style.transition = "";
+          }, 250);
+        }
+      }
+    }, true);
+
+    /* YUQORI DRAWER: OLDIM VA OLMADIM TUGMALARI BILAN */
+    function renderTopDrawer() {
+      const container = document.getElementById('topDrawerContent');
+      const dotsBtn = document.getElementById('dotsMenuBtn');
+      if (!currentUser || !container) return;
+
+      const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+      const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
+      const roleLabel = isAdminUser ? "Admin" : currentUser.role;
+      const myUnamePart = hasValidUsername(currentUser.username) ? ` | 🔗 ${currentUser.username}` : '';
+      const myPhoneEmail = (currentUser.phone || currentUser.email)
+        ? `<div class="dir-sub">📞 ${currentUser.phone || '-'} | 📧 ${currentUser.email || '-'}${myUnamePart}</div>`
+        : `<div class="dir-sub">Pozitsiya: ${roleLabel}</div>`;
+
+      const volunteerAdvisorLine = isVolunteer
+        ? `<div class="dir-sub" style="margin-top:2px; color:var(--accent-color); font-weight:600;"><i class="fi fi-rr-compass-alt"></i> Maslahatchi: ${escHtml(currentUser.advisorFio || "Biriktirilmagan")}</div>`
+        : '';
+
+      const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
+      if (isAdvisor && pendingTransfers.length > 0) {
+        dotsBtn.classList.add('has-alert');
+      } else {
+        dotsBtn.classList.remove('has-alert');
+      }
+
+      let html = `
+        <div class="dir-section-title">Mening profilim</div>
+        <div class="dir-card">
+          <div class="dir-card-header" style="cursor:default;">
+            <div class="dir-info">
+              <div class="dir-name">
+                <i class="fi fi-rr-user" style="color:var(--accent-color)"></i>
+                <span>${escHtml(currentUser.fio)} (${escHtml(roleLabel)})</span>
+              </div>
+              ${myPhoneEmail}
+              ${volunteerAdvisorLine}
+            </div>
+            <div class="dir-actions">
+              ${currentUser.role !== "Admin" ? `
+                <button type="button" class="trash-icon-btn" title="Akkauntni o'chirish" onclick="promptDeleteOwnAccount()">
+                  <i class="fi fi-rr-trash"></i>
+                </button>
+              ` : ''}
+              <button type="button" class="logout-inline-btn" onclick="promptLogoutAccount()">
+                <i class="fi fi-rr-sign-out-alt"></i> Chiqish
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (isVolunteer) {
+        container.innerHTML = html;
+        return;
+      }
+
+      if (isAdvisor) {
+        if (pendingTransfers.length > 0) {
+          html += `
+            <div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (${pendingTransfers.length})</div>
+            <div class="bulk-accept-bar" style="flex-wrap:wrap;">
+              <label class="bulk-chk-label">
+                <input type="checkbox" id="selectAllPendEnv" class="env-chk-input" checked onchange="toggleSelectAllPendingEnvelopes(this.checked)">
+                <span>Barchasini belgilash</span>
+              </label>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
+                  <i class="fi fi-rr-check-double"></i> Oldim
+                </button>
+                <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
+                  <i class="fi fi-rr-cross-small"></i> Olmadim
+                </button>
+              </div>
+            </div>
+          `;
+
+          pendingTransfers.forEach((tr, tIdx) => {
+            html += `
+              <div class="dir-card" id="pend-env-${tIdx}" style="border-color:rgba(239, 108, 0, 0.45);">
+                <div class="dir-card-header" style="cursor:default;">
+                  <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
+                    <input type="checkbox" class="env-chk-input pend-env-chk" value="${escHtml(tr.id)}" data-idx="${tIdx}" checked onchange="updateSelectAllPendState()">
+                    <div class="dir-info">
+                      <div class="dir-name">
+                        <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i>
+                        <span>${escHtml(tr.amount)} — ${tr.count} dona</span>
+                      </div>
+                      <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | <span class="status-badge status-Jarayonda">Jarayonda</span></div>
+                    </div>
+                  </div>
+                  <div class="dir-actions" style="gap:5px;">
+                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                      <i class="fi fi-rr-check"></i> Oldim
+                    </button>
+                    <button type="button" class="btn-act btn-reject" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                      <i class="fi fi-rr-cross-small"></i> Olmadim
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        const availList = ((myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : []).filter(a => (a.acceptedCount || 0) > 0);
+        const st = (myEnvelopeSummary && myEnvelopeSummary.stats) ? myEnvelopeSummary.stats : { inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
+        html += `<div class="dir-section-title">✉️ Mening konvertlarim (Bo'sh: ${st.inHandFree} dona)</div>`;
+        html += `
+          <div class="dir-card">
+            <div style="padding:10px 12px; font-size:12px; line-height:1.5;">
+              <div>📥 O'zimda: <b style="color:var(--success-text);">${st.inHandFree + st.approvedAssigned} dona</b> (Bo'sh: <b style="color:var(--success-text);">${st.inHandFree}</b>, Tasdiqlangan arizada: <b>${st.approvedAssigned}</b>)</div>
+              <div>🚚 Topuvchiga berilgan (Berib yuborilgan): <b>${st.dispatched} dona</b></div>
+              <div>✅ Topshirilgan (Yetqazilgan): <b>${st.delivered} dona</b></div>
+              ${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b style="color:var(--success-text);">${a.freeCount} dona bo'sh</b> (Jami: ${a.acceptedCount})</span>`).join('')}</div>` : ''}
+            </div>
+          </div>
+        `;
+
+        html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
+        if (!directoryData.myVolunteers.length) {
+          html += `<div style="font-size:13px; color:var(--hint-color); padding:8px 0; font-weight:500;">Hozircha biriktirilgan topuvchilar yo'q</div>`;
+        } else {
+          directoryData.myVolunteers.forEach(v => {
+            html += buildVolunteerItemHtml(v, false);
+          });
+        }
+        container.innerHTML = html;
+        return;
+      }
+
+      if (isAdminUser) {
+        html += `<div class="dir-section-title">Boshqaruvchi</div>`;
+        if (directoryData.boshqaruvchi) {
+          const b = directoryData.boshqaruvchi;
+          const bUnamePart = hasValidUsername(b.username) ? ` | 🔗 ${b.username}` : '';
+          html += `
+            <div class="dir-card">
+              <div class="dir-card-header" style="cursor:default;">
+                <div class="dir-info">
+                  <div class="dir-name"><i class="fi fi-rr-building" style="color:var(--warning-text)"></i><span>${escHtml(b.fio)}</span></div>
+                  <div class="dir-sub">📞 ${b.phone} | 📧 ${b.email}${bUnamePart}</div>
+                </div>
+                <div class="dir-actions">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteUser('${escJsAttr(b.chatId)}', '${escJsAttr(b.fio)}', 'Boshqaruvchi')">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `<div style="font-size:12px; color:var(--hint-color); margin-bottom:8px; font-weight:500;">Boshqaruvchi ro'yxatdan o'tmagan</div>`;
+        }
+      }
+
+      html += `<div class="dir-section-title">Maslahatchilar (${directoryData.advisors.length})</div>`;
+      if (!directoryData.advisors.length) {
+        html += `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Maslahatchilar mavjud emas</div>`;
+      } else {
+        directoryData.advisors.forEach((adv, aIdx) => {
+          const dCardId = `dir-adv-${aIdx}`;
+          const isExp = (expandedDirAdvisorId === dCardId) ? 'expanded' : '';
+          const advInitials = (adv.initials || getInitialsJS(adv.fio)).trim();
+          const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
+          const normEnv = getNormalizedAdvisorEnvStats(adv);
+          let volsHtml = "";
+          if (!adv.volunteers || !adv.volunteers.length) {
+            volsHtml = `<div style="font-size:12px; color:var(--hint-color); font-weight:500;">Biriktirilgan topuvchilar yo'q</div>`;
+          } else {
+            adv.volunteers.forEach(v => {
+              volsHtml += buildVolunteerItemHtml(v, true);
+            });
+          }
+
+          html += `
+            <div class="dir-card ${isExp}" id="${dCardId}">
+              <div class="dir-card-header" onclick="toggleDirAdvisorCard('${dCardId}')">
+                <div class="dir-info">
+                  <div class="dir-name">
+                    <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i>
+                    <span>${escHtml(adv.fio)} (<b>${escHtml(advInitials)}</b>)</span>
+                    <span class="badge">${adv.volunteers.length}</span>
+                  </div>
+                  <div class="dir-sub">📞 ${escHtml(adv.phone || '-')}${advUnamePart}</div>
+                  <div class="dir-sub">✉️ <b>${normEnv.activeCount} dona</b> (<b style="color:var(--amount-text)">${escHtml(normEnv.formattedActiveSum)}</b>)</div>
+                </div>
+                <div class="dir-actions" onclick="event.stopPropagation()">
+                  <button type="button" class="trash-icon-btn" onclick="promptDeleteAdvisor(${aIdx})">
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="dir-volunteers-list">
+                ${volsHtml}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      container.innerHTML = html;
+    }
+
+    function toggleDirAdvisorCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      const isAlreadyOpen = el.classList.contains('expanded');
+      document.querySelectorAll('.dir-card.expanded[id^="dir-adv-"]').forEach(c => c.classList.remove('expanded'));
+      if (!isAlreadyOpen) {
+        el.classList.add('expanded');
+        expandedDirAdvisorId = cardId;
+      } else {
+        expandedDirAdvisorId = null;
+      }
+    }
+
+    function rejectSelectedEnvelopes() {
+      const checkedBoxes = Array.from(document.querySelectorAll('.pend-env-chk:checked')).filter(c => !c.disabled);
+      if (!checkedBoxes.length) {
+        showNotice("Iltimos, rad etish uchun kamida bitta konvertni belgilang!");
+        return;
+      }
+
+      askConfirm("Belgilangan konvertlarni haqiqatan ham olmadingizmi (rad etasizmi)?", () => {
+        const ids = checkedBoxes.map(c => c.value);
+        checkedBoxes.forEach(c => {
+          c.disabled = true;
+          const idx = c.getAttribute('data-idx');
+          const card = document.getElementById('pend-env-' + idx);
+          if (card) {
+            card.style.opacity = "0.4";
+            card.style.pointerEvents = "none";
+          }
+        });
+
+        const bulkRejBtn = document.getElementById('bulkRejectEnvBtn');
+        if (bulkRejBtn) {
+          bulkRejBtn.disabled = true;
+          bulkRejBtn.innerText = "Yuborilmoqda...";
+        }
+
+        sendPost({
+          action: "REJECT_ADVISOR_ENVELOPE",
+          chatId: chatId,
+          advisorFio: currentUser ? currentUser.fio : "",
+          transferIds: ids
+        }).then(() => {
+          showNotice("Tanlangan konvertlar «Olmadim» deb belgilandi!");
+          setTimeout(() => initApp(activeTabId), 1400);
+        });
+      });
+    }
+
+    function rejectIncomingEnvelope(transferId, tIdx) {
+      const card = document.getElementById('pend-env-' + tIdx);
+      if (card) {
+        card.style.opacity = "0.35";
+        card.style.pointerEvents = "none";
+      }
+      const chk = card ? card.querySelector('.pend-env-chk') : null;
+      if (chk) {
+        chk.checked = false;
+        chk.disabled = true;
+      }
+      updateSelectAllPendState();
+
+      sendPost({
+        action: "REJECT_ADVISOR_ENVELOPE",
+        chatId: chatId,
+        advisorFio: currentUser ? currentUser.fio : "",
+        transferId: transferId
+      });
+
+      if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
+      singleAcceptDebounceTimer = setTimeout(() => {
+        initApp(activeTabId);
+      }, 4800);
+    }
+
+    /* HISOBOT BREAKDOWN: O'CHIRILGAN MASLAHATCHILAR VA TASDIQLOVCHI / YETQAZUVCHI BILAN */
+    function showReportBreakdown(type, keepOpen) {
+      const container = document.getElementById('reportBreakdownContainer');
+      if (!container) return;
+
+      if (!keepOpen && activeReportDetailType === type) {
+        activeReportDetailType = null;
+        container.innerHTML = "";
+        return;
+      }
+      activeReportDetailType = type;
+
+      const titles = {
+        created: "📦 Yaratilgan (Maslahatchilarga berilgan) konvertlar:",
+        approved: "🟢 Tasdiqlangan arizalardagi konvertlar:",
+        dispatched: "🚚 Berib yuborilgan konvertlar (Yetqazuvchilar bilan):",
+        delivered: "✅ Egalariga yetqazilgan konvertlar (Yetqazuvchilar bilan):"
+      };
+
+      const advs = (directoryData.reportAdvisors && directoryData.reportAdvisors.length)
+        ? directoryData.reportAdvisors
+        : (directoryData.advisors || []);
+      let rowsHtml = "";
+
+      advs.forEach(adv => {
+        const initials = (adv.initials || getInitialsJS(adv.fio)).trim();
+        const deletedBadge = adv.isDeleted ? ` <span class="status-badge status-Rad-etilgan" style="font-size:10px;">O'chirilgan</span>` : '';
+        const rawDenoms = (adv.envStats && adv.envStats.byDenom) ? adv.envStats.byDenom : [];
+        const recBreakdowns = (adv.envStats && adv.envStats.recordsBreakdown) ? adv.envStats.recordsBreakdown : { approved: [], dispatched: [], delivered: [] };
+
+        let personCount = 0;
+        let personSum = 0;
+        let chips = [];
+
+        rawDenoms.forEach(d => {
+          const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
+          let cnt = 0;
+          if (type === 'created') {
+            cnt = (Number(d.accepted) || 0) + (Number(d.pending) || 0);
+          } else if (type === 'approved') {
+            cnt = Number(d.approvedAssigned) || 0;
+          } else if (type === 'dispatched') {
+            cnt = Number(d.dispatched) || 0;
+          } else if (type === 'delivered') {
+            cnt = Number(d.delivered) || 0;
+          }
+
+          if (cnt > 0) {
+            personCount += cnt;
+            personSum += (cnt * unitVal);
+            chips.push(`<span class="adv-chip">✉️ ${escHtml(d.amount)}: <b>${cnt} dona</b> (${formatSumText(cnt * unitVal)})</span>`);
+          }
+        });
+
+        let recordsDetailHtml = "";
+        if (type === 'approved' || type === 'dispatched' || type === 'delivered') {
+          const listForType = recBreakdowns[type] || [];
+          if (listForType.length > 0) {
+            recordsDetailHtml = `<div style="margin-top:7px; padding-top:6px; border-top:1px dashed var(--border-color);">` +
+              listForType.map(rItem => {
+                const delivLine = (type === 'dispatched' || type === 'delivered')
+                  ? ` | 🚚 Yetqazuvchi: <b style="color:var(--warning-text);">${escHtml(rItem.deliverer || rItem.sender || '-')}</b>`
+                  : '';
+                return `
+                  <div class="rep-rec-item">
+                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(rItem.amount)}</b></div>
+                    <div style="color:var(--hint-color);">✅ Tasdiqladi: <b>${escHtml(rItem.approver || adv.fio)}</b>${delivLine}</div>
+                  </div>
+                `;
+              }).join('') +
+              `</div>`;
+          }
+        }
+
+        const normSt = getNormalizedAdvisorEnvStats(adv);
+        if (personCount > 0) {
+          rowsHtml += `
+            <div class="dir-card" style="padding:10px 12px; margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
+                  <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)${deletedBadge}
+                </div>
+                <span class="env-count-badge green-badge">${personCount} dona | ${formatSumText(personSum)}</span>
+              </div>
+              ${type === 'created' ? `<div style="font-size:11.5px; color:var(--hint-color); margin-bottom:6px;">📥 Qabul qilgan: <b>${normSt.totalAccepted} dona</b> | Hozir o'zida: <b style="color:var(--success-text);">${normSt.inHandTotal} dona</b> (Bo'sh: <b>${normSt.inHandFree}</b>) | ⏳ Jarayonda: <b>${normSt.pendingCount}</b></div>` : ''}
+              <div class="adv-chip-list">${chips.join('')}</div>
+              ${recordsDetailHtml}
+            </div>
+          `;
+        }
+      });
+
+      if (!rowsHtml) {
+        rowsHtml = `<div class="empty-state" style="padding:18px 10px;">Ushbu holat bo'yicha konvertlar mavjud emas.</div>`;
+      }
+
+      container.innerHTML = `
+        <div class="dir-section-title" style="margin-top:4px; margin-bottom:8px; color:var(--accent-color);">${titles[type] || ''}</div>
+        ${rowsHtml}
+      `;
+    }
+
+    function toggleEnvAdvisorCard(cardId) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+      const isAlreadyOpen = el.classList.contains('expanded');
+      document.querySelectorAll('.adv-env-card.expanded[id^="adv-env-card-"]').forEach(c => {
+        c.classList.remove('expanded');
+      });
+      if (!isAlreadyOpen) {
+        el.classList.add('expanded');
+        expandedEnvAdvisorId = cardId;
+      } else {
+        expandedEnvAdvisorId = null;
+      }
     }
 
     function getEnvelopeTemplatesList() {
@@ -1962,12 +2628,23 @@
 
     function openSelectEnvelopeForRecord(recIdx) {
       pickingEnvelopeRecordIdx = recIdx;
+      bulkApprovingRecordIndices = null;
+      populateEnvelopePickerModal("Ushbu arizani tasdiqlash uchun konvertni tanlang:");
+    }
+
+    function openBulkEnvelopePickerModal(indices) {
+      pickingEnvelopeRecordIdx = null;
+      bulkApprovingRecordIndices = indices;
+      populateEnvelopePickerModal(`Tanlangan ${indices.length} ta arizani tasdiqlash uchun konvertni tanlang:`);
+    }
+
+    function populateEnvelopePickerModal(customTitleText) {
       const container = document.getElementById('pickEnvelopeListContainer');
       const descEl = document.getElementById('pickEnvelopeDescText');
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
 
       if (isManager) {
-        if (descEl) descEl.innerText = "Arizani tasdiqlash uchun yaratilgan konvert shablonlaridan birini tanlang:";
+        if (descEl) descEl.innerText = customTitleText || "Arizani tasdiqlash uchun yaratilgan konvert shablonlaridan birini tanlang:";
         const templates = getEnvelopeTemplatesList();
         let html = "";
         templates.forEach(item => {
@@ -1985,7 +2662,7 @@
         });
         container.innerHTML = html;
       } else {
-        if (descEl) descEl.innerText = "Ushbu arizani tasdiqlash uchun o'zingizda mavjud konvertlardan birini tanlang:";
+        if (descEl) descEl.innerText = customTitleText || "Ushbu arizani tasdiqlash uchun o'zingizda mavjud konvertlardan birini tanlang:";
         const availList = (myEnvelopeSummary && myEnvelopeSummary.available)
           ? myEnvelopeSummary.available.filter(a => a.freeCount > 0)
           : [];
@@ -2021,10 +2698,18 @@
 
     function closePickEnvelopeModal() {
       pickingEnvelopeRecordIdx = null;
+      bulkApprovingRecordIndices = null;
       document.getElementById('pickEnvelopeModal').classList.remove('show');
     }
 
     function selectEnvelopeForRecord(amountStr) {
+      if (bulkApprovingRecordIndices && bulkApprovingRecordIndices.length > 0) {
+        const indices = bulkApprovingRecordIndices.slice();
+        closePickEnvelopeModal();
+        executeBulkStatusUpdate(indices, 'Tasdiqlangan', amountStr);
+        return;
+      }
+
       const idx = pickingEnvelopeRecordIdx;
       closePickEnvelopeModal();
       if (idx === null || idx === undefined) return;
@@ -2159,18 +2844,27 @@
       document.getElementById(screenId).classList.add('active');
     }
 
-    function openTab(tabId, el) {
+    function openTab(tabId, el, isAutoRefresh) {
+      const isSameTab = (activeTabId === tabId);
       activeTabId = tabId;
-      document.querySelectorAll('.acc-card.expanded[id^="rec-card-"]').forEach(card => {
-        card.classList.remove('expanded');
-      });
+
+      /* Faqat foydalanuvchi boshqa menyuga o'tgandagina ochiq kartani yopamiz; yangilanish vaqtida yopmaymiz */
+      if (!isAutoRefresh && !isSameTab) {
+        expandedRecordKey = null;
+        document.querySelectorAll('.acc-card.expanded[id^="rec-card-"]').forEach(card => {
+          card.classList.remove('expanded');
+        });
+      }
+
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       if (el) {
         el.classList.add('active');
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }, 40);
+        if (!isAutoRefresh) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }, 40);
+        }
       }
       const targetContent = document.getElementById(tabId);
       if (targetContent) targetContent.classList.add('active');
@@ -2306,9 +3000,37 @@
       );
     }
 
+    function saveOpenCardDraftState() {
+      draftInputsCache = {};
+      if (!expandedRecordKey || !allRecords.length) return;
+      allRecords.forEach((r, idx) => {
+        const k = getRecordUniqueKey(r);
+        if (k === expandedRecordKey) {
+          const fioEl = document.getElementById(`efio-${idx}`);
+          const phoneEl = document.getElementById(`ephone-${idx}`);
+          const manbaEl = document.getElementById(`emanba-${idx}`);
+          const reasonEl = document.getElementById(`ereason-${idx}`);
+          const amountEl = document.getElementById(`eamount-${idx}`);
+          const addrEl = document.getElementById(`eaddr-${idx}`);
+          const delivEl = document.getElementById(`edeliverer-${idx}`);
+          draftInputsCache[k] = {
+            fio: fioEl ? fioEl.value : undefined,
+            phone: phoneEl ? phoneEl.value : undefined,
+            manba: manbaEl ? manbaEl.value : undefined,
+            reason: reasonEl ? reasonEl.value : undefined,
+            amount: amountEl ? amountEl.value : undefined,
+            envSelected: amountEl ? amountEl.getAttribute('data-env-selected') : undefined,
+            address: addrEl ? addrEl.value : undefined,
+            deliverer: delivEl ? delivEl.value : undefined
+          };
+        }
+      });
+    }
+
     function initApp(switchToTabId) {
       if (!switchToTabId && !activeTabId) showScreen('screen-loading');
       setRefreshSpinning(true);
+      saveOpenCardDraftState();
 
       const savedAccKey = localStorage.getItem(STORAGE_ACC_KEY) || "";
       const url = SCRIPT_URL +
@@ -2323,7 +3045,7 @@
           isAdminUser = Boolean(data.isAdmin);
           myAccountsList = data.myAccounts || [];
           advisorsList = data.advisors || [];
-          directoryData = data.directory || { boshqaruvchi: null, advisors: [], myVolunteers: [] };
+          directoryData = data.directory || { boshqaruvchi: null, advisors: [], reportAdvisors: [], myVolunteers: [] };
           envelopeStockList = data.envelopeStock || [];
           globalEnvReportData = data.globalEnvReport || { createdCount: 0, createdSum: 0, approvedCount: 0, approvedSum: 0, dispatchedCount: 0, dispatchedSum: 0, deliveredCount: 0, deliveredSum: 0 };
           myEnvelopeSummary = data.myEnvelopeSummary || { pendingTransfers: [], available: [], stats: { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 } };
@@ -2389,6 +3111,10 @@
         allEnvelopes = data.envelopes || [];
         renderGlobalEnvelopeReport();
         renderEnvelopeAdvisorsList();
+        if (expandedEnvAdvisorId) {
+          const expEnvCard = document.getElementById(expandedEnvAdvisorId);
+          if (expEnvCard) expEnvCard.classList.add('expanded');
+        }
         renderEnvelopes(allEnvelopes);
         openEnvelopeSubTab(activeEnvelopeSubTab || 'advisors');
       } else {
@@ -2421,15 +3147,15 @@
 
       if (switchToTabId) {
         const targetBtnObj = document.querySelector(`[onclick*="${switchToTabId}"]`) || tabMyBtn;
-        openTab(switchToTabId, targetBtnObj);
+        openTab(switchToTabId, targetBtnObj, true);
       } else if (activeTabId) {
         const currentBtnObj = document.querySelector(`[onclick*="${activeTabId}"]`) || (isStaff ? tabMyBtn : tabAddBtn);
-        openTab(activeTabId, currentBtnObj);
+        openTab(activeTabId, currentBtnObj, true);
       } else {
         if (isStaff) {
-          openTab('tab-my', tabMyBtn);
+          openTab('tab-my', tabMyBtn, true);
         } else {
-          openTab('tab-add', tabAddBtn);
+          openTab('tab-add', tabAddBtn, true);
         }
       }
     }
@@ -2607,7 +3333,11 @@
       });
     }
 
-    function toggleCard(cardId) {
+    function toggleCard(cardId, recIdx) {
+      if (longPressTriggered) {
+        longPressTriggered = false;
+        return;
+      }
       const el = document.getElementById(cardId);
       if (!el) return;
       const isAlreadyOpen = el.classList.contains('expanded');
@@ -2616,7 +3346,190 @@
       });
       if (!isAlreadyOpen) {
         el.classList.add('expanded');
+        if (recIdx !== undefined && allRecords[recIdx]) {
+          expandedRecordKey = getRecordUniqueKey(allRecords[recIdx]);
+        }
+      } else {
+        expandedRecordKey = null;
       }
+    }
+
+    /* UZOQ BOSIB TURISH (LONG PRESS) VA BARCHASINI BELGILASH FUNKSIYALARI */
+    function startCardLongPress(recIdx, category) {
+      longPressTriggered = false;
+      if (longPressTimer) clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        selectionModeByCategory[category] = true;
+        const containerId = category === 'newRecs' ? 'list-all' : (category === 'approved' ? 'list-approved' : 'list-dispatched');
+        const listEl = document.getElementById(containerId);
+        if (listEl) listEl.classList.add('selection-mode-active');
+
+        const chk = document.getElementById(`rchk-${recIdx}`);
+        if (chk && !chk.disabled) {
+          chk.checked = !chk.checked;
+          onRecordCheckboxChange(recIdx, category, chk.checked);
+        }
+      }, 450);
+    }
+
+    function cancelCardLongPress() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    }
+
+    function onRecordCheckboxChange(recIdx, category, isChecked) {
+      const rec = allRecords[recIdx];
+      if (!rec) return;
+      const key = getRecordUniqueKey(rec);
+      if (isChecked) selectedRecordKeys.add(key);
+      else selectedRecordKeys.delete(key);
+
+      const card = document.getElementById(`rec-card-${recIdx}`);
+      if (card) {
+        if (isChecked) card.classList.add('selected-card');
+        else card.classList.remove('selected-card');
+      }
+
+      updateCategoryBulkBarState(category);
+    }
+
+    function toggleSelectAllCategory(category, isChecked) {
+      selectionModeByCategory[category] = isChecked;
+      const containerId = category === 'newRecs' ? 'list-all' : (category === 'approved' ? 'list-approved' : 'list-dispatched');
+      const listEl = document.getElementById(containerId);
+      if (listEl) {
+        if (isChecked) listEl.classList.add('selection-mode-active');
+      }
+
+      document.querySelectorAll(`.rec-chk-cat-${category}`).forEach(chk => {
+        if (chk.disabled) return;
+        chk.checked = isChecked;
+        const rIdx = Number(chk.getAttribute('data-idx'));
+        const rec = allRecords[rIdx];
+        if (rec) {
+          const k = getRecordUniqueKey(rec);
+          if (isChecked) selectedRecordKeys.add(k);
+          else selectedRecordKeys.delete(k);
+        }
+        const card = document.getElementById(`rec-card-${rIdx}`);
+        if (card) {
+          if (isChecked) card.classList.add('selected-card');
+          else card.classList.remove('selected-card');
+        }
+      });
+
+      updateCategoryBulkBarState(category);
+    }
+
+    function updateCategoryBulkBarState(category) {
+      const allChks = Array.from(document.querySelectorAll(`.rec-chk-cat-${category}`)).filter(c => !c.disabled);
+      const checkedChks = allChks.filter(c => c.checked);
+      const selAllEl = document.getElementById(`sel-all-chk-${category}`);
+      if (selAllEl && allChks.length > 0) {
+        selAllEl.checked = (checkedChks.length === allChks.length);
+      }
+      const countSpan = document.getElementById(`bulk-cnt-${category}`);
+      if (countSpan) countSpan.innerText = checkedChks.length;
+
+      const actBtn = document.getElementById(`bulk-btn-${category}`);
+      if (actBtn) actBtn.disabled = (checkedChks.length === 0);
+    }
+
+    function triggerBulkCategoryAction(category) {
+      const checkedChks = Array.from(document.querySelectorAll(`.rec-chk-cat-${category}:checked`)).filter(c => !c.disabled);
+      if (!checkedChks.length) {
+        showNotice("Iltimos, kamida bitta arizani belgilang!");
+        return;
+      }
+
+      const indices = checkedChks.map(c => Number(c.getAttribute('data-idx')));
+
+      if (category === 'newRecs') {
+        /* Agar belgilangan arizalarning barchasida miqdor/konvert tanlangan bo'lsa darhol tasdiqlaymiz, aks holda konvert tanlash oynasini ochamiz */
+        const missingEnv = indices.some(idx => {
+          const r = allRecords[idx];
+          const amtInput = document.getElementById(`eamount-${idx}`);
+          const amtVal = amtInput ? amtInput.value.trim() : (r ? r.amount : "");
+          const envSel = amtInput ? (amtInput.getAttribute('data-env-selected') === '1') : Boolean(r && r.hasEnvelope);
+          return !(envSel && isAmountValid(amtVal));
+        });
+
+        if (missingEnv) {
+          openBulkEnvelopePickerModal(indices);
+        } else {
+          executeBulkStatusUpdate(indices, 'Tasdiqlangan', null);
+        }
+      } else if (category === 'approved') {
+        executeBulkStatusUpdate(indices, 'Berib yuborilgan', null);
+      } else if (category === 'dispatched') {
+        executeBulkStatusUpdate(indices, 'Yetqazilgan', null);
+      }
+    }
+
+    function executeBulkStatusUpdate(indices, targetStatus, forcedEnvelopeAmount) {
+      if (!indices || !indices.length) return;
+
+      const itemsPayload = [];
+      indices.forEach(idx => {
+        const rec = allRecords[idx];
+        if (!rec) return;
+
+        const card = document.getElementById(`rec-card-${idx}`);
+        if (card) {
+          card.style.opacity = "0.4";
+          card.style.pointerEvents = "none";
+        }
+
+        const fioInput = document.getElementById(`efio-${idx}`);
+        const phoneInput = document.getElementById(`ephone-${idx}`);
+        const manbaInput = document.getElementById(`emanba-${idx}`);
+        const reasonInput = document.getElementById(`ereason-${idx}`);
+        const amountInput = document.getElementById(`eamount-${idx}`);
+        const addrInput = document.getElementById(`eaddr-${idx}`);
+        const delivSelect = document.getElementById(`edeliverer-${idx}`);
+
+        let finalAmount = forcedEnvelopeAmount || (amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount);
+        if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
+          finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+        }
+
+        const chosenDeliverer = delivSelect
+          ? delivSelect.value
+          : (rec.deliverer || extractCleanFioJS(rec.sender));
+
+        itemsPayload.push({
+          sheetName: rec.sheetName,
+          ownerChatId: rec.ownerChatId,
+          rowIndex: rec.rowIndex,
+          origFio: rec.fio,
+          origPhone: rec.phone,
+          sender: rec.sender,
+          fio: fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio,
+          phone: phoneInput ? (validateAndFormatPhone(phoneInput.value.trim()) || phoneInput.value.replace(/\D/g, '')) : rec.phone,
+          manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
+          reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
+          amount: finalAmount,
+          envelopeAmount: finalAmount,
+          address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
+          newStatus: targetStatus,
+          hasEnvelope: true,
+          approverFio: (currentUser && currentUser.role === "Maslahatchi") ? currentUser.fio : (rec.advisor || (currentUser ? currentUser.fio : "")),
+          deliverer: chosenDeliverer
+        });
+
+        selectedRecordKeys.delete(getRecordUniqueKey(rec));
+      });
+
+      sendPost({
+        action: "BULK_UPDATE_RECORDS",
+        items: itemsPayload
+      }).then(() => {
+        showNotice(`${itemsPayload.length} ta ariza holati «${targetStatus}» ga o'zgartirildi!`);
+        setTimeout(() => initApp(activeTabId), 1500);
+      });
     }
 
     function isAmountValid(val) {
@@ -2637,7 +3550,11 @@
       const amountEl = document.getElementById(`eamount-${idx}`);
       const amountVal = (amountEl?.value || "").trim();
       const addrVal = (document.getElementById(`eaddr-${idx}`)?.value || "").trim();
+      const delivEl = document.getElementById(`edeliverer-${idx}`);
+      const delivVal = (delivEl?.value || "").trim();
       const envSelected = amountEl?.getAttribute('data-env-selected') === '1';
+
+      const origDeliverer = String(rec.deliverer || extractCleanFioJS(rec.sender) || "").trim();
 
       if (saveBtn) {
         const isChanged =
@@ -2647,6 +3564,7 @@
           reasonVal !== String(rec.reason || "").trim() ||
           amountVal !== String(rec.amount || "").trim() ||
           addrVal !== String(rec.address || "").trim() ||
+          (delivEl && delivVal !== origDeliverer) ||
           envSelected;
 
         saveBtn.disabled = !isChanged;
@@ -2678,6 +3596,94 @@
       return isNaN(parsed) ? 0 : parsed;
     }
 
+    /* TASDIQLANGAN ARIZADA YETQAZUVCHINI (MASLAHATCHI VA UNGA BIRIKTIRILGAN TOPUVCHILARNI) TANLASH RO'YXATI */
+    function buildDelivererSelectHtml(rec, idx) {
+      const defaultSenderFio = extractCleanFioJS(rec.sender);
+      const currentDeliverer = toTitleCaseJS(rec.deliverer || defaultSenderFio);
+      const recAdvisorFio = toTitleCaseJS(rec.advisor || (currentUser && currentUser.role === "Maslahatchi" ? currentUser.fio : ""));
+
+      const candidates = [];
+      const seen = new Set();
+
+      function addCandidate(fio, roleTag) {
+        const clean = toTitleCaseJS(fio);
+        if (!clean) return;
+        const k = clean.toLowerCase();
+        if (seen.has(k)) return;
+        seen.add(k);
+        candidates.push({ fio: clean, label: roleTag ? `${clean} (${roleTag})` : clean });
+      }
+
+      /* 1. Default: arizani yuborgan Topuvchi */
+      if (defaultSenderFio) {
+        const isSenderAdvisor = recAdvisorFio && defaultSenderFio.toLowerCase() === recAdvisorFio.toLowerCase();
+        addCandidate(defaultSenderFio, isSenderAdvisor ? "Maslahatchi" : "Ariza yuboruvchi");
+      }
+
+      /* 2. Maslahatchining o'zi */
+      if (recAdvisorFio) {
+        addCandidate(recAdvisorFio, "Maslahatchi");
+      }
+
+      /* 3. Shu Maslahatchiga biriktirilgan barcha Topuvchilar */
+      if (currentUser && currentUser.role === "Maslahatchi" && directoryData.myVolunteers) {
+        directoryData.myVolunteers.forEach(v => addCandidate(v.fio, "Topuvchi"));
+      } else if (directoryData.advisors && directoryData.advisors.length) {
+        const matchedAdv = directoryData.advisors.find(a => a.fio && recAdvisorFio && a.fio.toLowerCase() === recAdvisorFio.toLowerCase());
+        if (matchedAdv && matchedAdv.volunteers) {
+          matchedAdv.volunteers.forEach(v => addCandidate(v.fio, "Topuvchi"));
+        } else {
+          directoryData.advisors.forEach(a => {
+            addCandidate(a.fio, "Maslahatchi");
+            (a.volunteers || []).forEach(v => addCandidate(v.fio, "Topuvchi"));
+          });
+        }
+      }
+
+      if (currentDeliverer) {
+        addCandidate(currentDeliverer, "");
+      }
+
+      const optsHtml = candidates.map(c => {
+        const isSel = c.fio.toLowerCase() === currentDeliverer.toLowerCase();
+        return `<option value="${escHtml(c.fio)}" ${isSel ? 'selected' : ''}>${escHtml(c.label)}</option>`;
+      }).join('');
+
+      return `
+        <div class="deliverer-select-box" onclick="event.stopPropagation()">
+          <label><i class="fi fi-rr-truck-side"></i> Konvertni yetqazuvchi (Maslahatchi / Topuvchi):</label>
+          <select id="edeliverer-${idx}" onchange="checkRecordChanged(${idx})">
+            ${optsHtml}
+          </select>
+        </div>
+      `;
+    }
+
+    function buildBulkBarHtml(category, manageableCount) {
+      if (manageableCount <= 0) return "";
+      const btnLabels = {
+        newRecs: '<i class="fi fi-rr-check-double"></i> Tanlanganlarni tasdiqlash',
+        approved: '<i class="fi fi-rr-truck-side"></i> Tanlanganlarni berib yuborish',
+        dispatched: '<i class="fi fi-rr-badge-check"></i> Tanlanganlarni yetqazildi qilish'
+      };
+      const btnClasses = {
+        newRecs: 'btn-approve',
+        approved: 'btn-dispatch',
+        dispatched: 'btn-deliver'
+      };
+      return `
+        <div class="rec-bulk-bar">
+          <label class="bulk-chk-label">
+            <input type="checkbox" id="sel-all-chk-${category}" class="env-chk-input" onchange="toggleSelectAllCategory('${category}', this.checked)">
+            <span>Barchasini belgilash (<span id="bulk-cnt-${category}">0</span>/${manageableCount})</span>
+          </label>
+          <button type="button" id="bulk-btn-${category}" class="btn-act ${btnClasses[category]}" disabled style="flex:0; min-width:auto; padding:7px 12px; font-size:12px;" onclick="triggerBulkCategoryAction('${category}')">
+            ${btnLabels[category]}
+          </button>
+        </div>
+      `;
+    }
+
     function renderRecords(records) {
       records.sort((a, b) => {
         const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
@@ -2687,6 +3693,7 @@
       });
 
       let counts = { newRecs: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
+      let manageableCounts = { newRecs: 0, approved: 0, dispatched: 0 };
       let htmls = { newRecs: "", approved: "", rejected: "", dispatched: "", delivered: "" };
 
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
@@ -2702,9 +3709,15 @@
         r.reason = cleanBackslashQuotes(r.reason);
         r.address = cleanBackslashQuotes(r.address);
         r.advisor = cleanBackslashQuotes(r.advisor || "");
+        r.deliverer = cleanBackslashQuotes(r.deliverer || extractCleanFioJS(r.sender));
+
+        const recKey = getRecordUniqueKey(r);
+        const savedDraft = draftInputsCache[recKey] || null;
+        const isCardExpanded = (expandedRecordKey && recKey === expandedRecordKey);
+        const isCardSelected = selectedRecordKeys.has(recKey);
 
         const cardId = `rec-card-${idx}`;
-        const addrText = String(r.address || "");
+        const addrText = String(savedDraft && savedDraft.address !== undefined ? savedDraft.address : (r.address || ""));
         const addrLink = addrText.startsWith('http')
           ? `<a href="${escHtml(addrText)}" target="_blank" style="color:var(--accent-color)">Xaritada ochish</a>`
           : (escHtml(addrText) || '-');
@@ -2748,12 +3761,21 @@
           if (category !== "dispatched" && category !== "delivered") canEditRecord = true;
         }
 
-        const hasValidAmount = isAmountValid(r.amount);
-        const isEnvelopeAlreadyAttached = cleanStatus === "Rad etilgan" ? false : Boolean(r.hasEnvelope);
+        const effectiveAmountVal = savedDraft && savedDraft.amount !== undefined ? savedDraft.amount : r.amount;
+        const hasValidAmount = isAmountValid(effectiveAmountVal);
+        const isEnvelopeAlreadyAttached = cleanStatus === "Rad etilgan"
+          ? false
+          : (savedDraft && savedDraft.envSelected === '1' ? true : Boolean(r.hasEnvelope));
 
         const canApproveNow = isEnvelopeAlreadyAttached && hasValidAmount;
         const hideAmountFromVolunteer = isVolunteer && (cleanStatus === "Tasdiqlangan" || cleanStatus === "Berib yuborilgan" || cleanStatus === "Yetqazilgan");
 
+        const canSelectForBulk = canManageRecord && (category === "newRecs" || category === "approved" || category === "dispatched");
+        if (canSelectForBulk) {
+          manageableCounts[category]++;
+        }
+
+        let delivererSelectHtml = "";
         let statusButtonsHtml = "";
         if (canManageRecord) {
           if (category === "newRecs") {
@@ -2764,6 +3786,7 @@
               </div>
             `;
           } else if (category === "approved") {
+            delivererSelectHtml = buildDelivererSelectHtml(r, idx);
             statusButtonsHtml = `
               <div class="action-row">
                 <button type="button" class="btn-act btn-reject" onclick="openRejectPrompt(${idx})"><i class="fi fi-rr-cross-small"></i> Rad etish</button>
@@ -2787,28 +3810,36 @@
         }
 
         const advisorInfoRow = isManager
-          ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-compass-alt"></i> Maslahatchi:</span> ${escHtml(r.advisor || (isOwnManagerRecord ? "O'zi (" + (isAdminUser ? "Admin" : "Boshqaruvchi") + ")" : "Biriktirilmagan"))}</div>`
+          ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-compass-alt"></i> Maslahatchi (Tasdiqlovchi):</span> ${escHtml(r.approvedBy || r.advisor || (isOwnManagerRecord ? "O'zi (" + (isAdminUser ? "Admin" : "Boshqaruvchi") + ")" : "Biriktirilmagan"))}</div>`
+          : '';
+
+        const delivererInfoRow = (category === "dispatched" || category === "delivered")
+          ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-truck-side"></i> Konvertni yetqazuvchi:</span> <b>${escHtml(r.deliverer || extractCleanFioJS(r.sender))}</b></div>`
           : '';
 
         let amountInputHtml = "";
         if (canManageRecord) {
           const envStatusNote = isEnvelopeAlreadyAttached
-            ? `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--success-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-check-circle"></i> Konvert biriktirilgan: <b>${escHtml(r.amount)}</b></div>`
+            ? `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--success-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-check-circle"></i> Konvert biriktirilgan: <b>${escHtml(effectiveAmountVal)}</b></div>`
             : `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--warning-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-envelope"></i> Tasdiqlash uchun ustiga bosib konvert tanlang</div>`;
 
           amountInputHtml = `
             <label>Miqdor (Konvert tanlash)</label>
-            <input type="text" id="eamount-${idx}" value="${escHtml(r.amount)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:rgba(36, 129, 204, 0.55);" onclick="openSelectEnvelopeForRecord(${idx})">
+            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:rgba(36, 129, 204, 0.55);" onclick="openSelectEnvelopeForRecord(${idx})">
             ${envStatusNote}
           `;
         } else {
           amountInputHtml = `
             <label>Miqdor</label>
-            <input type="text" id="eamount-${idx}" value="${escHtml(r.amount)}" data-env-selected="1" placeholder="Summani kiriting (masalan: 1 000 000 so'm)" oninput="checkRecordChanged(${idx})">
+            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" data-env-selected="1" placeholder="Summani kiriting (masalan: 1 000 000 so'm)" oninput="checkRecordChanged(${idx})">
           `;
         }
 
         let bodyContent = "";
+        const valFio = savedDraft && savedDraft.fio !== undefined ? savedDraft.fio : r.fio;
+        const valPhone = savedDraft && savedDraft.phone !== undefined ? savedDraft.phone : r.phone;
+        const valManba = savedDraft && savedDraft.manba !== undefined ? savedDraft.manba : r.manba;
+        const valReason = savedDraft && savedDraft.reason !== undefined ? savedDraft.reason : (r.reason || '');
 
         if (canEditRecord) {
           bodyContent = `
@@ -2818,17 +3849,17 @@
             ${r.rejectReason ? `<div class="detail-row" style="color:var(--danger-text);"><span class="detail-label"><i class="fi fi-rr-cross-circle"></i> Rad etish sababi:</span> ${escHtml(r.rejectReason)}</div>` : ''}
             <div class="edit-box" onclick="event.stopPropagation()">
               <label>Zakot oluvchi F.I.O</label>
-              <input type="text" id="efio-${idx}" value="${escHtml(r.fio)}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
+              <input type="text" id="efio-${idx}" value="${escHtml(valFio)}" oninput="validateLettersOnly(this); checkRecordChanged(${idx})">
               <label>Telefon raqami</label>
-              <input type="tel" id="ephone-${idx}" inputmode="tel" value="${escHtml(r.phone)}" oninput="validatePhoneInput(this); checkRecordChanged(${idx})">
+              <input type="tel" id="ephone-${idx}" inputmode="tel" value="${escHtml(valPhone)}" oninput="validatePhoneInput(this); checkRecordChanged(${idx})">
               <label>Manba</label>
-              <input type="text" id="emanba-${idx}" value="${escHtml(r.manba)}" oninput="checkRecordChanged(${idx})">
+              <input type="text" id="emanba-${idx}" value="${escHtml(valManba)}" oninput="checkRecordChanged(${idx})">
               <label>Sababi</label>
-              <textarea id="ereason-${idx}" class="single-line-box" rows="1" oninput="checkRecordChanged(${idx})">${escHtml(r.reason || '')}</textarea>
+              <textarea id="ereason-${idx}" class="single-line-box" rows="1" oninput="checkRecordChanged(${idx})">${escHtml(valReason)}</textarea>
               ${amountInputHtml}
               <label>Manzil ${addrText.startsWith('http') ? `(${addrLink})` : ''}</label>
-              <input type="text" id="eaddr-${idx}" value="${escHtml(r.address)}" oninput="checkRecordChanged(${idx})">
-
+              <input type="text" id="eaddr-${idx}" value="${escHtml(addrText)}" oninput="checkRecordChanged(${idx})">
+              ${delivererSelectHtml}
               <div class="action-row">
                 <button type="button" class="btn-act btn-save" id="esave-${idx}" disabled onclick="saveRecordUpdate(${idx}, '${escJsAttr(cleanStatus)}')"><i class="fi fi-rr-edit"></i> O'zgarishni saqlash</button>
               </div>
@@ -2839,6 +3870,7 @@
           bodyContent = `
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi:</span> ${escHtml(r.sender)}</div>` : ''}
             ${advisorInfoRow}
+            ${delivererInfoRow}
             ${!hideAmountFromVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--danger-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b></div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${escHtml(r.phone || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba || '-')}</div>
@@ -2852,13 +3884,24 @@
 
         const headerAmountBadgeHtml = hideAmountFromVolunteer
           ? ''
-          : `<div class="acc-amount ${hasValidAmount ? '' : 'no-amount'}"><i class="fi fi-rr-coins"></i> ${escHtml(hasValidAmount ? r.amount : "Belgilanmagan")}</div>`;
+          : `<div class="acc-amount ${hasValidAmount ? '' : 'no-amount'}"><i class="fi fi-rr-coins"></i> ${escHtml(hasValidAmount ? effectiveAmountVal : "Belgilanmagan")}</div>`;
+
+        const checkboxHtml = canSelectForBulk
+          ? `<input type="checkbox" id="rchk-${idx}" class="rec-chk-box rec-chk-cat-${category}" data-idx="${idx}" ${isCardSelected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="onRecordCheckboxChange(${idx}, '${category}', this.checked)">`
+          : '';
+
+        const longPressAttrs = canSelectForBulk
+          ? `ontouchstart="startCardLongPress(${idx}, '${category}')" ontouchend="cancelCardLongPress()" ontouchmove="cancelCardLongPress()" oncontextmenu="if(event.target.tagName!=='INPUT'){event.preventDefault();}"`
+          : '';
 
         const cardHtml = `
-          <div class="acc-card" id="${cardId}">
-            <div class="acc-header" onclick="toggleCard('${cardId}')">
+          <div class="acc-card ${isCardExpanded ? 'expanded' : ''} ${isCardSelected ? 'selected-card' : ''}" id="${cardId}" ${longPressAttrs}>
+            <div class="acc-header" onclick="toggleCard('${cardId}', ${idx})">
               <div class="acc-left">
-                <div class="acc-fio"><i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${escHtml(r.fio)}</div>
+                <div class="acc-fio">
+                  ${checkboxHtml}
+                  <i class="fi fi-rr-user" style="color:var(--accent-color)"></i> ${escHtml(r.fio)}
+                </div>
                 <div class="acc-date"><i class="fi fi-rr-calendar"></i> Sana: ${escHtml(r.date || '-')}</div>
                 ${subStatusHtml}
               </div>
@@ -2883,11 +3926,50 @@
       document.getElementById('b-dispatched').innerText = counts.dispatched;
       document.getElementById('b-delivered').innerText = counts.delivered;
 
-      document.getElementById('list-all').innerHTML = htmls.newRecs || '<div class="empty-state">Yangi arizalar mavjud emas</div>';
-      document.getElementById('list-approved').innerHTML = htmls.approved || '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
-      document.getElementById('list-rejected').innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
-      document.getElementById('list-dispatched').innerHTML = htmls.dispatched || '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
-      document.getElementById('list-delivered').innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
+      /* "Rad etilgan" menyusi qiymatga ega bo'lmasa (0 bo'lsa) barchada yashirinib turadi */
+      const rejTabBtn = document.querySelector('.tab-bar button[onclick*="tab-rejected"]');
+      if (rejTabBtn) {
+        if (counts.rejected > 0) {
+          rejTabBtn.style.display = "inline-flex";
+        } else {
+          rejTabBtn.style.display = "none";
+          if (activeTabId === 'tab-rejected') {
+            activeTabId = 'tab-my';
+          }
+        }
+      }
+
+      const listAllEl = document.getElementById('list-all');
+      const listApprovedEl = document.getElementById('list-approved');
+      const listRejectedEl = document.getElementById('list-rejected');
+      const listDispatchedEl = document.getElementById('list-dispatched');
+      const listDeliveredEl = document.getElementById('list-delivered');
+
+      listAllEl.innerHTML = htmls.newRecs
+        ? (buildBulkBarHtml('newRecs', manageableCounts.newRecs) + htmls.newRecs)
+        : '<div class="empty-state">Yangi arizalar mavjud emas</div>';
+
+      listApprovedEl.innerHTML = htmls.approved
+        ? (buildBulkBarHtml('approved', manageableCounts.approved) + htmls.approved)
+        : '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
+
+      listRejectedEl.innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
+
+      listDispatchedEl.innerHTML = htmls.dispatched
+        ? (buildBulkBarHtml('dispatched', manageableCounts.dispatched) + htmls.dispatched)
+        : '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
+
+      listDeliveredEl.innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
+
+      ['newRecs', 'approved', 'dispatched'].forEach(cat => {
+        const cId = cat === 'newRecs' ? 'list-all' : (cat === 'approved' ? 'list-approved' : 'list-dispatched');
+        const el = document.getElementById(cId);
+        if (el) {
+          if (selectionModeByCategory[cat]) el.classList.add('selection-mode-active');
+          else el.classList.remove('selection-mode-active');
+        }
+        updateCategoryBulkBarState(cat);
+      });
     }
 
     function saveRecordUpdate(idx, newStatus, rejectReason) {
@@ -2900,6 +3982,7 @@
       const reasonInput = document.getElementById(`ereason-${idx}`);
       const amountInput = document.getElementById(`eamount-${idx}`);
       const addrInput = document.getElementById(`eaddr-${idx}`);
+      const delivSelect = document.getElementById(`edeliverer-${idx}`);
 
       let finalAmount = amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount;
       let envSelected = amountInput ? (amountInput.getAttribute('data-env-selected') === '1') : Boolean(rec.hasEnvelope);
@@ -2923,6 +4006,13 @@
       const card = document.getElementById(`rec-card-${idx}`);
       if (card) card.style.opacity = "0.5";
 
+      /* Agar arizaning holati boshqa menyuga o'tayotgan bo'lsa va aynan shu karta ochiq turgan bo'lsa, uni yopamiz */
+      const recKey = getRecordUniqueKey(rec);
+      if (newStatus !== rec.status && expandedRecordKey === recKey) {
+        expandedRecordKey = null;
+      }
+      delete draftInputsCache[recKey];
+
       let finalPhone = rec.phone;
       if (phoneInput) {
         const rawP = phoneInput.value.trim();
@@ -2933,6 +4023,10 @@
           finalPhone = "";
         }
       }
+
+      const chosenDeliverer = delivSelect
+        ? delivSelect.value
+        : (rec.deliverer || extractCleanFioJS(rec.sender));
 
       sendPost({
         action: "UPDATE_RECORD",
@@ -2951,6 +4045,8 @@
         address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
         newStatus: newStatus,
         hasEnvelope: newStatus === "Rad etilgan" ? false : Boolean(envSelected || newStatus === "Tasdiqlangan" || newStatus === "Berib yuborilgan" || newStatus === "Yetqazilgan"),
+        approverFio: (currentUser && currentUser.role === "Maslahatchi") ? currentUser.fio : (rec.advisor || (currentUser ? currentUser.fio : "")),
+        deliverer: chosenDeliverer,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
       }).then(() => {
         showNotice("Ma'lumot yangilandi!");
@@ -2968,6 +4064,10 @@
           card.style.opacity = "0.3";
           card.style.pointerEvents = "none";
         }
+
+        const recKey = getRecordUniqueKey(rec);
+        if (expandedRecordKey === recKey) expandedRecordKey = null;
+        selectedRecordKeys.delete(recKey);
 
         sendPost({
           action: "DELETE_RECORD",
