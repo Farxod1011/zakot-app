@@ -2124,22 +2124,10 @@
       document.head.appendChild(st);
     })();
 
-    /* OCHIQ ARIZALAR VA MENYULAR HOLATINI SAQLASH (Takroriy let'larsiz) */
-    let expandedEnvAdvisorId = null;
-    let expandedDirAdvisorId = null;
-    let selectedRecordKeys = new Set();
     let selectionModeByCategory = { newRecs: false, approved: false, dispatched: false };
-    let bulkApprovingRecordIndices = null;
+    let longPressTimer = null;
+    let longPressTriggered = false;
     let draftInputsCache = {};
-
-    function normKeyStr(s) {
-      return String(s || "").trim().toLowerCase();
-    }
-
-    function getRecordUniqueKey(rec) {
-      if (!rec) return "";
-      return `${rec.sheetName || ''}|${rec.rowIndex || ''}|${normKeyStr(rec.fio)}|${String(rec.phone || '').replace(/\D/g, '')}`;
-    }
 
     function toggleDirAdvisorCard(cardId) {
       const el = document.getElementById(cardId);
@@ -2154,19 +2142,67 @@
       }
     }
 
-    function toggleEnvAdvisorCard(cardId) {
-      const el = document.getElementById(cardId);
-      if (!el) return;
-      const isAlreadyOpen = el.classList.contains('expanded');
-      document.querySelectorAll('.adv-env-card.expanded[id^="adv-env-card-"]').forEach(c => {
-        c.classList.remove('expanded');
-      });
-      if (!isAlreadyOpen) {
-        el.classList.add('expanded');
-        expandedEnvAdvisorId = cardId;
-      } else {
-        expandedEnvAdvisorId = null;
+    function rejectSelectedEnvelopes() {
+      const checkedBoxes = Array.from(document.querySelectorAll('.pend-env-chk:checked')).filter(c => !c.disabled);
+      if (!checkedBoxes.length) {
+        showNotice("Iltimos, rad etish uchun kamida bitta konvertni belgilang!");
+        return;
       }
+
+      askConfirm("Belgilangan konvertlarni haqiqatan ham olmadingizmi (rad etasizmi)?", () => {
+        const ids = checkedBoxes.map(c => c.value);
+        checkedBoxes.forEach(c => {
+          c.disabled = true;
+          const idx = c.getAttribute('data-idx');
+          const card = document.getElementById('pend-env-' + idx);
+          if (card) {
+            card.style.opacity = "0.4";
+            card.style.pointerEvents = "none";
+          }
+        });
+
+        const bulkRejBtn = document.getElementById('bulkRejectEnvBtn');
+        if (bulkRejBtn) {
+          bulkRejBtn.disabled = true;
+          bulkRejBtn.innerText = "Yuborilmoqda...";
+        }
+
+        sendPost({
+          action: "REJECT_ADVISOR_ENVELOPE",
+          chatId: chatId,
+          advisorFio: currentUser ? currentUser.fio : "",
+          transferIds: ids
+        }).then(() => {
+          showNotice("Tanlangan konvertlar «Olmadim» deb belgilandi!");
+          setTimeout(() => initApp(activeTabId), 1400);
+        });
+      });
+    }
+
+    function rejectIncomingEnvelope(transferId, tIdx) {
+      const card = document.getElementById('pend-env-' + tIdx);
+      if (card) {
+        card.style.opacity = "0.35";
+        card.style.pointerEvents = "none";
+      }
+      const chk = card ? card.querySelector('.pend-env-chk') : null;
+      if (chk) {
+        chk.checked = false;
+        chk.disabled = true;
+      }
+      updateSelectAllPendState();
+
+      sendPost({
+        action: "REJECT_ADVISOR_ENVELOPE",
+        chatId: chatId,
+        advisorFio: currentUser ? currentUser.fio : "",
+        transferId: transferId
+      });
+
+      if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
+      singleAcceptDebounceTimer = setTimeout(() => {
+        initApp(activeTabId);
+      }, 4800);
     }
 
     function getEnvelopeTemplatesList() {
@@ -2268,7 +2304,7 @@
         btn.innerText = "Berish";
         closeGiveEnvelopeModal();
         showNotice(`Konvertlar «${targetAdv.fio}»ga yuborildi! Maslahatchi tasdiqlagach uning hisobiga o'tadi.`);
-        scheduleAppRefresh('tab-envelopes', 1400);
+        setTimeout(() => initApp('tab-envelopes'), 1400);
       });
     }
 
@@ -2352,7 +2388,7 @@
       if (bulkApprovingRecordIndices && bulkApprovingRecordIndices.length > 0) {
         const indices = bulkApprovingRecordIndices.slice();
         closePickEnvelopeModal();
-        executeBulkStatusUpdate(indices, 'Tasdiqlangan', amountStr);
+        openBulkEnvConfirmModal(indices, amountStr);
         return;
       }
 
@@ -2370,7 +2406,64 @@
         envNote.style.color = "var(--success-text)";
         envNote.innerHTML = `<i class="fi fi-rr-check-circle"></i> Konvert tanlandi: <b>${escHtml(amountStr)}</b>`;
       }
+
+      const cardEl = document.getElementById(`rec-card-${idx}`);
+      const headerAmtEl = cardEl ? cardEl.querySelector('.acc-amount') : null;
+      if (headerAmtEl) {
+        headerAmtEl.classList.remove('no-amount', 'unattached-amount');
+        headerAmtEl.innerHTML = `<i class="fi fi-rr-coins"></i> ${escHtml(amountStr)}`;
+      }
+
       checkRecordChanged(idx);
+    }
+
+    function openBulkEnvConfirmModal(indices, amountStr) {
+      pendingBulkEnvelopeIndices = indices;
+      pendingBulkEnvelopeAmount = amountStr;
+
+      document.getElementById('bulkSelectedEnvBadge').innerHTML = `✉️ Tanlangan konvert: ${escHtml(amountStr)}`;
+      document.getElementById('bulkEnvRecordsSection').style.display = "none";
+
+      let listHtml = "";
+      indices.forEach(idx => {
+        const r = allRecords[idx];
+        if (!r) return;
+        const curAmt = r.amount ? ` (Tavsiya: ${escHtml(r.amount)})` : " (Miqdor belgilanmagan)";
+        listHtml += `
+          <label class="bulk-rec-pick-row">
+            <input type="checkbox" class="env-chk-input bulk-env-rec-chk" value="${idx}" checked>
+            <div style="font-size:12.5px; line-height:1.35;">
+              <div style="font-weight:600; color:var(--text-color);">👤 ${escHtml(r.fio)}</div>
+              <div style="font-size:11.5px; color:var(--hint-color);">Topuvchi: ${escHtml(extractCleanFioJS(r.sender))}${curAmt}</div>
+            </div>
+          </label>
+        `;
+      });
+
+      document.getElementById('bulkEnvRecordsList').innerHTML = listHtml;
+      document.getElementById('bulkEnvConfirmModal').classList.add('show');
+    }
+
+    function revealBulkEnvRecordsSelection() {
+      document.getElementById('bulkEnvRecordsSection').style.display = "block";
+    }
+
+    function closeBulkEnvConfirmModal() {
+      pendingBulkEnvelopeIndices = [];
+      pendingBulkEnvelopeAmount = "";
+      document.getElementById('bulkEnvConfirmModal').classList.remove('show');
+    }
+
+    function confirmBulkEnvelopeApproveSelected() {
+      const checkedEls = Array.from(document.querySelectorAll('.bulk-env-rec-chk:checked'));
+      if (!checkedEls.length) {
+        showNotice("Iltimos, konvert biriktirish uchun kamida bitta arizani belgilang!");
+        return;
+      }
+      const chosenIndices = checkedEls.map(el => Number(el.value));
+      const amt = pendingBulkEnvelopeAmount;
+      closeBulkEnvConfirmModal();
+      executeBulkStatusUpdate(chosenIndices, 'Tasdiqlangan', amt);
     }
 
     function openAddEnvelopeModal() {
@@ -2411,7 +2504,7 @@
         amount: formattedAmount
       }).then(() => {
         showNotice("Konvert shabloni muvaffaqiyatli qo'shildi!");
-        scheduleAppRefresh('tab-envelopes', 1400);
+        setTimeout(() => initApp('tab-envelopes'), 1400);
       });
     }
 
@@ -2480,7 +2573,7 @@
           allEnvelopes.splice(idx, 1);
           renderEnvelopes(allEnvelopes);
           showNotice("Konvert shabloni o'chirildi!");
-          scheduleAppRefresh('tab-envelopes', 1300);
+          setTimeout(() => initApp('tab-envelopes'), 1300);
         });
       });
     }
@@ -2688,7 +2781,6 @@
         .then(res => res.json())
         .then(data => {
           setRefreshSpinning(false);
-          /* Yangilanish davomida foydalanuvchi boshqa arizani ochgan bo'lsa, uning holatini ham saqlab qolamiz */
           saveOpenCardDraftState();
 
           isAdminUser = Boolean(data.isAdmin);
@@ -3007,7 +3099,6 @@
       }
     }
 
-    /* UZOQ BOSIB TURISH (LONG PRESS) VA BARCHASINI BELGILASH FUNKSIYALARI */
     function startCardLongPress(recIdx, category) {
       longPressTriggered = false;
       if (longPressTimer) clearTimeout(longPressTimer);
@@ -3129,12 +3220,6 @@
         const rec = allRecords[idx];
         if (!rec) return;
 
-        const card = document.getElementById(`rec-card-${idx}`);
-        if (card) {
-          card.style.opacity = "0.4";
-          card.style.pointerEvents = "none";
-        }
-
         const fioInput = document.getElementById(`efio-${idx}`);
         const phoneInput = document.getElementById(`ephone-${idx}`);
         const manbaInput = document.getElementById(`emanba-${idx}`);
@@ -3152,6 +3237,12 @@
           ? delivSelect.value
           : (rec.deliverer || extractCleanFioJS(rec.sender));
 
+        const updatedFio = fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio;
+        const updatedPhone = phoneInput ? (validateAndFormatPhone(phoneInput.value.trim()) || phoneInput.value.replace(/\D/g, '')) : rec.phone;
+        const updatedManba = manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba;
+        const updatedReason = reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason;
+        const updatedAddr = addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address;
+
         itemsPayload.push({
           sheetName: rec.sheetName,
           ownerChatId: rec.ownerChatId,
@@ -3159,13 +3250,13 @@
           origFio: rec.fio,
           origPhone: rec.phone,
           sender: rec.sender,
-          fio: fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio,
-          phone: phoneInput ? (validateAndFormatPhone(phoneInput.value.trim()) || phoneInput.value.replace(/\D/g, '')) : rec.phone,
-          manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
-          reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
+          fio: updatedFio,
+          phone: updatedPhone,
+          manba: updatedManba,
+          reason: updatedReason,
           amount: finalAmount,
           envelopeAmount: finalAmount,
-          address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
+          address: updatedAddr,
           newStatus: targetStatus,
           hasEnvelope: true,
           approverFio: (currentUser && currentUser.role === "Maslahatchi") ? currentUser.fio : (rec.advisor || (currentUser ? currentUser.fio : "")),
@@ -3175,14 +3266,28 @@
         const recKey = getRecordUniqueKey(rec);
         selectedRecordKeys.delete(recKey);
         if (expandedRecordKey === recKey) expandedRecordKey = null;
+        delete draftInputsCache[recKey];
+
+        rec.fio = updatedFio;
+        rec.phone = updatedPhone;
+        rec.manba = updatedManba;
+        rec.reason = updatedReason;
+        rec.amount = finalAmount;
+        rec.envelopeAmount = finalAmount;
+        rec.address = updatedAddr;
+        rec.status = targetStatus;
+        rec.hasEnvelope = true;
+        rec.deliverer = chosenDeliverer;
       });
+
+      renderRecords(allRecords);
+      showNotice(`${itemsPayload.length} ta ariza holati «${targetStatus}» ga o'zgartirildi!`);
 
       sendPost({
         action: "BULK_UPDATE_RECORDS",
         items: itemsPayload
       }).then(() => {
-        showNotice(`${itemsPayload.length} ta ariza holati «${targetStatus}» ga o'zgartirildi!`);
-        scheduleAppRefresh(activeTabId, 1400);
+        scheduleAppRefresh(activeTabId, 2000);
       });
     }
 
@@ -3310,11 +3415,11 @@
     }
 
     function buildBulkBarHtml(category, manageableCount) {
-      if (manageableCount <= 0) return "";
+      if (manageableCount <= 1) return "";
       const btnLabels = {
-        newRecs: '<i class="fi fi-rr-check-double"></i> Tanlanganlarni tasdiqlash',
-        approved: '<i class="fi fi-rr-truck-side"></i> Tanlanganlarni berib yuborish',
-        dispatched: '<i class="fi fi-rr-badge-check"></i> Tanlanganlarni yetqazildi qilish'
+        newRecs: '<i class="fi fi-rr-check-double"></i> Tasdiqlash',
+        approved: '<i class="fi fi-rr-truck-side"></i> Berib yuborish',
+        dispatched: '<i class="fi fi-rr-badge-check"></i> Yetqazildi'
       };
       const btnClasses = {
         newRecs: 'btn-approve',
@@ -3335,6 +3440,7 @@
     }
 
     function renderRecords(records) {
+      /* Yangi qo'shilgan arizalar tepada chiqishi uchun teskari xronologik tartibda saralash */
       records.sort((a, b) => {
         const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
         const tB = (typeof b.sortTime === "number" && b.sortTime > 0) ? b.sortTime : parseRecordDateMs(b.date);
@@ -3532,9 +3638,13 @@
           `;
         }
 
+        const amountColorClass = !hasValidAmount
+          ? 'no-amount'
+          : (isEnvelopeAlreadyAttached ? '' : 'unattached-amount');
+
         const headerAmountBadgeHtml = hideAmountFromVolunteer
           ? ''
-          : `<div class="acc-amount ${hasValidAmount ? '' : 'no-amount'}"><i class="fi fi-rr-coins"></i> ${escHtml(hasValidAmount ? effectiveAmountVal : "Belgilanmagan")}</div>`;
+          : `<div class="acc-amount ${amountColorClass}"><i class="fi fi-rr-coins"></i> ${escHtml(hasValidAmount ? effectiveAmountVal : "Belgilanmagan")}</div>`;
 
         const checkboxHtml = canSelectForBulk
           ? `<input type="checkbox" id="rchk-${idx}" class="rec-chk-box rec-chk-cat-${category}" data-idx="${idx}" ${isCardSelected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="onRecordCheckboxChange(${idx}, '${category}', this.checked)">`
@@ -3576,7 +3686,6 @@
       document.getElementById('b-dispatched').innerText = counts.dispatched;
       document.getElementById('b-delivered').innerText = counts.delivered;
 
-      /* "Rad etilgan" menyusi 0 bo'lsa barchada yashirinib turadi */
       const rejTabBtn = document.getElementById('tabRejectedBtn') || document.querySelector('.tab-bar button[onclick*="tab-rejected"]');
       if (rejTabBtn) {
         if (counts.rejected > 0) {
@@ -3653,15 +3762,6 @@
         finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
       }
 
-      const card = document.getElementById(`rec-card-${idx}`);
-      if (card) card.style.opacity = "0.5";
-
-      const recKey = getRecordUniqueKey(rec);
-      if (newStatus !== rec.status && expandedRecordKey === recKey) {
-        expandedRecordKey = null;
-      }
-      delete draftInputsCache[recKey];
-
       let finalPhone = rec.phone;
       if (phoneInput) {
         const rawP = phoneInput.value.trim();
@@ -3677,7 +3777,13 @@
         ? delivSelect.value
         : (rec.deliverer || extractCleanFioJS(rec.sender));
 
-      sendPost({
+      const updatedFio = fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio;
+      const updatedManba = manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba;
+      const updatedReason = reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason;
+      const updatedAddr = addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address;
+      const finalHasEnv = newStatus === "Rad etilgan" ? false : Boolean(envSelected || newStatus === "Tasdiqlangan" || newStatus === "Berib yuborilgan" || newStatus === "Yetqazilgan");
+
+      const payload = {
         action: "UPDATE_RECORD",
         sheetName: rec.sheetName,
         ownerChatId: rec.ownerChatId,
@@ -3685,21 +3791,42 @@
         origFio: rec.fio,
         origPhone: rec.phone,
         sender: rec.sender,
-        fio: fioInput ? toTitleCaseJS(cleanBackslashQuotes(fioInput.value.trim())) : rec.fio,
+        fio: updatedFio,
         phone: finalPhone,
-        manba: manbaInput ? cleanBackslashQuotes(manbaInput.value.trim()) : rec.manba,
-        reason: reasonInput ? cleanBackslashQuotes(reasonInput.value.trim()) : rec.reason,
+        manba: updatedManba,
+        reason: updatedReason,
         amount: finalAmount,
         envelopeAmount: envelopeAmountPayload,
-        address: addrInput ? cleanBackslashQuotes(addrInput.value.trim()) : rec.address,
+        address: updatedAddr,
         newStatus: newStatus,
-        hasEnvelope: newStatus === "Rad etilgan" ? false : Boolean(envSelected || newStatus === "Tasdiqlangan" || newStatus === "Berib yuborilgan" || newStatus === "Yetqazilgan"),
+        hasEnvelope: finalHasEnv,
         approverFio: (currentUser && currentUser.role === "Maslahatchi") ? currentUser.fio : (rec.advisor || (currentUser ? currentUser.fio : "")),
         deliverer: chosenDeliverer,
         rejectReason: rejectReason !== undefined ? rejectReason : rec.rejectReason
-      }).then(() => {
-        showNotice("Ma'lumot yangilandi!");
-        scheduleAppRefresh(activeTabId, 1400);
+      };
+
+      const recKey = getRecordUniqueKey(rec);
+      if (newStatus !== rec.status && expandedRecordKey === recKey) {
+        expandedRecordKey = null;
+      }
+      delete draftInputsCache[recKey];
+
+      rec.fio = updatedFio;
+      rec.phone = finalPhone;
+      rec.manba = updatedManba;
+      rec.reason = updatedReason;
+      rec.amount = finalAmount;
+      rec.address = updatedAddr;
+      rec.status = newStatus;
+      rec.hasEnvelope = finalHasEnv;
+      rec.deliverer = chosenDeliverer;
+      if (rejectReason !== undefined) rec.rejectReason = rejectReason;
+
+      renderRecords(allRecords);
+      showNotice("Ma'lumot yangilandi!");
+
+      sendPost(payload).then(() => {
+        scheduleAppRefresh(activeTabId, 2000);
       });
     }
 
