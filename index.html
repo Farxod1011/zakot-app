@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Zakot Tizimi</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Flaticon UIcons kutubxonasi -->
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
@@ -172,9 +171,9 @@
       border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
       display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
     }
-    .bulk-rec-bar {
+    .rec-bulk-bar {
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+      border-radius: 11px; padding: 9px 12px; margin-bottom: 10px;
       display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
     }
     .bulk-chk-label {
@@ -185,11 +184,13 @@
       width: 18px !important; height: 18px !important; margin: 0;
       accent-color: #2e7d32; cursor: pointer; flex-shrink: 0;
     }
-    .rec-chk-wrap {
-      display: none; align-items: center; justify-content: center; margin-right: 4px;
+    .rec-chk-box {
+      display: none; width: 18px !important; height: 18px !important;
+      accent-color: var(--accent-color); cursor: pointer; flex-shrink: 0; margin-right: 4px;
     }
-    .rec-chk-wrap.visible {
-      display: inline-flex;
+    .selection-mode-active .rec-chk-box,
+    .rec-chk-box:checked {
+      display: inline-block !important;
     }
 
     /* MAVJUD AKKAUNTLAR RO'YXATI */
@@ -317,7 +318,8 @@
       border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease; user-select: none;
     }
     .acc-card.selected-card {
-      border-color: var(--success-text); box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.35);
+      border-color: var(--accent-color) !important;
+      box-shadow: 0 0 0 1px var(--accent-color);
     }
     .acc-header { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 8px; }
     .acc-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
@@ -340,6 +342,20 @@
       padding: 4px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
     }
     .acc-amount.no-amount { color: var(--danger-text); background: rgba(198, 40, 40, 0.15); }
+
+    /* Topuvchi yozib jo'natgan (hali konvert biriktirilmagan) summa uchun to'q pushti rang */
+    .acc-amount.unattached-amount {
+      background: rgba(194, 24, 91, 0.16) !important;
+      color: #ad1457 !important;
+      border: 1px solid rgba(194, 24, 91, 0.32);
+    }
+    @media (prefers-color-scheme: dark) {
+      .acc-amount.unattached-amount {
+        background: rgba(216, 27, 96, 0.28) !important;
+        color: #f48fb1 !important;
+        border: 1px solid rgba(244, 143, 177, 0.4);
+      }
+    }
 
     .acc-arrow { font-size: 11px; color: var(--hint-color); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
     .acc-card.expanded .acc-arrow i { transform: rotate(180deg); }
@@ -366,11 +382,14 @@
     .edit-box textarea.single-line-box { height: 38px; min-height: 38px; }
 
     .deliverer-select-box {
-      margin-top: 10px; padding: 9px 10px; border-radius: 9px;
-      background: var(--card-bg); border: 1px dashed rgba(239, 108, 0, 0.55);
+      margin-top: 10px; padding: 9px 11px; border-radius: 9px;
+      background: var(--card-bg); border: 1px solid rgba(36, 129, 204, 0.45);
     }
     .deliverer-select-box label {
-      color: var(--warning-text); font-weight: 600; font-size: 12px; margin-bottom: 5px;
+      color: var(--accent-color); font-weight: 600; font-size: 12px; margin-bottom: 5px;
+    }
+    .deliverer-select-box select {
+      padding: 8px 10px; font-size: 13px; font-weight: 600;
     }
 
     .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
@@ -422,9 +441,15 @@
     .adv-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
     .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); }
 
-    .rep-rec-row {
+    .rep-rec-row, .rep-rec-item {
       background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: 8px;
       padding: 7px 9px; margin-top: 5px; font-size: 11.5px; line-height: 1.4;
+    }
+
+    .bulk-rec-pick-row {
+      display: flex; align-items: center; gap: 9px;
+      background: var(--card-inner-bg); border: 1px solid var(--border-color);
+      border-radius: 9px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer;
     }
 
     .give-env-row {
@@ -831,6 +856,32 @@
     </div>
   </div>
 
+  <!-- 8-MODAL: KO'P ARIZAGA KONVERT BIRIKTIRISH TASDIQLASH OYNASI -->
+  <div id="bulkEnvConfirmModal" class="custom-modal">
+    <div class="modal-box" style="max-width:365px;">
+      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert biriktirish</div>
+      <div id="bulkSelectedEnvBadge" style="margin-bottom:8px; font-size:14px; font-weight:700; color:var(--success-text);"></div>
+      <div class="modal-text" style="margin-bottom:10px; font-size:13.5px;">
+        Ro'yxatdagi barcha arizalar uchun shu summa qo'yilsinmi?
+      </div>
+      <button type="button" class="modal-btn" style="background:rgba(46, 125, 50, 0.88); margin-bottom:12px;" onclick="revealBulkEnvRecordsSelection()">
+        <i class="fi fi-rr-check"></i> Ha
+      </button>
+
+      <div id="bulkEnvRecordsSection" style="display:none; text-align:left; border-top:1px dashed var(--border-color); padding-top:10px;">
+        <div style="font-size:12.5px; font-weight:600; color:var(--accent-color); margin-bottom:8px;">
+          Qaysi arizalarga ushbu konvertni biriktirmoqchisiz?
+        </div>
+        <div id="bulkEnvRecordsList" style="max-height:210px; overflow-y:auto; margin-bottom:10px;"></div>
+        <button type="button" class="modal-btn" style="background:rgba(46, 125, 50, 0.88);" onclick="confirmBulkEnvelopeApproveSelected()">
+          <i class="fi fi-rr-check-double"></i> Tasdiqlash
+        </button>
+      </div>
+
+      <button type="button" class="modal-btn modal-btn-cancel" style="margin-top:8px;" onclick="closeBulkEnvConfirmModal()">Bekor qilish</button>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
@@ -861,20 +912,22 @@
     let deletingAdvisorObj = null;
     let givingTargetAdvisor = null;
     let pickingEnvelopeRecordIdx = null;
-    let bulkApprovingIndices = null;
+    let bulkApprovingRecordIndices = null;
+    let pendingBulkEnvelopeAmount = "";
+    let pendingBulkEnvelopeIndices = [];
     let singleAcceptDebounceTimer = null;
     let appRefreshTimer = null;
     let activeReportDetailType = null;
 
-    /* Ochiq turgan arizani yangilanish vaqtida yopilib qolmasligi uchun saqlash */
+    /* Ochiq turgan arizalar va menyular holatini yangilanish vaqtida saqlash */
     let expandedRecordKey = null;
-    let unsavedRecordEdits = {};
-
-    /* Barchasini belgilash va bosib turib belgilash (long-press) holati */
-    let selectionModeByCat = { newRecs: false, approved: false, dispatched: false };
-    let selectedRecordKeysByCat = { newRecs: {}, approved: {}, dispatched: {} };
+    let expandedEnvAdvisorId = null;
+    let expandedDirAdvisorId = null;
+    let selectedRecordKeys = new Set();
+    let selectionModeByCategory = { newRecs: false, approved: false, dispatched: false };
     let longPressTimer = null;
     let longPressTriggered = false;
+    let draftInputsCache = {};
 
     function escJsAttr(str) {
       return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -893,9 +946,13 @@
       return toTitleCaseJS(String(senderStr).replace(/\s*\(@[^)]*\)/g, "").replace(/\s*\([^)]*\)/g, "").trim());
     }
 
-    function getRecordUniqueKey(r) {
-      if (!r) return "";
-      return `${r.sheetName || ''}|${r.rowIndex || ''}|${String(r.fio || '').trim().toLowerCase()}`;
+    function normKeyStr(s) {
+      return String(s || "").trim().toLowerCase();
+    }
+
+    function getRecordUniqueKey(rec) {
+      if (!rec) return "";
+      return `${rec.sheetName || ''}|${rec.rowIndex || ''}|${normKeyStr(rec.fio)}|${String(rec.phone || '').replace(/\D/g, '')}`;
     }
 
     function scheduleAppRefresh(tabId, delayMs) {
@@ -985,7 +1042,7 @@
         ignoreSwipe = true;
         return;
       }
-      isTouchInDrawer = Boolean(e.target.closest('.top-menu-drawer'));
+      isTouchInDrawer = Boolean(e.target.closest('.top-menu-drawer') || e.target.closest('.role-banner'));
       if (
         e.target.closest('.tab-bar') ||
         e.target.closest('.sub-tab-bar') ||
@@ -1012,18 +1069,18 @@
       const dotsBtn = document.getElementById('dotsMenuBtn');
 
       if (drawer && drawer.classList.contains('open')) {
-        /* Menyu ichida surilganda yopilmaydi, faqat menyu tagidagi asosiy oyna yuqoriga oxirigacha tortilganda yopiladi */
-        if (!isTouchInDrawer && diffY < -170 && Math.abs(diffY) > Math.abs(diffX) * 1.4) {
-          drawer.style.transition = "transform 0.28s ease-out, opacity 0.28s ease-out";
+        const pulledAllWayUp = (!isTouchInDrawer) && (diffY < -180 || (diffY < -95 && touchEndY < 130)) && Math.abs(diffY) > Math.abs(diffX) * 1.3;
+        if (pulledAllWayUp) {
+          drawer.style.transition = "transform 0.25s ease-out, opacity 0.25s ease-out";
           drawer.style.transform = "translateY(-18px)";
           drawer.style.opacity = "0";
           setTimeout(() => {
             drawer.classList.remove('open');
-            dotsBtn.classList.remove('open');
+            if (dotsBtn) dotsBtn.classList.remove('open');
             drawer.style.transform = "";
             drawer.style.opacity = "";
             drawer.style.transition = "";
-          }, 280);
+          }, 250);
         }
         return;
       }
@@ -1101,7 +1158,7 @@
     function renderTopDrawer() {
       const container = document.getElementById('topDrawerContent');
       const dotsBtn = document.getElementById('dotsMenuBtn');
-      if (!currentUser) return;
+      if (!currentUser || !container) return;
 
       const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
       const isVolunteer = !isAdminUser && currentUser.role === "Ko'ngilli";
@@ -1163,10 +1220,10 @@
                 <span>Barchasini belgilash</span>
               </label>
               <div style="display:flex; gap:6px;">
-                <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 11px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
+                <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
                   <i class="fi fi-rr-check-double"></i> Oldim
                 </button>
-                <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 11px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
+                <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
                   <i class="fi fi-rr-cross-small"></i> Olmadim
                 </button>
               </div>
@@ -1187,7 +1244,7 @@
                       <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | <span class="status-badge status-Jarayonda">Jarayonda</span></div>
                     </div>
                   </div>
-                  <div class="dir-actions">
+                  <div class="dir-actions" style="gap:5px;">
                     <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                       <i class="fi fi-rr-check"></i> Oldim
                     </button>
@@ -1258,6 +1315,7 @@
       } else {
         directoryData.advisors.forEach((adv, aIdx) => {
           const dCardId = `dir-adv-${aIdx}`;
+          const isExp = (expandedDirAdvisorId === dCardId) ? 'expanded' : '';
           const advInitials = (adv.initials || getInitialsJS(adv.fio)).trim();
           const advUnamePart = hasValidUsername(adv.username) ? ` | 🔗 ${adv.username}` : '';
           const normEnv = getNormalizedAdvisorEnvStats(adv);
@@ -1271,7 +1329,7 @@
           }
 
           html += `
-            <div class="dir-card" id="${dCardId}">
+            <div class="dir-card ${isExp}" id="${dCardId}">
               <div class="dir-card-header" onclick="toggleDirAdvisorCard('${dCardId}')">
                 <div class="dir-info">
                   <div class="dir-name">
@@ -1354,7 +1412,7 @@
         return;
       }
 
-      askConfirm("Tanlangan konvertlarni haqiqatan ham olmadingizmi (Rad etilsinmi)?", () => {
+      askConfirm("Belgilangan konvertlarni haqiqatan ham olmadingizmi (rad etasizmi)?", () => {
         const ids = checkedBoxes.map(c => c.value);
         checkedBoxes.forEach(c => {
           c.disabled = true;
@@ -1369,7 +1427,7 @@
         const bulkRejBtn = document.getElementById('bulkRejectEnvBtn');
         if (bulkRejBtn) {
           bulkRejBtn.disabled = true;
-          bulkRejBtn.innerText = "Rad etilmoqda...";
+          bulkRejBtn.innerText = "Yuborilmoqda...";
         }
 
         sendPost({
@@ -1411,31 +1469,29 @@
     }
 
     function rejectIncomingEnvelope(transferId, tIdx) {
-      askConfirm("Ushbu konvertni olmadingizmi?", () => {
-        const card = document.getElementById('pend-env-' + tIdx);
-        if (card) {
-          card.style.opacity = "0.35";
-          card.style.pointerEvents = "none";
-        }
-        const chk = card ? card.querySelector('.pend-env-chk') : null;
-        if (chk) {
-          chk.checked = false;
-          chk.disabled = true;
-        }
-        updateSelectAllPendState();
+      const card = document.getElementById('pend-env-' + tIdx);
+      if (card) {
+        card.style.opacity = "0.35";
+        card.style.pointerEvents = "none";
+      }
+      const chk = card ? card.querySelector('.pend-env-chk') : null;
+      if (chk) {
+        chk.checked = false;
+        chk.disabled = true;
+      }
+      updateSelectAllPendState();
 
-        sendPost({
-          action: "REJECT_ADVISOR_ENVELOPE",
-          chatId: chatId,
-          advisorFio: currentUser ? currentUser.fio : "",
-          transferId: transferId
-        });
-
-        if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
-        singleAcceptDebounceTimer = setTimeout(() => {
-          initApp(activeTabId);
-        }, 4800);
+      sendPost({
+        action: "REJECT_ADVISOR_ENVELOPE",
+        chatId: chatId,
+        advisorFio: currentUser ? currentUser.fio : "",
+        transferId: transferId
       });
+
+      if (singleAcceptDebounceTimer) clearTimeout(singleAcceptDebounceTimer);
+      singleAcceptDebounceTimer = setTimeout(() => {
+        initApp(activeTabId);
+      }, 4800);
     }
 
     function toggleDirAdvisorCard(cardId) {
@@ -1443,7 +1499,12 @@
       if (!el) return;
       const isAlreadyOpen = el.classList.contains('expanded');
       document.querySelectorAll('.dir-card.expanded[id^="dir-adv-"]').forEach(c => c.classList.remove('expanded'));
-      if (!isAlreadyOpen) el.classList.add('expanded');
+      if (!isAlreadyOpen) {
+        el.classList.add('expanded');
+        expandedDirAdvisorId = cardId;
+      } else {
+        expandedDirAdvisorId = null;
+      }
     }
 
     function buildVolunteerItemHtml(v, allowTransfer) {
@@ -1773,9 +1834,9 @@
 
       const titles = {
         created: "📦 Yaratilgan (Maslahatchilarga berilgan) konvertlar:",
-        approved: "🟢 Tasdiqlangan konvertlar (Tasdiqlovchi bilan):",
-        dispatched: "🚚 Berib yuborilgan konvertlar (Yetqazuvchi bilan):",
-        delivered: "✅ Yetqazilgan konvertlar (Yetqazgan shaxs bilan):"
+        approved: "🟢 Tasdiqlangan arizalardagi konvertlar:",
+        dispatched: "🚚 Berib yuborilgan konvertlar (Yetqazuvchilar bilan):",
+        delivered: "✅ Egalariga yetqazilgan konvertlar (Yetqazuvchilar bilan):"
       };
 
       const advs = (directoryData.reportAdvisors && directoryData.reportAdvisors.length)
@@ -1785,8 +1846,10 @@
 
       advs.forEach(adv => {
         const initials = (adv.initials || getInitialsJS(adv.fio)).trim();
-        const deletedTag = adv.isDeleted ? ` <span style="font-size:11px; color:var(--danger-text); font-weight:500;">(O'chirilgan)</span>` : '';
+        const deletedBadge = adv.isDeleted ? ` <span class="status-badge status-Rad-etilgan" style="font-size:10px;">O'chirilgan</span>` : '';
         const rawDenoms = (adv.envStats && adv.envStats.byDenom) ? adv.envStats.byDenom : [];
+        const recBreakdowns = (adv.envStats && adv.envStats.recordsBreakdown) ? adv.envStats.recordsBreakdown : { approved: [], dispatched: [], delivered: [] };
+
         let personCount = 0;
         let personSum = 0;
         let chips = [];
@@ -1811,19 +1874,21 @@
           }
         });
 
-        let recordsListHtml = "";
-        if (type !== 'created' && adv.envStats && adv.envStats.recordsBreakdown) {
-          const recItems = adv.envStats.recordsBreakdown[type] || [];
-          if (recItems.length > 0) {
-            recordsListHtml = `<div style="margin-top:7px; padding-top:6px; border-top:1px dashed var(--border-color);">` +
-              recItems.map(item => {
-                if (type === 'approved') {
-                  return `<div class="rep-rec-row">👤 Olgan (Ariza): <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>✅ Tasdiqladi: <b>${escHtml(item.approver)}</b> | Topuvchi: ${escHtml(item.sender)}</div>`;
-                } else if (type === 'dispatched') {
-                  return `<div class="rep-rec-row">👤 Zakot oluvchi: <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>🚚 Konvertni oldi (Yetqazuvchi): <b style="color:var(--warning-text);">${escHtml(item.deliverer)}</b> | Tasdiqladi: ${escHtml(item.approver)}</div>`;
-                } else {
-                  return `<div class="rep-rec-row">👤 Zakot oluvchi: <b>${escHtml(item.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(item.amount)}</b><br>✅ Konvertni yetqazdi: <b style="color:var(--info-text);">${escHtml(item.deliverer)}</b> | Tasdiqladi: ${escHtml(item.approver)}</div>`;
-                }
+        let recordsDetailHtml = "";
+        if (type === 'approved' || type === 'dispatched' || type === 'delivered') {
+          const listForType = recBreakdowns[type] || [];
+          if (listForType.length > 0) {
+            recordsDetailHtml = `<div style="margin-top:7px; padding-top:6px; border-top:1px dashed var(--border-color);">` +
+              listForType.map(rItem => {
+                const delivLine = (type === 'dispatched' || type === 'delivered')
+                  ? ` | 🚚 Yetqazuvchi: <b style="color:var(--warning-text);">${escHtml(rItem.deliverer || rItem.sender || '-')}</b>`
+                  : '';
+                return `
+                  <div class="rep-rec-item">
+                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(rItem.amount)}</b></div>
+                    <div style="color:var(--hint-color);">✅ Tasdiqladi: <b>${escHtml(rItem.approver || adv.fio)}</b>${delivLine}</div>
+                  </div>
+                `;
               }).join('') +
               `</div>`;
           }
@@ -1835,13 +1900,13 @@
             <div class="dir-card" style="padding:10px 12px; margin-bottom:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
                 <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
-                  <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)${deletedTag}
+                  <i class="fi fi-rr-compass-alt" style="color:var(--accent-color)"></i> ${escHtml(adv.fio)} (<b>${escHtml(initials)}</b>)${deletedBadge}
                 </div>
                 <span class="env-count-badge green-badge">${personCount} dona | ${formatSumText(personSum)}</span>
               </div>
-              ${type === 'created' ? `<div style="font-size:11.5px; color:var(--hint-color); margin-bottom:6px;">📥 Hozir o'zida mavjud: <b style="color:var(--success-text);">${normSt.inHandTotal} dona</b> (Bo'sh: <b>${normSt.inHandFree}</b>) | ⏳ Jarayonda: <b>${normSt.pendingCount}</b></div>` : ''}
+              ${type === 'created' ? `<div style="font-size:11.5px; color:var(--hint-color); margin-bottom:6px;">📥 Qabul qilgan: <b>${normSt.totalAccepted} dona</b> | Hozir o'zida: <b style="color:var(--success-text);">${normSt.inHandTotal} dona</b> (Bo'sh: <b>${normSt.inHandFree}</b>) | ⏳ Jarayonda: <b>${normSt.pendingCount}</b></div>` : ''}
               <div class="adv-chip-list">${chips.join('')}</div>
-              ${recordsListHtml}
+              ${recordsDetailHtml}
             </div>
           `;
         }
@@ -1895,6 +1960,9 @@
       });
       if (!isAlreadyOpen) {
         el.classList.add('expanded');
+        expandedEnvAdvisorId = cardId;
+      } else {
+        expandedEnvAdvisorId = null;
       }
     }
 
@@ -2010,7 +2078,7 @@
             </div>
           </div>
         `;
-        });
+      });
 
       container.innerHTML = html;
     }
