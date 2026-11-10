@@ -3270,8 +3270,8 @@
       records.sort((a, b) => {
         const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
         const tB = (typeof b.sortTime === "number" && b.sortTime > 0) ? b.sortTime : parseRecordDateMs(b.date);
-        if (tA !== tB) return tA - tB;
-        return (Number(a.rowIndex) || 0) - (Number(b.rowIndex) || 0);
+        if (tA !== tB) return tB - tA;
+        return (Number(b.rowIndex) || 0) - (Number(a.rowIndex) || 0);
       });
 
       let counts = { newRecs: 0, approved: 0, rejected: 0, dispatched: 0, delivered: 0 };
