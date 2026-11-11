@@ -1370,6 +1370,20 @@
         ? myEnvelopeSummary.stats
         : { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
 
+      /* Har bir holat bo'yicha jami summalarni hisoblash */
+      let totalGivenSum = 0;
+      let inHandFreeSum = 0;
+      let dispatchedSum = 0;
+      let deliveredSum = 0;
+
+      availList.forEach(d => {
+        const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
+        totalGivenSum += (Number(d.acceptedCount) || 0) * unitVal;
+        inHandFreeSum += (Number(d.freeCount) || 0) * unitVal;
+        dispatchedSum += (Number(d.dispatchedCount) || 0) * unitVal;
+        deliveredSum += (Number(d.deliveredCount) || 0) * unitVal;
+      });
+
       let denomHtml = "";
       if (!availList.length) {
         denomHtml = `<div style="font-size:12.5px; color:var(--hint-color); padding:8px 0;">Hozircha sizda konvertlar mavjud emas.</div>`;
@@ -1463,21 +1477,25 @@
           <div class="global-rep-card">
             <div class="global-rep-label"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Jami qabul qilingan</div>
             <div class="global-rep-val">${st.totalGiven || 0} dona</div>
+            <div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:-2px;">${formatSumText(totalGivenSum)}</div>
             <div class="global-rep-sum" style="color:var(--hint-color);">⏳ Kutilmoqda: ${st.pending || 0} dona</div>
           </div>
           <div class="global-rep-card">
             <div class="global-rep-label"><i class="fi fi-rr-inbox-in" style="color:var(--success-text)"></i> O'zimda (Bo'sh)</div>
             <div class="global-rep-val" style="color:var(--success-text)">${st.inHandFree || 0} dona bo'sh</div>
+            <div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:-2px;">${formatSumText(inHandFreeSum)}</div>
             <div class="global-rep-sum">Arizaga biriktirilgan: ${st.approvedAssigned || 0}</div>
           </div>
           <div class="global-rep-card">
             <div class="global-rep-label"><i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> Berib yuborilgan</div>
             <div class="global-rep-val" style="color:var(--warning-text)">${st.dispatched || 0} dona</div>
+            <div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:-2px;">${formatSumText(dispatchedSum)}</div>
             <div class="global-rep-sum" style="color:var(--hint-color);">Topuvchiga berilgan</div>
           </div>
           <div class="global-rep-card">
             <div class="global-rep-label"><i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> Yetqazilgan</div>
             <div class="global-rep-val" style="color:var(--info-text)">${st.delivered || 0} dona</div>
+            <div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:-2px;">${formatSumText(deliveredSum)}</div>
             <div class="global-rep-sum" style="color:var(--hint-color);">Egasiga topshirilgan</div>
           </div>
         </div>
@@ -1491,7 +1509,8 @@
         ${recipientsHtml}
       `;
     }
-    function toggleSelectAllPendingEnvelopes(isChecked) {
+
+          function toggleSelectAllPendingEnvelopes(isChecked) {
       document.querySelectorAll('.pend-env-chk').forEach(chk => {
         if (!chk.disabled) chk.checked = isChecked;
       });
