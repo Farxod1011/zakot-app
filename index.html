@@ -856,23 +856,17 @@
     </div>
   </div>
 
-  <!-- 8-MODAL: KO'P ARIZAGA KONVERT BIRIKTIRISH TASDIQLASH OYNASI -->
+<!-- 8-MODAL: KO'P ARIZAGA KONVERT BIRIKTIRISH TASDIQLASH OYNASI -->
   <div id="bulkEnvConfirmModal" class="custom-modal">
     <div class="modal-box" style="max-width:365px;">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert biriktirish</div>
-      <div id="bulkSelectedEnvBadge" style="margin-bottom:8px; font-size:14px; font-weight:700; color:var(--success-text);"></div>
-      <div class="modal-text" style="margin-bottom:10px; font-size:13.5px;">
-        Ro'yxatdagi barcha arizalar uchun shu summa qo'yilsinmi?
-      </div>
-      <button type="button" class="modal-btn" style="background:rgba(46, 125, 50, 0.88); margin-bottom:12px;" onclick="revealBulkEnvRecordsSelection()">
-        <i class="fi fi-rr-check"></i> Ha
-      </button>
+      <div id="bulkSelectedEnvBadge" style="margin-bottom:10px; font-size:14px; font-weight:700; color:var(--success-text);"></div>
 
-      <div id="bulkEnvRecordsSection" style="display:none; text-align:left; border-top:1px dashed var(--border-color); padding-top:10px;">
+      <div id="bulkEnvRecordsSection" style="text-align:left; border-top:1px dashed var(--border-color); padding-top:10px;">
         <div style="font-size:12.5px; font-weight:600; color:var(--accent-color); margin-bottom:8px;">
           Qaysi arizalarga ushbu konvertni biriktirmoqchisiz?
         </div>
-        <div id="bulkEnvRecordsList" style="max-height:210px; overflow-y:auto; margin-bottom:10px;"></div>
+        <div id="bulkEnvRecordsList" style="max-height:220px; overflow-y:auto; margin-bottom:12px;"></div>
         <button type="button" class="modal-btn" style="background:rgba(46, 125, 50, 0.88);" onclick="confirmBulkEnvelopeApproveSelected()">
           <i class="fi fi-rr-check-double"></i> Tasdiqlash
         </button>
@@ -2300,7 +2294,7 @@
       pendingBulkEnvelopeAmount = amountStr;
 
       document.getElementById('bulkSelectedEnvBadge').innerHTML = `✉️ Tanlangan konvert: ${escHtml(amountStr)}`;
-      document.getElementById('bulkEnvRecordsSection').style.display = "none";
+      document.getElementById('bulkEnvRecordsSection').style.display = "block";
 
       let listHtml = "";
       indices.forEach(idx => {
@@ -2927,32 +2921,66 @@
         finalAmount = customVal ? (customVal + " so'm") : "";
       }
 
+      const manbaVal = document.getElementById('manba').value.trim();
       const addressVal = document.getElementById('locDisplay').value.trim();
+      const senderFio = currentUser ? currentUser.fio : "";
+      const senderRole = isAdminUser ? "Admin" : (currentUser ? currentUser.role : "");
 
-      const btn = document.getElementById('submitBtn');
-      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Yuborilmoqda...';
-      btn.disabled = true;
+      /* 1. Yangi arizani kutmasdan (0.05s ichida) darhol ekranga chiqaramiz */
+      const nowD = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const todayStr = `${pad(nowD.getDate())}.${pad(nowD.getMonth() + 1)}.${nowD.getFullYear()}`;
+      const senderLabel = username ? `${senderFio} (@${String(username).replace('@', '')})` : senderFio;
 
+      const optimisticRecord = {
+        rowIndex: 999999,
+        sortTime: nowD.getTime(),
+        sheetName: `${senderFio} (${chatId})`,
+        ownerChatId: chatId,
+        ownerRole: senderRole,
+        advisor: (senderRole === "Maslahatchi") ? senderFio : (currentUser ? (currentUser.advisorFio || "") : ""),
+        currentAdvisor: (senderRole === "Maslahatchi") ? senderFio : (currentUser ? (currentUser.advisorFio || "") : ""),
+        approvedBy: "",
+        deliverer: senderFio,
+        sender: senderLabel,
+        date: todayStr,
+        fio: recipientFioVal,
+        phone: validPhone,
+        manba: manbaVal,
+        reason: reasonVal,
+        amount: finalAmount,
+        envelopeAmount: "",
+        hasEnvelope: false,
+        address: addressVal,
+        status: "Yangi",
+        rejectReason: ""
+      };
+
+      allRecords.unshift(optimisticRecord);
+      renderRecords(allRecords);
+
+      /* Formani darhol tozalab, Arizalar menyusiga o'tkazamiz */
+      document.getElementById('zakotForm').reset();
+      document.getElementById('customAmount').style.display = "none";
+      document.getElementById('locDisplay').value = "";
+      openTab('tab-my', document.getElementById('tabMyBtn'));
+      showNotice("Ariza muvaffaqiyatli yuborildi!");
+
+      /* 2. Orqa fonda serverga yuboramiz */
       sendPost({
         action: "ADD_RECORD_FROM_APP",
         chatId: chatId,
         username: username,
-        senderFio: currentUser ? currentUser.fio : "",
-        senderRole: isAdminUser ? "Admin" : (currentUser ? currentUser.role : ""),
+        senderFio: senderFio,
+        senderRole: senderRole,
         recipientFio: recipientFioVal,
         recipientPhone: validPhone,
-        manba: document.getElementById('manba').value.trim(),
+        manba: manbaVal,
         reason: reasonVal,
         amount: finalAmount,
         address: addressVal
       }).then(() => {
-        btn.innerHTML = '<i class="fi fi-rr-paper-plane"></i> Arizani yuborish';
-        btn.disabled = false;
-        showNotice("Ariza muvaffaqiyatli yuborildi!");
-        document.getElementById('zakotForm').reset();
-        document.getElementById('customAmount').style.display = "none";
-        document.getElementById('locDisplay').value = "";
-        scheduleAppRefresh('tab-my', 1600);
+        scheduleAppRefresh('tab-my', 2000);
       });
     }
 
