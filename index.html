@@ -442,8 +442,8 @@
     .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); }
 
     .rep-rec-row, .rep-rec-item {
-      background: var(--card-inner-bg); border: 1px solid var(--border-color); border-radius: 8px;
-      padding: 7px 9px; margin-top: 5px; font-size: 11.5px; line-height: 1.4;
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 7px 10px; margin-top: 5px; font-size: 11.5px; line-height: 1.4;
     }
 
     .bulk-rec-pick-row {
@@ -699,37 +699,44 @@
       </form>
     </div>
 
-    <!-- KONVERT BO'LIMI (3 TA ICHKI MENYU: Maslahatchilar | Konvertlar | Hisobot) -->
+    <!-- KONVERT BO'LIMI (Boshqaruvchi va Maslahatchilar uchun) -->
     <div id="tab-envelopes" class="tab-content" style="padding-bottom: 90px;">
-      <div class="sub-tab-bar">
-        <button type="button" class="sub-tab-btn active" id="subTabAdvBtn" onclick="openEnvelopeSubTab('advisors')">
-          <i class="fi fi-rr-compass-alt"></i> Maslahatchilar <span class="badge" id="b-env-advisors">0</span>
-        </button>
-        <button type="button" class="sub-tab-btn" id="subTabEnvBtn" onclick="openEnvelopeSubTab('envelopes')">
-          <i class="fi fi-rr-envelope"></i> Konvertlar <span class="badge" id="b-env-list">0</span>
-        </button>
-        <button type="button" class="sub-tab-btn" id="subTabRepBtn" onclick="openEnvelopeSubTab('report')">
-          <i class="fi fi-rr-chart-pie-alt"></i> Hisobot
-        </button>
+      <!-- Menga yuborilgan konvertlar (Oldim / Olmadim) -->
+      <div id="incomingEnvelopesBox"></div>
+
+      <!-- A) BOSHQARUVCHI KO'RINISHI -->
+      <div id="managerEnvelopeView" style="display:none;">
+        <div class="sub-tab-bar">
+          <button type="button" class="sub-tab-btn active" id="subTabAdvBtn" onclick="openEnvelopeSubTab('advisors')">
+            <i class="fi fi-rr-compass-alt"></i> Maslahatchilar <span class="badge" id="b-env-advisors">0</span>
+          </button>
+          <button type="button" class="sub-tab-btn" id="subTabEnvBtn" onclick="openEnvelopeSubTab('envelopes')">
+            <i class="fi fi-rr-envelope"></i> Konvertlar <span class="badge" id="b-env-list">0</span>
+          </button>
+          <button type="button" class="sub-tab-btn" id="subTabRepBtn" onclick="openEnvelopeSubTab('report')">
+            <i class="fi fi-rr-chart-pie-alt"></i> Hisobot
+          </button>
+        </div>
+
+        <div id="env-sub-advisors">
+          <div id="list-env-advisors"></div>
+        </div>
+
+        <div id="env-sub-envelopes" style="display:none;">
+          <div id="list-envelopes"></div>
+          <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert shabloni qo'shish">
+            <i class="fi fi-rr-envelope"></i>
+          </button>
+        </div>
+
+        <div id="env-sub-report" style="display:none;">
+          <div id="globalEnvelopeReportBox"></div>
+        </div>
       </div>
 
-      <!-- 1-oyna: Maslahatchilar -->
-      <div id="env-sub-advisors">
-        <div id="list-env-advisors"></div>
-      </div>
-
-      <!-- 2-oyna: Konvert shablonlari -->
-      <div id="env-sub-envelopes" style="display:none;">
-        <div id="list-envelopes"></div>
-
-        <button type="button" class="tg-fab-btn" onclick="openAddEnvelopeModal()" title="Konvert shabloni qo'shish">
-          <i class="fi fi-rr-envelope"></i>
-        </button>
-      </div>
-
-      <!-- 3-oyna: Umumiy Hisobot -->
-      <div id="env-sub-report" style="display:none;">
-        <div id="globalEnvelopeReportBox"></div>
+      <!-- B) MASLAHATCHI KO'RINISHI (Konvert hisoboti va bo'sh konvertlarni yuborish) -->
+      <div id="advisorEnvelopeView" style="display:none;">
+        <div id="advisorEnvelopeContent"></div>
       </div>
     </div>
 
@@ -818,7 +825,7 @@
     </div>
   </div>
 
-  <!-- 6-MODAL: MASLAHATCHIGA KONVERT BERISH OYNASI -->
+  <!-- 6-MODAL: KONVERT BERISH OYNASI -->
   <div id="giveEnvelopeModal" class="custom-modal">
     <div class="modal-box" style="max-width:360px;">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert berish</div>
@@ -856,7 +863,7 @@
     </div>
   </div>
 
-<!-- 8-MODAL: KO'P ARIZAGA KONVERT BIRIKTIRISH TASDIQLASH OYNASI -->
+  <!-- 8-MODAL: KO'P ARIZAGA KONVERT BIRIKTIRISH TASDIQLASH OYNASI -->
   <div id="bulkEnvConfirmModal" class="custom-modal">
     <div class="modal-box" style="max-width:365px;">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert biriktirish</div>
@@ -1166,12 +1173,7 @@
         ? `<div class="dir-sub" style="margin-top:2px; color:var(--accent-color); font-weight:600;"><i class="fi fi-rr-compass-alt"></i> Maslahatchi: ${escHtml(currentUser.advisorFio || "Biriktirilmagan")}</div>`
         : '';
 
-      const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
-      if (isAdvisor && pendingTransfers.length > 0) {
-        dotsBtn.classList.add('has-alert');
-      } else {
-        dotsBtn.classList.remove('has-alert');
-      }
+      if (dotsBtn) dotsBtn.classList.remove('has-alert');
 
       let html = `
         <div class="dir-section-title">Mening profilim</div>
@@ -1204,68 +1206,8 @@
         return;
       }
 
+      /* Maslahatchida 3-nuqta menyusida faqat Profil va unga biriktirilgan Topuvchilar ko'rinadi */
       if (isAdvisor) {
-        if (pendingTransfers.length > 0) {
-          html += `
-            <div class="dir-section-title" style="color:var(--warning-text);">⏳ Menga yuborilgan konvertlar (${pendingTransfers.length})</div>
-            <div class="bulk-accept-bar">
-              <label class="bulk-chk-label">
-                <input type="checkbox" id="selectAllPendEnv" class="env-chk-input" checked onchange="toggleSelectAllPendingEnvelopes(this.checked)">
-                <span>Barchasini belgilash</span>
-              </label>
-              <div style="display:flex; gap:6px;">
-                <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
-                  <i class="fi fi-rr-check-double"></i> Oldim
-                </button>
-                <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
-                  <i class="fi fi-rr-cross-small"></i> Olmadim
-                </button>
-              </div>
-            </div>
-          `;
-
-          pendingTransfers.forEach((tr, tIdx) => {
-            html += `
-              <div class="dir-card" id="pend-env-${tIdx}" style="border-color:rgba(239, 108, 0, 0.45);">
-                <div class="dir-card-header" style="cursor:default;">
-                  <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
-                    <input type="checkbox" class="env-chk-input pend-env-chk" value="${escHtml(tr.id)}" data-idx="${tIdx}" checked onchange="updateSelectAllPendState()">
-                    <div class="dir-info">
-                      <div class="dir-name">
-                        <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i>
-                        <span>${escHtml(tr.amount)} — ${tr.count} dona</span>
-                      </div>
-                      <div class="dir-sub">🗓 Sana: ${escHtml(tr.date || '-')} | <span class="status-badge status-Jarayonda">Jarayonda</span></div>
-                    </div>
-                  </div>
-                  <div class="dir-actions" style="gap:5px;">
-                    <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
-                      <i class="fi fi-rr-check"></i> Oldim
-                    </button>
-                    <button type="button" class="btn-act btn-reject" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
-                      <i class="fi fi-rr-cross-small"></i> Olmadim
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-        }
-
-        const availList = ((myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : []).filter(a => (a.acceptedCount || 0) > 0);
-        const st = (myEnvelopeSummary && myEnvelopeSummary.stats) ? myEnvelopeSummary.stats : { inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
-        html += `<div class="dir-section-title">✉️ Mening konvertlarim (Bo'sh: ${st.inHandFree} dona)</div>`;
-        html += `
-          <div class="dir-card">
-            <div style="padding:10px 12px; font-size:12px; line-height:1.5;">
-              <div>📥 O'zimda: <b style="color:var(--success-text);">${st.inHandFree + st.approvedAssigned} dona</b> (Bo'sh: <b style="color:var(--success-text);">${st.inHandFree}</b>, Tasdiqlangan arizada: <b>${st.approvedAssigned}</b>)</div>
-              <div>🚚 Topuvchiga berilgan (Berib yuborilgan): <b>${st.dispatched} dona</b></div>
-              <div>✅ Topshirilgan (Yetqazilgan): <b>${st.delivered} dona</b></div>
-              ${availList.length ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--border-color);">${availList.map(a => `<span class="adv-chip" style="display:inline-block; margin:2px 4px 2px 0;">✉️ ${escHtml(a.amount)}: <b style="color:var(--success-text);">${a.freeCount} dona bo'sh</b> (Jami: ${a.acceptedCount})</span>`).join('')}</div>` : ''}
-            </div>
-          </div>
-        `;
-
         html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
         if (!directoryData.myVolunteers.length) {
           html += `<div style="font-size:13px; color:var(--hint-color); padding:8px 0; font-weight:500;">Hozircha biriktirilgan topuvchilar yo'q</div>`;
@@ -1351,6 +1293,204 @@
       container.innerHTML = html;
     }
 
+    /* Konvert menyusi ichida: Menga yuborilgan (kutilayotgan) konvertlarni Oldim/Olmadim qilish bloki */
+    function renderIncomingEnvelopesBox() {
+      const box = document.getElementById('incomingEnvelopesBox');
+      const tabEnvBtn = document.getElementById('tabEnvelopeBtn');
+      if (!box) return;
+
+      const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
+      if (tabEnvBtn) {
+        if (pendingTransfers.length > 0) tabEnvBtn.classList.add('has-requests');
+        else tabEnvBtn.classList.remove('has-requests');
+      }
+
+      if (!pendingTransfers.length) {
+        box.innerHTML = "";
+        return;
+      }
+
+      let html = `
+        <div class="dir-section-title" style="color:var(--warning-text); margin-top:0;">⏳ Menga yuborilgan konvertlar (${pendingTransfers.length})</div>
+        <div class="bulk-accept-bar">
+          <label class="bulk-chk-label">
+            <input type="checkbox" id="selectAllPendEnv" class="env-chk-input" checked onchange="toggleSelectAllPendingEnvelopes(this.checked)">
+            <span>Barchasini belgilash</span>
+          </label>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn-act btn-approve" id="bulkAcceptEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="acceptSelectedEnvelopes()">
+              <i class="fi fi-rr-check-double"></i> Oldim
+            </button>
+            <button type="button" class="btn-act btn-reject" id="bulkRejectEnvBtn" style="flex:0; min-width:auto; padding:6px 10px; font-size:12px;" onclick="rejectSelectedEnvelopes()">
+              <i class="fi fi-rr-cross-small"></i> Olmadim
+            </button>
+          </div>
+        </div>
+      `;
+
+      pendingTransfers.forEach((tr, tIdx) => {
+        const senderText = tr.senderFio ? `👤 Yuboruvchi: <b>${escHtml(tr.senderFio)}</b> | ` : '';
+        html += `
+          <div class="dir-card" id="pend-env-${tIdx}" style="border-color:rgba(239, 108, 0, 0.45); margin-bottom:10px;">
+            <div class="dir-card-header" style="cursor:default;">
+              <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
+                <input type="checkbox" class="env-chk-input pend-env-chk" value="${escHtml(tr.id)}" data-idx="${tIdx}" checked onchange="updateSelectAllPendState()">
+                <div class="dir-info">
+                  <div class="dir-name">
+                    <i class="fi fi-rr-envelope" style="color:var(--warning-text)"></i>
+                    <span>${escHtml(tr.amount)} — ${tr.count} dona</span>
+                  </div>
+                  <div class="dir-sub">${senderText}🗓 ${escHtml(tr.date || '-')}</div>
+                </div>
+              </div>
+              <div class="dir-actions" style="gap:5px;">
+                <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                  <i class="fi fi-rr-check"></i> Oldim
+                </button>
+                <button type="button" class="btn-act btn-reject" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                  <i class="fi fi-rr-cross-small"></i> Olmadim
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+    }
+
+    /* Maslahatchining Konvert menyusi: barcha hisobotlar + bo'sh konvertlarni Maslahatchi va Boshqaruvchiga berish */
+    function renderAdvisorEnvelopeSection() {
+      const container = document.getElementById('advisorEnvelopeContent');
+      if (!container || !currentUser) return;
+
+      const availList = (myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [];
+      const freeOnlyList = availList.filter(a => (Number(a.freeCount) || 0) > 0);
+      const st = (myEnvelopeSummary && myEnvelopeSummary.stats)
+        ? myEnvelopeSummary.stats
+        : { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
+
+      let denomHtml = "";
+      if (!availList.length) {
+        denomHtml = `<div style="font-size:12.5px; color:var(--hint-color); padding:8px 0;">Hozircha sizda konvertlar mavjud emas.</div>`;
+      } else {
+        denomHtml = `<div style="display:flex; flex-direction:column; gap:6px;">` +
+          availList.map(d => {
+            const unitVal = parseInt(String(d.amount || "").replace(/\D/g, ''), 10) || 0;
+            const freeCnt = Number(d.freeCount) || 0;
+            const accCnt = Number(d.acceptedCount) || 0;
+            const apprCnt = Number(d.approvedCount) || 0;
+            const dispCnt = Number(d.dispatchedCount) || 0;
+            const delivCnt = Number(d.deliveredCount) || 0;
+            const outPendCnt = Number(d.outPendingCount) || 0;
+            const outPendText = outPendCnt > 0 ? ` | <span style="color:var(--warning-text);">⏳ Yuborilgan: ${outPendCnt}</span>` : '';
+
+            return `
+              <div class="adv-chip" style="display:flex; flex-direction:column; gap:4px; padding:8px 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                  <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> <b>${escHtml(d.amount)}</b> (Jami: <b>${accCnt} dona</b>${outPendText})</span>
+                  <span class="env-count-badge green-badge" style="padding:3px 8px; font-size:11.5px;">Bo'sh: ${freeCnt} dona</span>
+                </div>
+                <div style="font-size:11.5px; color:var(--hint-color);">
+                  Tasdiqlangan arizada: <b>${apprCnt}</b> | Berib yuborilgan: <b>${dispCnt}</b> | Yetqazilgan: <b>${delivCnt}</b> | Jami: <b style="color:var(--amount-text);">${formatSumText(accCnt * unitVal)}</b>
+                </div>
+              </div>
+            `;
+          }).join('') +
+          `</div>`;
+      }
+
+      /* Bo'sh konvertlarni yuborish uchun qabul qiluvchilar: Boshqaruvchi + boshqa Maslahatchilar */
+      const recipients = [];
+      if (directoryData.boshqaruvchi) {
+        recipients.push({
+          chatId: directoryData.boshqaruvchi.chatId,
+          fio: directoryData.boshqaruvchi.fio,
+          role: "Boshqaruvchi",
+          phone: directoryData.boshqaruvchi.phone || ""
+        });
+      } else {
+        recipients.push({
+          chatId: "530526899",
+          fio: "Boshqaruvchi",
+          role: "Boshqaruvchi",
+          phone: ""
+        });
+      }
+
+      (directoryData.advisors || []).forEach(adv => {
+        const isSelf = (String(adv.chatId) === String(currentUser.chatId)) ||
+                       (adv.fio && currentUser.fio && adv.fio.toLowerCase() === currentUser.fio.toLowerCase());
+        if (!isSelf) {
+          recipients.push({
+            chatId: adv.chatId,
+            fio: adv.fio,
+            role: "Maslahatchi",
+            phone: adv.phone || ""
+          });
+        }
+      });
+
+      let recipientsHtml = "";
+      recipients.forEach(rec => {
+        const iconClass = rec.role === "Boshqaruvchi" ? "fi-rr-building" : "fi-rr-compass-alt";
+        const iconColor = rec.role === "Boshqaruvchi" ? "var(--warning-text)" : "var(--accent-color)";
+        const initialsPart = rec.role === "Maslahatchi" ? ` (<b>${escHtml(getInitialsJS(rec.fio))}</b>)` : '';
+        recipientsHtml += `
+          <div class="dir-card" style="margin-bottom:8px;">
+            <div class="dir-card-header" style="cursor:default;">
+              <div class="dir-info">
+                <div class="dir-name">
+                  <i class="fi ${iconClass}" style="color:${iconColor}"></i>
+                  <span>${escHtml(rec.fio)}${initialsPart}</span>
+                  <span class="badge">${escHtml(rec.role)}</span>
+                </div>
+                ${rec.phone ? `<div class="dir-sub">📞 ${escHtml(rec.phone)}</div>` : ''}
+              </div>
+              <div class="dir-actions">
+                <button type="button" class="env-count-badge" style="font-size:11.5px; padding:6px 10px; cursor:pointer; ${freeOnlyList.length ? '' : 'opacity:0.45;'}" onclick="openAdvisorTransferModal('${escJsAttr(rec.chatId)}', '${escJsAttr(rec.fio)}', '${escJsAttr(rec.role)}')">
+                  <i class="fi fi-rr-paper-plane" style="margin-right:4px;"></i> Konvert berish
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="dir-section-title" style="margin-top:0;">📊 Mening konvertlarim hisoboti</div>
+        <div class="global-env-report-grid">
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Jami qabul qilingan</div>
+            <div class="global-rep-val">${st.totalGiven || 0} dona</div>
+            <div class="global-rep-sum" style="color:var(--hint-color);">⏳ Kutilmoqda: ${st.pending || 0} dona</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-inbox-in" style="color:var(--success-text)"></i> O'zimda (Bo'sh)</div>
+            <div class="global-rep-val" style="color:var(--success-text)">${st.inHandFree || 0} dona bo'sh</div>
+            <div class="global-rep-sum">Arizaga biriktirilgan: ${st.approvedAssigned || 0}</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-truck-side" style="color:var(--warning-text)"></i> Berib yuborilgan</div>
+            <div class="global-rep-val" style="color:var(--warning-text)">${st.dispatched || 0} dona</div>
+            <div class="global-rep-sum" style="color:var(--hint-color);">Topuvchiga berilgan</div>
+          </div>
+          <div class="global-rep-card">
+            <div class="global-rep-label"><i class="fi fi-rr-badge-check" style="color:var(--info-text)"></i> Yetqazilgan</div>
+            <div class="global-rep-val" style="color:var(--info-text)">${st.delivered || 0} dona</div>
+            <div class="global-rep-sum" style="color:var(--hint-color);">Egasiga topshirilgan</div>
+          </div>
+        </div>
+
+        <div class="dir-section-title">✉️ Konvertlarim ro'yxati</div>
+        <div class="dir-card" style="padding:10px 12px; margin-bottom:14px;">
+          ${denomHtml}
+        </div>
+
+        <div class="dir-section-title">📤 Bo'sh konvertlarni berish (Boshqaruvchi / Maslahatchiga)</div>
+        ${recipientsHtml}
+      `;
+    }
     function toggleSelectAllPendingEnvelopes(isChecked) {
       document.querySelectorAll('.pend-env-chk').forEach(chk => {
         if (!chk.disabled) chk.checked = isChecked;
@@ -1778,7 +1918,6 @@
       saveRecordUpdate(idx, 'Rad etilgan', reason);
     }
 
-    // BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI (Tasdiqlovchi va Yetqazuvchi bilan)
     function renderGlobalEnvelopeReport() {
       const box = document.getElementById('globalEnvelopeReportBox');
       if (!box) return;
@@ -2076,7 +2215,7 @@
 
       container.innerHTML = html;
     }
-    
+
     function getEnvelopeTemplatesList() {
       const baseList = (allEnvelopes && allEnvelopes.length > 0)
         ? allEnvelopes.map(e => ({ amount: e.amount }))
@@ -2100,12 +2239,14 @@
     function openGiveEnvelopeModal(advIdx) {
       const adv = (directoryData.advisors || [])[advIdx];
       if (!adv) return;
-      givingTargetAdvisor = adv;
+      givingTargetAdvisor = { chatId: adv.chatId, fio: adv.fio, role: "Maslahatchi", isFromAdvisor: false };
 
       const initials = (adv.initials || getInitialsJS(adv.fio)).trim();
       document.getElementById('giveEnvAdvisorName').innerText = `${adv.fio} (${initials})`;
       document.getElementById('giveCustomEnvAmount').value = "";
       document.getElementById('giveCustomEnvCount').value = "";
+      const customBox = document.getElementById('giveCustomEnvAmount')?.closest('div[style*="dashed"]');
+      if (customBox) customBox.style.display = "block";
 
       const listContainer = document.getElementById('giveEnvListContainer');
       const denomItems = getEnvelopeTemplatesList();
@@ -2129,6 +2270,42 @@
       document.getElementById('giveEnvelopeModal').classList.add('show');
     }
 
+    function openAdvisorTransferModal(targetChatId, targetFio, targetRole) {
+      const freeList = ((myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [])
+        .filter(a => (Number(a.freeCount) || 0) > 0);
+
+      if (!freeList.length) {
+        showNotice("Sizda hozircha boshqaga berish uchun bo'sh konvertlar mavjud emas!");
+        return;
+      }
+
+      givingTargetAdvisor = { chatId: targetChatId, fio: targetFio, role: targetRole, isFromAdvisor: true };
+      document.getElementById('giveEnvAdvisorName').innerText = `Qabul qiluvchi: ${targetFio} (${targetRole})`;
+      document.getElementById('giveCustomEnvAmount').value = "";
+      document.getElementById('giveCustomEnvCount').value = "";
+
+      const customBox = document.getElementById('giveCustomEnvAmount')?.closest('div[style*="dashed"]');
+      if (customBox) customBox.style.display = "none";
+
+      let html = "";
+      freeList.forEach(item => {
+        html += `
+          <div class="give-env-row">
+            <div>
+              <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
+                <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
+              </div>
+              <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">Bo'sh mavjud: ${item.freeCount} dona</div>
+            </div>
+            <input type="tel" class="give-env-input" inputmode="numeric" placeholder="Max: ${item.freeCount}" data-amount="${escHtml(item.amount)}" data-max="${item.freeCount}" oninput="validateDigitsOnly(this)">
+          </div>
+        `;
+      });
+
+      document.getElementById('giveEnvListContainer').innerHTML = html;
+      document.getElementById('giveEnvelopeModal').classList.add('show');
+    }
+
     function closeGiveEnvelopeModal() {
       givingTargetAdvisor = null;
       document.getElementById('giveEnvelopeModal').classList.remove('show');
@@ -2137,20 +2314,34 @@
     function submitGiveEnvelopes() {
       if (!givingTargetAdvisor) return;
 
+      const isFromAdv = Boolean(givingTargetAdvisor.isFromAdvisor);
       const items = [];
+      let exceededError = "";
+
       document.querySelectorAll('#giveEnvListContainer .give-env-input').forEach(inp => {
         const cnt = parseInt(inp.value.trim(), 10) || 0;
         const amt = inp.getAttribute('data-amount') || "";
+        const maxFree = parseInt(inp.getAttribute('data-max') || "0", 10);
         if (cnt > 0 && amt) {
+          if (isFromAdv && maxFree > 0 && cnt > maxFree) {
+            exceededError = `Sizda «${amt}» konvertdan faqat ${maxFree} dona bo'sh mavjud!`;
+          }
           items.push({ amount: amt, count: cnt });
         }
       });
 
-      const customAmtRaw = document.getElementById('giveCustomEnvAmount').value.trim();
-      const customCntRaw = parseInt(document.getElementById('giveCustomEnvCount').value.trim(), 10) || 0;
-      if (customAmtRaw && customCntRaw > 0) {
-        const formattedCustomAmt = customAmtRaw.indexOf("so'm") !== -1 ? customAmtRaw : (customAmtRaw + " so'm");
-        items.push({ amount: formattedCustomAmt, count: customCntRaw });
+      if (exceededError) {
+        showNotice(exceededError);
+        return;
+      }
+
+      if (!isFromAdv) {
+        const customAmtRaw = document.getElementById('giveCustomEnvAmount').value.trim();
+        const customCntRaw = parseInt(document.getElementById('giveCustomEnvCount').value.trim(), 10) || 0;
+        if (customAmtRaw && customCntRaw > 0) {
+          const formattedCustomAmt = customAmtRaw.indexOf("so'm") !== -1 ? customAmtRaw : (customAmtRaw + " so'm");
+          items.push({ amount: formattedCustomAmt, count: customCntRaw });
+        }
       }
 
       if (!items.length) {
@@ -2163,11 +2354,13 @@
       btn.innerText = "Yuborilmoqda...";
 
       const targetAdv = givingTargetAdvisor;
+      const senderRole = isFromAdv ? "Maslahatchi" : (isAdminUser ? "Admin" : "Boshqaruvchi");
 
       sendPost({
         action: "GIVE_ENVELOPES_TO_ADVISOR",
         chatId: chatId,
-        managerFio: currentUser ? currentUser.fio : "Boshqaruvchi",
+        senderRole: senderRole,
+        managerFio: currentUser ? currentUser.fio : senderRole,
         advisorChatId: targetAdv.chatId,
         advisorFio: targetAdv.fio,
         items: items
@@ -2175,7 +2368,7 @@
         btn.disabled = false;
         btn.innerText = "Berish";
         closeGiveEnvelopeModal();
-        showNotice(`Konvertlar «${targetAdv.fio}»ga yuborildi! Maslahatchi tasdiqlagach uning hisobiga o'tadi.`);
+        showNotice(`Konvertlar «${targetAdv.fio}»ga yuborildi! Qabul qilib olgach uning hisobiga o'tadi.`);
         scheduleAppRefresh('tab-envelopes', 1400);
       });
     }
@@ -2225,7 +2418,7 @@
           container.innerHTML = `
             <div class="empty-state" style="padding:20px 10px;">
               Sizda hozircha bo'sh konvertlar mavjud emas.<br><br>
-              Agar Boshqaruvchi sizga konvert yuborgan bo'lsa, yuqoridagi <b>⋮</b> menyudan <b>«Oldim»</b> tugmasini bosib qabul qilib oling.
+              Agar sizga konvert yuborilgan bo'lsa, <b>«Konvert»</b> menyusiga o'tib <b>«Oldim»</b> tugmasini bosing.
             </div>
           `;
         } else {
@@ -2314,10 +2507,6 @@
 
       document.getElementById('bulkEnvRecordsList').innerHTML = listHtml;
       document.getElementById('bulkEnvConfirmModal').classList.add('show');
-    }
-
-    function revealBulkEnvRecordsSelection() {
-      document.getElementById('bulkEnvRecordsSection').style.display = "block";
     }
 
     function closeBulkEnvConfirmModal() {
@@ -2714,17 +2903,27 @@
         if (expDirCard) expDirCard.classList.add('expanded');
       }
 
+      const tabBar = document.querySelector('.tab-bar');
       const tabAddBtn = document.getElementById('tabAddBtn');
       const tabEnvelopeBtn = document.getElementById('tabEnvelopeBtn');
       const tabMyBtn = document.getElementById('tabMyBtn');
       const tabUsersBtn = document.getElementById('tabUsersBtn');
       const myTabLabel = document.getElementById('myTabLabel');
+      const managerEnvView = document.getElementById('managerEnvelopeView');
+      const advisorEnvView = document.getElementById('advisorEnvelopeView');
 
       const isManager = isAdminUser || currentUser.role === "Boshqaruvchi";
-      const isStaff = isManager || currentUser.role === "Maslahatchi";
+      const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+      const isStaff = isManager || isAdvisor;
+
+      renderIncomingEnvelopesBox();
 
       if (isManager) {
+        if (tabBar && tabUsersBtn) tabBar.insertBefore(tabEnvelopeBtn, tabUsersBtn);
         tabEnvelopeBtn.style.display = "inline-flex";
+        if (managerEnvView) managerEnvView.style.display = "block";
+        if (advisorEnvView) advisorEnvView.style.display = "none";
+
         allEnvelopes = data.envelopes || [];
         renderGlobalEnvelopeReport();
         renderEnvelopeAdvisorsList();
@@ -2734,6 +2933,13 @@
         }
         renderEnvelopes(allEnvelopes);
         openEnvelopeSubTab(activeEnvelopeSubTab || 'advisors');
+      } else if (isAdvisor) {
+        if (tabBar) tabBar.appendChild(tabEnvelopeBtn);
+        tabEnvelopeBtn.style.display = "inline-flex";
+        if (managerEnvView) managerEnvView.style.display = "none";
+        if (advisorEnvView) advisorEnvView.style.display = "block";
+
+        renderAdvisorEnvelopeSection();
       } else {
         tabEnvelopeBtn.style.display = "none";
         if (switchToTabId === 'tab-envelopes') switchToTabId = null;
@@ -2926,7 +3132,6 @@
       const senderFio = currentUser ? currentUser.fio : "";
       const senderRole = isAdminUser ? "Admin" : (currentUser ? currentUser.role : "");
 
-      /* 1. Yangi arizani kutmasdan (0.05s ichida) darhol ekranga chiqaramiz */
       const nowD = new Date();
       const pad = n => String(n).padStart(2, '0');
       const todayStr = `${pad(nowD.getDate())}.${pad(nowD.getMonth() + 1)}.${nowD.getFullYear()}`;
@@ -2959,14 +3164,12 @@
       allRecords.unshift(optimisticRecord);
       renderRecords(allRecords);
 
-      /* Formani darhol tozalab, Arizalar menyusiga o'tkazamiz */
       document.getElementById('zakotForm').reset();
       document.getElementById('customAmount').style.display = "none";
       document.getElementById('locDisplay').value = "";
       openTab('tab-my', document.getElementById('tabMyBtn'));
       showNotice("Ariza muvaffaqiyatli yuborildi!");
 
-      /* 2. Orqa fonda serverga yuboramiz */
       sendPost({
         action: "ADD_RECORD_FROM_APP",
         chatId: chatId,
@@ -3346,7 +3549,6 @@
     }
 
     function renderRecords(records) {
-      /* Eng oxirgi kiritilgan arizalar tepada chiqishi uchun teskari xronologik saralash */
       records.sort((a, b) => {
         const tA = (typeof a.sortTime === "number" && a.sortTime > 0) ? a.sortTime : parseRecordDateMs(a.date);
         const tB = (typeof b.sortTime === "number" && b.sortTime > 0) ? b.sortTime : parseRecordDateMs(b.date);
