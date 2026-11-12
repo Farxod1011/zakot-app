@@ -2751,42 +2751,86 @@
     function getLocation() {
       const btn = document.getElementById('locBtn');
       const oldHtml = '<i class="fi fi-rr-marker"></i> Lokatsiyani olish';
-      btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Aniqlanmoqda...';
+      if (btn.disabled) return;
+
+      btn.innerHTML = '<i class="fi fi-rr-spinner spin-icon"></i> Aniqlanmoqda...';
       btn.disabled = true;
 
+      let isFinished = false;
+      let tgWatchdog = null;
+      let hardTimeout = null;
+
+      function cleanupTimers() {
+        if (tgWatchdog) { clearTimeout(tgWatchdog); tgWatchdog = null; }
+        if (hardTimeout) { clearTimeout(hardTimeout); hardTimeout = null; }
+      }
+
       function onSuccess(lat, lng) {
+        if (isFinished) return;
+        isFinished = true;
+        cleanupTimers();
         document.getElementById('locDisplay').value = "https://maps.google.com/?q=" + lat + "," + lng;
         btn.innerHTML = '<i class="fi fi-rr-check"></i> Lokatsiya olindi';
         btn.disabled = false;
-        setTimeout(() => { btn.innerHTML = oldHtml; }, 2500);
+        setTimeout(() => {
+          if (!btn.disabled) btn.innerHTML = oldHtml;
+        }, 2500);
       }
 
       function onFail(msg) {
+        if (isFinished) return;
+        isFinished = true;
+        cleanupTimers();
         btn.innerHTML = oldHtml;
         btn.disabled = false;
         showNotice(msg || "Geolokatsiyani aniqlab bo'lmadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
       }
 
+      /* Har qanday holatda ham tugma "Aniqlanmoqda..." bo'lib qotib qolmasligi uchun umumiy taymer */
+      hardTimeout = setTimeout(() => {
+        onFail("Geolokatsiyani aniqlash vaqti tugadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
+      }, 14000);
+
+      function runTgLocationRequest() {
+        if (isFinished) return;
+        if (!tg.LocationManager.isLocationAvailable) {
+          if (tgWatchdog) { clearTimeout(tgWatchdog); tgWatchdog = null; }
+          fallbackBrowserGeo(onSuccess, onFail);
+          return;
+        }
+        tg.LocationManager.getLocation((locData) => {
+          if (isFinished) return;
+          if (tgWatchdog) { clearTimeout(tgWatchdog); tgWatchdog = null; }
+          if (locData && locData.latitude && locData.longitude) {
+            onSuccess(locData.latitude, locData.longitude);
+          } else {
+            if (tg.LocationManager.isAccessGranted === false && tg.LocationManager.openSettings) {
+              tg.LocationManager.openSettings();
+            }
+            fallbackBrowserGeo(onSuccess, onFail);
+          }
+        });
+      }
+
       if (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) {
         try {
-          tg.LocationManager.init(() => {
-            if (!tg.LocationManager.isLocationAvailable) {
-              fallbackBrowserGeo(onSuccess, onFail);
-              return;
-            }
-            tg.LocationManager.getLocation((locData) => {
-              if (locData && locData.latitude && locData.longitude) {
-                onSuccess(locData.latitude, locData.longitude);
-              } else {
-                if (tg.LocationManager.isAccessGranted === false && tg.LocationManager.openSettings) {
-                  tg.LocationManager.openSettings();
-                }
-                fallbackBrowserGeo(onSuccess, onFail);
-              }
+          /* Telegram API 5 soniya ichida javob bermasa, avtomatik brauzer GPS ga o'tadi */
+          tgWatchdog = setTimeout(() => {
+            tgWatchdog = null;
+            fallbackBrowserGeo(onSuccess, onFail);
+          }, 5000);
+
+          /* 2-marta bosilganda init() ni qayta chaqirmaymiz */
+          if (tg.LocationManager.isInited) {
+            runTgLocationRequest();
+          } else {
+            tg.LocationManager.init(() => {
+              runTgLocationRequest();
             });
-          });
+          }
           return;
         } catch (err) {
+          if (tgWatchdog) { clearTimeout(tgWatchdog); tgWatchdog = null; }
           fallbackBrowserGeo(onSuccess, onFail);
           return;
         }
@@ -2811,13 +2855,13 @@
               if (err2.code === 1) msg = "Joylashuvga ruxsat berilmadi. Telefon sozlamalaridan Telegram uchun «Joylashuv» ruxsatini yoqing.";
               onFail(msg);
             },
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 30000 }
           );
         },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 }
       );
     }
-
+    
     function saveOpenCardDraftState() {
       if (!expandedRecordKey || !allRecords.length) return;
       allRecords.forEach((r, idx) => {
