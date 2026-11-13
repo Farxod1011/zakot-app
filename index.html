@@ -8,44 +8,154 @@
   <!-- Flaticon UIcons kutubxonasi -->
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
   <style>
+    /* 1. YORUG' TEMA (LIGHT MODE) */
     :root {
-      --bg-color: var(--tg-theme-bg-color, #ffffff);
-      --text-color: var(--tg-theme-text-color, #111827);
-      --hint-color: #4b5563;
-      --accent-color: var(--tg-theme-button-color, #2481cc);
-      --card-bg: var(--tg-theme-secondary-bg-color, #f3f4f6);
-      --drawer-bg: var(--tg-theme-secondary-bg-color, #f8f9fa);
-      --modal-bg: var(--tg-theme-bg-color, #ffffff);
-      --border-color: rgba(0, 0, 0, 0.12);
-      --card-inner-bg: rgba(0, 0, 0, 0.04);
+      --bg-color: #F3F6F8;
+      --card-bg: #FFFFFF;
+      --accent-color: #1F6E75;
+      --text-color: #1E293B;
+      --hint-color: #64748B;
+      --input-bg: #F8FAFC;
+      --border-color: #E2E8F0;
+      --drawer-bg: #FFFFFF;
+      --modal-bg: #FFFFFF;
+      --card-inner-bg: #F8FAFC;
+      --banner-bg: rgba(31, 110, 117, 0.08);
+      --loc-btn-bg: #4B6A88;
 
-      --amount-bg: rgba(46, 125, 50, 0.14);
-      --amount-text: #2e7d32;
-      --success-text: #2e7d32;
-      --danger-text: #c62828;
-      --warning-text: #ef6c00;
-      --info-text: #1565c0;
+      /* Tasdiqlangan / Yashil holat */
+      --amount-bg: #DCFCE7;
+      --amount-text: #15803D;
+      --success-bg: #DCFCE7;
+      --success-text: #15803D;
+
+      /* Yangi / Pushti-qizil holat */
+      --pink-bg: #FCE7F3;
+      --pink-text: #BE185D;
+
+      /* Kutilayotgan / Sariq holat (Berib yuborilgan) */
+      --warning-bg: #FEF3C7;
+      --warning-text: #B45309;
+
+      /* Yetkazilgan / Ko'k holat */
+      --info-bg: #E0F2FE;
+      --info-text: #0369A1;
+
+      /* Rad etilgan / Xavf */
+      --danger-bg: #FEE2E2;
+      --danger-text: #B91C1C;
+
+      --card-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
 
+    /* 2. QORONG'U TEMA (DARK MODE) */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: var(--tg-theme-bg-color, #17212b);
-        --text-color: var(--tg-theme-text-color, #f5f5f5);
-        --hint-color: var(--tg-theme-hint-color, #8b9bb4);
-        --accent-color: var(--tg-theme-button-color, #5288c1);
-        --card-bg: var(--tg-theme-secondary-bg-color, #232e3c);
-        --drawer-bg: rgba(20, 29, 38, 0.98);
-        --modal-bg: var(--tg-theme-secondary-bg-color, #232e3c);
-        --border-color: rgba(255, 255, 255, 0.08);
-        --card-inner-bg: rgba(0, 0, 0, 0.18);
+        --bg-color: #0B1118;
+        --card-bg: #151F2B;
+        --accent-color: #24828A;
+        --text-color: #F1F5F9;
+        --hint-color: #94A3B8;
+        --input-bg: #0F1722;
+        --border-color: #263342;
+        --drawer-bg: #151F2B;
+        --modal-bg: #151F2B;
+        --card-inner-bg: #0F1722;
+        --banner-bg: rgba(36, 130, 138, 0.14);
+        --loc-btn-bg: #3B556D;
 
-        --amount-bg: rgba(129, 199, 132, 0.2);
-        --amount-text: #81c784;
-        --success-text: #81c784;
-        --danger-text: #ff8a80;
-        --warning-text: #ffb74d;
-        --info-text: #64b5f6;
+        /* Tasdiqlangan / Yashil holat */
+        --amount-bg: #143326;
+        --amount-text: #4ADE80;
+        --success-bg: #143326;
+        --success-text: #4ADE80;
+
+        /* Yangi / Pushti-qizil holat */
+        --pink-bg: #38192A;
+        --pink-text: #F472B6;
+
+        /* Kutilayotgan / Sariq holat (Berib yuborilgan) */
+        --warning-bg: #362814;
+        --warning-text: #FBBF24;
+
+        /* Yetkazilgan / Ko'k holat */
+        --info-bg: #122D3D;
+        --info-text: #38BDF8;
+
+        /* Rad etilgan / Xavf */
+        --danger-bg: #3B181E;
+        --danger-text: #F87171;
+
+        --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
       }
+    }
+
+    html[data-theme="dark"] {
+      --bg-color: #0B1118;
+      --card-bg: #151F2B;
+      --accent-color: #24828A;
+      --text-color: #F1F5F9;
+      --hint-color: #94A3B8;
+      --input-bg: #0F1722;
+      --border-color: #263342;
+      --drawer-bg: #151F2B;
+      --modal-bg: #151F2B;
+      --card-inner-bg: #0F1722;
+      --banner-bg: rgba(36, 130, 138, 0.14);
+      --loc-btn-bg: #3B556D;
+
+      --amount-bg: #143326;
+      --amount-text: #4ADE80;
+      --success-bg: #143326;
+      --success-text: #4ADE80;
+
+      --pink-bg: #38192A;
+      --pink-text: #F472B6;
+
+      --warning-bg: #362814;
+      --warning-text: #FBBF24;
+
+      --info-bg: #122D3D;
+      --info-text: #38BDF8;
+
+      --danger-bg: #3B181E;
+      --danger-text: #F87171;
+
+      --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    html[data-theme="light"] {
+      --bg-color: #F3F6F8;
+      --card-bg: #FFFFFF;
+      --accent-color: #1F6E75;
+      --text-color: #1E293B;
+      --hint-color: #64748B;
+      --input-bg: #F8FAFC;
+      --border-color: #E2E8F0;
+      --drawer-bg: #FFFFFF;
+      --modal-bg: #FFFFFF;
+      --card-inner-bg: #F8FAFC;
+      --banner-bg: rgba(31, 110, 117, 0.08);
+      --loc-btn-bg: #4B6A88;
+
+      --amount-bg: #DCFCE7;
+      --amount-text: #15803D;
+      --success-bg: #DCFCE7;
+      --success-text: #15803D;
+
+      --pink-bg: #FCE7F3;
+      --pink-text: #BE185D;
+
+      --warning-bg: #FEF3C7;
+      --warning-text: #B45309;
+
+      --info-bg: #E0F2FE;
+      --info-text: #0369A1;
+
+      --danger-bg: #FEE2E2;
+      --danger-text: #B91C1C;
+
+      --card-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -87,26 +197,27 @@
 
     /* YUQORI BAR VA 3-NUQTA */
     .role-banner {
-      padding: 6px 12px; background: rgba(82, 136, 193, 0.15); border-bottom: 1px solid var(--border-color);
-      font-size: 12px; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; background: var(--banner-bg); border-bottom: 1px solid var(--border-color);
+      font-size: 12.5px; font-weight: 500; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center;
     }
-    .role-banner-left { display: inline-flex; align-items: center; gap: 6px; }
+    .role-banner-left { display: inline-flex; align-items: center; gap: 7px; }
     .dots-btn {
-      background: var(--card-inner-bg); border: 1px solid var(--border-color); color: var(--text-color);
-      width: 22px; height: 24px; min-width: 24px; border-radius: 5px;
+      background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color);
+      width: 24px; height: 24px; min-width: 24px; border-radius: 6px;
       display: inline-flex; align-items: center; justify-content: center;
       cursor: pointer; font-size: 12px; transition: all 0.2s; position: relative;
     }
-    .dots-btn:active, .dots-btn.open { background: rgba(36, 129, 204, 0.82); color: #fff; border-color: rgba(36, 129, 204, 0.9); }
+    .dots-btn:active, .dots-btn.open { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
     .dots-btn.has-alert::after {
       content: ""; position: absolute; top: -3px; right: -3px;
-      width: 8px; height: 8px; border-radius: 50%; background: #e53935;
+      width: 8px; height: 8px; border-radius: 50%; background: var(--pink-text);
     }
 
     /* KENGAYADIGAN XODIMLAR / PROFIL PANELI */
     .top-menu-drawer {
-      display: none; background: var(--drawer-bg); border-bottom: 2px solid rgba(82, 136, 193, 0.35);
+      display: none; background: var(--drawer-bg); border-bottom: 2px solid var(--border-color);
       padding: 12px 14px; max-height: 72vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      box-shadow: var(--card-shadow);
     }
     .top-menu-drawer.open { display: block; }
 
@@ -118,7 +229,7 @@
 
     .dir-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 10px; margin-bottom: 8px; overflow: hidden;
+      border-radius: 12px; margin-bottom: 8px; overflow: hidden; box-shadow: var(--card-shadow);
     }
     .dir-card-header {
       padding: 10px 12px; display: flex; justify-content: space-between;
@@ -133,19 +244,19 @@
     .dir-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
     .trash-icon-btn {
-      background: rgba(229, 57, 53, 0.22); border: 1px solid rgba(229, 57, 53, 0.5); color: var(--danger-text);
+      background: var(--danger-bg); border: 1px solid var(--border-color); color: var(--danger-text);
       width: 26px; height: 26px; border-radius: 6px; display: inline-flex;
       align-items: center; justify-content: center; cursor: pointer; font-size: 12px; flex-shrink: 0;
     }
-    .trash-icon-btn:active { background: rgba(229, 57, 53, 0.8); color: #fff; }
+    .trash-icon-btn:active { background: var(--danger-text); color: #fff; }
 
     .logout-inline-btn {
-      background: rgba(82, 136, 193, 0.22); border: 1px solid rgba(82, 136, 193, 0.5); color: var(--accent-color);
+      background: var(--input-bg); border: 1px solid var(--border-color); color: var(--accent-color);
       height: 26px; padding: 0 9px; border-radius: 6px; display: inline-flex;
       align-items: center; justify-content: center; gap: 5px; cursor: pointer;
       font-size: 11.5px; font-weight: 600; flex-shrink: 0;
     }
-    .logout-inline-btn:active { background: rgba(82, 136, 193, 0.8); color: #fff; }
+    .logout-inline-btn:active { background: var(--accent-color); color: #fff; }
 
     .dir-volunteers-list {
       display: none; padding: 10px 12px; background: var(--card-inner-bg); border-top: 1px solid var(--border-color);
@@ -167,7 +278,7 @@
 
     /* BARCHASINI BELGILASH QATORI */
     .bulk-accept-bar {
-      background: var(--card-bg); border: 1px solid rgba(239, 108, 0, 0.45);
+      background: var(--card-bg); border: 1px solid var(--warning-text);
       border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
       display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
     }
@@ -175,6 +286,7 @@
       background: var(--card-bg); border: 1px solid var(--border-color);
       border-radius: 11px; padding: 9px 12px; margin-bottom: 10px;
       display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+      box-shadow: var(--card-shadow);
     }
     .bulk-chk-label {
       display: inline-flex; align-items: center; gap: 7px;
@@ -182,7 +294,7 @@
     }
     .env-chk-input {
       width: 18px !important; height: 18px !important; margin: 0;
-      accent-color: #2e7d32; cursor: pointer; flex-shrink: 0;
+      accent-color: var(--accent-color); cursor: pointer; flex-shrink: 0;
     }
     .rec-chk-box {
       display: none; width: 18px !important; height: 18px !important;
@@ -197,7 +309,7 @@
     .saved-acc-card {
       background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
       padding: 13px 14px; margin-bottom: 10px; display: flex; justify-content: space-between;
-      align-items: center; cursor: pointer; transition: all 0.2s ease;
+      align-items: center; cursor: pointer; transition: all 0.2s ease; box-shadow: var(--card-shadow);
     }
     .saved-acc-card:active { border-color: var(--accent-color); transform: scale(0.99); }
     .saved-acc-left { display: flex; flex-direction: column; gap: 4px; text-align: left; }
@@ -216,11 +328,12 @@
     .tab-btn {
       flex-shrink: 0; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
       color: var(--text-color); background: var(--card-bg); border: 1px solid var(--border-color);
-      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.25s ease;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all 0.25s ease; box-shadow: var(--card-shadow);
     }
     .tab-btn.active {
-      background: rgba(36, 129, 204, 0.82); color: #ffffff; border-color: rgba(82, 136, 193, 0.9);
-      font-weight: 600; box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
+      background: var(--accent-color); color: #ffffff; border-color: var(--accent-color);
+      font-weight: 600; box-shadow: 0 2px 8px rgba(31, 110, 117, 0.3);
     }
 
     .tab-btn.compact-plus:not(.active) { padding: 8px 11px; gap: 0; }
@@ -231,16 +344,19 @@
     .tab-btn.compact-tab:not(.active) .tab-text-label { display: none; }
 
     .tab-btn.has-requests:not(.active) {
-      background: rgba(229, 57, 53, 0.24); border-color: rgba(229, 57, 53, 0.6); color: var(--danger-text);
+      background: var(--pink-bg); border-color: var(--pink-text); color: var(--pink-text);
     }
-    .tab-btn.has-requests:not(.active) .badge { background: rgba(229, 57, 53, 0.85); color: #ffffff; }
+    .tab-btn.has-requests:not(.active) .badge { background: var(--pink-text); color: #ffffff; }
     .tab-btn.has-requests.active {
-      background: rgba(229, 57, 53, 0.82); color: #ffffff; border-color: rgba(229, 57, 53, 0.9);
+      background: var(--pink-text); color: #ffffff; border-color: var(--pink-text);
     }
 
     .badge {
-      background: rgba(100, 100, 100, 0.22); border-radius: 12px;
-      padding: 2px 7px; font-size: 11px; font-weight: 600;
+      background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 1px 7px; font-size: 11px; font-weight: 600;
+    }
+    .tab-btn.active .badge, .sub-tab-btn.active .badge {
+      background: rgba(255, 255, 255, 0.22); color: #ffffff; border-color: transparent;
     }
 
     /* KONVERT BO'LIMI ICHIDAGI 3 TA YUQORI MENYU */
@@ -249,18 +365,20 @@
     .sub-tab-btn {
       flex: 1; padding: 9px 10px; border-radius: 18px; font-size: 12.5px; font-weight: 500;
       color: var(--text-color); background: var(--card-bg); border: 1px solid var(--border-color);
-      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s ease;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.2s ease; box-shadow: var(--card-shadow);
     }
     .sub-tab-btn.active {
-      background: rgba(36, 129, 204, 0.82); color: #ffffff; border-color: rgba(82, 136, 193, 0.9);
-      font-weight: 600; box-shadow: 0 2px 6px rgba(36, 129, 204, 0.25);
+      background: var(--accent-color); color: #ffffff; border-color: var(--accent-color);
+      font-weight: 600; box-shadow: 0 2px 8px rgba(31, 110, 117, 0.28);
     }
 
     /* BOSHQARUVCHINING UMUMIY KONVERT HISOBOTI (4 TA KATAK) */
     .global-env-report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .global-rep-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 10px; padding: 12px 12px; display: flex; flex-direction: column; gap: 4px;
+      border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 4px;
+      box-shadow: var(--card-shadow);
     }
     .global-rep-label { font-size: 11.5px; color: var(--hint-color); font-weight: 600; display: flex; align-items: center; gap: 5px; }
     .global-rep-val { font-size: 15px; font-weight: 700; color: var(--text-color); }
@@ -272,29 +390,37 @@
     @keyframes fadeTab { from { opacity: 0.4; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
     .form-container { padding: 18px 14px; }
+    .form-card-surface {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 14px; padding: 14px; box-shadow: var(--card-shadow);
+    }
     .form-header { font-size: 18px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .form-sub { font-size: 13px; color: var(--hint-color); margin-bottom: 18px; }
     .form-group { margin-bottom: 13px; text-align: left; }
-    label { display: block; font-size: 13px; color: var(--hint-color); margin-bottom: 5px; font-weight: 500; }
+    .form-row-2col {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    label { display: block; font-size: 13px; color: var(--text-color); margin-bottom: 5px; font-weight: 600; }
     input, select, textarea {
-      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
-      background: var(--card-bg); color: var(--text-color); font-size: 14px; outline: none;
+      width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--input-bg); color: var(--text-color); font-size: 13.5px; outline: none;
+      transition: border-color 0.2s;
     }
     textarea.single-line-box { height: 43px; min-height: 43px; padding: 11px 12px; line-height: 1.35; resize: vertical; }
-    input::placeholder, textarea::placeholder { color: var(--hint-color); opacity: 0.8; }
+    input::placeholder, textarea::placeholder { color: var(--hint-color); opacity: 0.85; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-color); }
 
     .role-dropdown { position: relative; user-select: none; }
     .role-selected {
       width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color);
-      background: var(--card-bg); color: var(--text-color); font-size: 14px; font-weight: 600;
+      background: var(--input-bg); color: var(--text-color); font-size: 14px; font-weight: 600;
       display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     }
     .role-selected span { display: inline-flex; align-items: center; gap: 8px; }
     .role-options {
       display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0;
       background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px;
-      overflow: hidden; z-index: 200; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      overflow: hidden; z-index: 200; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
     .role-options.open { display: block; }
     .role-option {
@@ -302,20 +428,21 @@
       cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s;
     }
     .role-option:last-child { border-bottom: none; }
-    .role-option:hover, .role-option.selected { background: rgba(36, 129, 204, 0.82); color: #fff; font-weight: 600; }
+    .role-option:hover, .role-option.selected { background: var(--accent-color); color: #fff; font-weight: 600; }
     .role-option.disabled { opacity: 0.4; pointer-events: none; }
 
     .submit-btn {
-      width: 100%; padding: 13px; border-radius: 10px; background: rgba(36, 129, 204, 0.82);
-      color: #ffffff; border: 1px solid rgba(82, 136, 193, 0.85); font-size: 15px; font-weight: 600;
+      width: 100%; padding: 13px; border-radius: 10px; background: var(--accent-color);
+      color: #ffffff; border: 1px solid var(--accent-color); font-size: 14.5px; font-weight: 600;
       cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
     }
-    .submit-btn:active { background: rgba(36, 129, 204, 0.95); }
+    .submit-btn:active { filter: brightness(1.08); transform: scale(0.99); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .acc-card {
-      background: var(--card-bg); border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease; user-select: none;
+      background: var(--card-bg); border-radius: 13px; margin-bottom: 10px;
+      border: 1px solid var(--border-color); overflow: hidden; transition: all 0.2s ease;
+      user-select: none; box-shadow: var(--card-shadow);
     }
     .acc-card.selected-card {
       border-color: var(--accent-color) !important;
@@ -326,11 +453,11 @@
     .acc-fio { font-size: 15px; font-weight: 600; color: var(--text-color); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
     .acc-date { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-    .pending-role-highlight { font-size: 13.5px; font-weight: 600; color: var(--danger-text); display: inline-flex; align-items: center; gap: 5px; }
+    .pending-role-highlight { font-size: 13.5px; font-weight: 600; color: var(--pink-text); display: inline-flex; align-items: center; gap: 5px; }
 
-    /* ARIZA HOLATI (MENYU LOGOTIPI RANGIDA) */
-    .acc-substatus { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
-    .substatus-Yangi { color: var(--accent-color); }
+    /* ARIZA HOLATI RANGI */
+    .acc-substatus { font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+    .substatus-Yangi { color: var(--pink-text); }
     .substatus-Tasdiqlangan { color: var(--success-text); }
     .substatus-Rad-etilgan { color: var(--danger-text); }
     .substatus-Berib-yuborilgan { color: var(--warning-text); }
@@ -338,26 +465,18 @@
 
     .acc-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
     .acc-amount {
-      font-size: 13px; font-weight: 600; color: var(--amount-text); background: var(--amount-bg);
-      padding: 4px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; font-weight: 700; color: var(--amount-text); background: var(--amount-bg);
+      padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
     }
-    .acc-amount.no-amount { color: var(--danger-text); background: rgba(198, 40, 40, 0.15); }
-
-    /* Topuvchi yozib jo'natgan (hali konvert biriktirilmagan) summa uchun to'q pushti rang */
+    /* Yangi / Konvert biriktirilmagan yoki miqdorsiz arizalar uchun Pushti-qizil nishon */
+    .acc-amount.no-amount,
     .acc-amount.unattached-amount {
-      background: rgba(194, 24, 91, 0.16) !important;
-      color: #ad1457 !important;
-      border: 1px solid rgba(194, 24, 91, 0.32);
-    }
-    @media (prefers-color-scheme: dark) {
-      .acc-amount.unattached-amount {
-        background: rgba(216, 27, 96, 0.28) !important;
-        color: #f48fb1 !important;
-        border: 1px solid rgba(244, 143, 177, 0.4);
-      }
+      background: var(--pink-bg) !important;
+      color: var(--pink-text) !important;
+      border: 1px solid transparent;
     }
 
-    .acc-arrow { font-size: 11px; color: var(--hint-color); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
+    .acc-arrow { font-size: 11.5px; color: var(--hint-color); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; transition: transform 0.25s; }
     .acc-card.expanded .acc-arrow i { transform: rotate(180deg); }
 
     .acc-body {
@@ -370,12 +489,12 @@
     .detail-label { color: var(--hint-color); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; margin-right: 4px; }
 
     .status-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-    .status-Yangi { background: rgba(82, 136, 193, 0.15); color: var(--accent-color); }
-    .status-Tasdiqlangan { background: rgba(46, 125, 50, 0.15); color: var(--success-text); }
-    .status-Rad-etilgan { background: rgba(198, 40, 40, 0.15); color: var(--danger-text); }
-    .status-Berib-yuborilgan { background: rgba(239, 108, 0, 0.15); color: var(--warning-text); }
-    .status-Yetqazilgan { background: rgba(21, 101, 192, 0.15); color: var(--info-text); }
-    .status-Jarayonda { background: rgba(239, 108, 0, 0.18); color: var(--warning-text); }
+    .status-Yangi { background: var(--pink-bg); color: var(--pink-text); }
+    .status-Tasdiqlangan { background: var(--success-bg); color: var(--success-text); }
+    .status-Rad-etilgan { background: var(--danger-bg); color: var(--danger-text); }
+    .status-Berib-yuborilgan { background: var(--warning-bg); color: var(--warning-text); }
+    .status-Yetqazilgan { background: var(--info-bg); color: var(--info-text); }
+    .status-Jarayonda { background: var(--warning-bg); color: var(--warning-text); }
 
     .edit-box { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
     .edit-box input, .edit-box textarea, .edit-box select { padding: 9px 11px; font-size: 13px; }
@@ -383,7 +502,7 @@
 
     .deliverer-select-box {
       margin-top: 10px; padding: 9px 11px; border-radius: 9px;
-      background: var(--card-bg); border: 1px solid rgba(36, 129, 204, 0.45);
+      background: var(--card-bg); border: 1px solid var(--border-color);
     }
     .deliverer-select-box label {
       color: var(--accent-color); font-weight: 600; font-size: 12px; margin-bottom: 5px;
@@ -398,11 +517,11 @@
       color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;
     }
     .btn-act:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; filter: grayscale(40%); }
-    .btn-save { background: rgba(59, 105, 152, 0.82); border: 1px solid rgba(59, 105, 152, 0.9); }
-    .btn-approve { background: rgba(46, 125, 50, 0.82); border: 1px solid rgba(46, 125, 50, 0.9); }
-    .btn-send, .btn-deliver { background: rgba(2, 136, 209, 0.82); border: 1px solid rgba(2, 136, 209, 0.9); }
-    .btn-reject, .btn-delete { background: rgba(198, 40, 40, 0.82); border: 1px solid rgba(198, 40, 40, 0.9); }
-    .btn-dispatch { background: rgba(239, 108, 0, 0.82); border: 1px solid rgba(239, 108, 0, 0.9); }
+    .btn-save { background: var(--loc-btn-bg); border: 1px solid var(--loc-btn-bg); }
+    .btn-approve { background: #15803D; border: 1px solid #15803D; }
+    .btn-send, .btn-deliver { background: #0369A1; border: 1px solid #0369A1; }
+    .btn-reject, .btn-delete { background: #BE185D; border: 1px solid #BE185D; }
+    .btn-dispatch { background: #B45309; border: 1px solid #B45309; }
     .btn-act:active { transform: scale(0.98); filter: brightness(1.1); }
 
     /* KONVERTLAR SHABLONI VA MASLAHATCHILAR RO'YXATI */
@@ -411,24 +530,25 @@
     .env-date-single-line { font-size: 12px; color: var(--hint-color); font-weight: 500; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
     .env-card-right { display: flex; flex-direction: row; align-items: center; gap: 7px; flex-shrink: 0; }
     .env-count-badge {
-      background: rgba(36, 129, 204, 0.16); color: var(--accent-color); border: 1px solid rgba(36, 129, 204, 0.35);
-      padding: 5px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+      background: var(--info-bg); color: var(--info-text); border: 1px solid var(--border-color);
+      padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
       display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0;
     }
     .env-count-badge.green-badge {
-      background: var(--amount-bg); color: var(--success-text); border: 1px solid rgba(46, 125, 50, 0.35);
+      background: var(--success-bg); color: var(--success-text); border: 1px solid transparent;
     }
     .tg-fab-btn {
       position: fixed; right: 20px; bottom: 24px; width: 56px; height: 56px; border-radius: 50%;
-      background: #3390ec; color: #ffffff; border: none; box-shadow: 0 5px 16px rgba(51, 144, 236, 0.45);
+      background: var(--accent-color); color: #ffffff; border: none; box-shadow: 0 5px 16px rgba(31, 110, 117, 0.4);
       display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 500; font-size: 22px;
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
     }
-    .tg-fab-btn:active { transform: scale(0.92); background: #287cd1; }
+    .tg-fab-btn:active { transform: scale(0.92); filter: brightness(1.1); }
 
     .adv-env-card {
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s ease;
+      border-radius: 13px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s ease;
+      box-shadow: var(--card-shadow);
     }
     .adv-env-top { padding: 13px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; }
     .adv-env-body { display: none; padding: 12px 14px 14px; border-top: 1px solid var(--border-color); background: var(--card-inner-bg); font-size: 12.5px; }
@@ -463,29 +583,29 @@
       background: var(--card-inner-bg); border: 1px solid var(--border-color);
       border-radius: 10px; padding: 12px 13px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
     }
-    .pick-env-item:active { background: rgba(36, 129, 204, 0.2); border-color: var(--accent-color); }
+    .pick-env-item:active { background: var(--info-bg); border-color: var(--accent-color); }
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
 
     .custom-modal {
-      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999;
       align-items: center; justify-content: center; padding: 20px;
     }
     .custom-modal.show { display: flex; }
     .modal-box {
       background: var(--modal-bg); border-radius: 16px; padding: 22px 20px; width: 100%; max-width: 350px;
-      text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.25); border: 1px solid var(--border-color);
+      text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.28); border: 1px solid var(--border-color);
       max-height: 85vh; overflow-y: auto;
     }
     .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-color); display: flex; align-items: center; justify-content: center; gap: 6px; }
     .modal-text { font-size: 14px; font-weight: 500; margin-bottom: 18px; color: var(--text-color); line-height: 1.45; }
     .modal-btn {
-      width: 100%; padding: 11px; border-radius: 10px; background: rgba(36, 129, 204, 0.82);
-      color: #ffffff; border: 1px solid rgba(82, 136, 193, 0.85); font-size: 14px; font-weight: 600; cursor: pointer;
+      width: 100%; padding: 11px; border-radius: 10px; background: var(--accent-color);
+      color: #ffffff; border: 1px solid var(--accent-color); font-size: 14px; font-weight: 600; cursor: pointer;
     }
-    .modal-btn-cancel { background: rgba(75, 85, 99, 0.78); color: #ffffff; border: 1px solid rgba(75, 85, 99, 0.85); }
-    .modal-btn-danger { background: rgba(198, 40, 40, 0.82); color: #ffffff; border: 1px solid rgba(198, 40, 40, 0.9); }
+    .modal-btn-cancel { background: var(--hint-color); color: #ffffff; border: 1px solid var(--hint-color); }
+    .modal-btn-danger { background: var(--pink-text); color: #ffffff; border: 1px solid var(--pink-text); }
     .modal-btn-row { display: flex; gap: 8px; margin-top: 14px; }
 
     .reassign-item { text-align: left; background: var(--card-inner-bg); padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
@@ -516,7 +636,7 @@
         </button>
       </div>
 
-      <div id="regFormView">
+      <div id="regFormView" class="form-card-surface">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <div class="form-header" style="margin-bottom:0;"><i class="fi fi-rr-user-add" style="color:var(--accent-color)"></i> Ro'yxatdan o'tish</div>
           <button type="button" id="backToAccountsBtn" style="display:none; background:none; border:none; color:var(--accent-color); font-size:13px; font-weight:600; cursor:pointer;" onclick="showExistingAccountsView()">
@@ -650,20 +770,22 @@
 
     <!-- ARIZA QO'SHISH -->
     <div id="tab-add" class="tab-content active">
-      <form id="zakotForm" onsubmit="submitForm(event)">
+      <form id="zakotForm" class="form-card-surface" onsubmit="submitForm(event)">
         <div class="form-group">
           <label>Zakot oluvchi F.I.O *</label>
           <input type="text" id="recipientFio" required placeholder="Masalan: Aliyev Vali Soli o'g'li" oninput="validateLettersOnly(this)">
         </div>
 
-        <div class="form-group">
-          <label>Telefon raqami</label>
-          <input type="tel" id="recipientPhone" inputmode="tel" placeholder="998901234567 yoki 901234567" oninput="validatePhoneInput(this)">
-        </div>
+        <div class="form-row-2col">
+          <div class="form-group">
+            <label>Telefon raqami</label>
+            <input type="tel" id="recipientPhone" inputmode="tel" placeholder="998901234567..." oninput="validatePhoneInput(this)">
+          </div>
 
-        <div class="form-group">
-          <label>Tavsiya etuvchi manba</label>
-          <input type="text" id="manba" placeholder="Mahalla oqsoqoli, qo'shni...">
+          <div class="form-group">
+            <label>Tavsiya etuvchi manba</label>
+            <input type="text" id="manba" placeholder="Mahalla oqsoqoli, qo'shni...">
+          </div>
         </div>
 
         <div class="form-group">
@@ -674,7 +796,7 @@
         <div class="form-group">
           <label>Belgilangan miqdor</label>
           <select id="amountSelect" onchange="toggleCustomAmount(this.value)">
-            <option value="">-- Miqdorni tanlang --</option>
+            <option value="">Belgilangan miqdor</option>
             <option value="1 000 000 so'm">1 000 000 so'm</option>
             <option value="2 000 000 so'm">2 000 000 so'm</option>
             <option value="3 000 000 so'm">3 000 000 so'm</option>
@@ -685,10 +807,10 @@
           <input type="text" id="customAmount" inputmode="numeric" placeholder="Summani kiriting (masalan: 10 000)" style="display:none; margin-top:8px;" oninput="formatNumberInput(this)">
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:6px;">
           <label>Manzili</label>
           <input type="text" id="locDisplay" placeholder="Manzilni yozing yoki lokatsiya oling">
-          <button type="button" id="locBtn" class="submit-btn" style="background:rgba(43, 82, 120, 0.85); margin-top:6px;" onclick="getLocation()">
+          <button type="button" id="locBtn" class="submit-btn" style="background:var(--loc-btn-bg); border-color:var(--loc-btn-bg); margin-top:8px;" onclick="getLocation()">
             <i class="fi fi-rr-marker"></i> Lokatsiyani olish
           </button>
         </div>
@@ -874,7 +996,7 @@
           Qaysi arizalarga ushbu konvertni biriktirmoqchisiz?
         </div>
         <div id="bulkEnvRecordsList" style="max-height:220px; overflow-y:auto; margin-bottom:12px;"></div>
-        <button type="button" class="modal-btn" style="background:rgba(46, 125, 50, 0.88);" onclick="confirmBulkEnvelopeApproveSelected()">
+        <button type="button" class="modal-btn" style="background:var(--success-text); border-color:var(--success-text);" onclick="confirmBulkEnvelopeApproveSelected()">
           <i class="fi fi-rr-check-double"></i> Tasdiqlash
         </button>
       </div>
@@ -885,7 +1007,19 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) tg.expand();
+    if (tg) {
+      tg.expand();
+      if (tg.colorScheme === 'dark' || tg.colorScheme === 'light') {
+        document.documentElement.setAttribute('data-theme', tg.colorScheme);
+      }
+      if (tg.onEvent) {
+        tg.onEvent('themeChanged', function() {
+          if (tg.colorScheme) {
+            document.documentElement.setAttribute('data-theme', tg.colorScheme);
+          }
+        });
+      }
+    }
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzz_-WtiwIcIt6giXx-y8ekX05DAJ4um8sV9LYHz82LIOnit-F_i3YqZxoWnAdB56d/exec";
 
@@ -1031,7 +1165,7 @@
       };
     }
 
-    // GORIZONTAL VA VERTIKAL SVAYP (Yuqori menyu faqat menyu tagidagi asosiy oyna yuqoriga oxirigacha tortilganda yopiladi)
+    // GORIZONTAL VA VERTIKAL SVAYP
     let touchStartX = 0;
     let touchStartY = 0;
     let ignoreSwipe = false;
@@ -1206,7 +1340,6 @@
         return;
       }
 
-      /* Maslahatchida 3-nuqta menyusida faqat Profil va unga biriktirilgan Topuvchilar ko'rinadi */
       if (isAdvisor) {
         html += `<div class="dir-section-title">Menga biriktirilgan Topuvchilar (${directoryData.myVolunteers.length})</div>`;
         if (!directoryData.myVolunteers.length) {
@@ -1293,7 +1426,6 @@
       container.innerHTML = html;
     }
 
-    /* Konvert menyusi ichida: Menga yuborilgan (kutilayotgan) konvertlarni Oldim/Olmadim qilish bloki */
     function renderIncomingEnvelopesBox() {
       const box = document.getElementById('incomingEnvelopesBox');
       const tabEnvBtn = document.getElementById('tabEnvelopeBtn');
@@ -1331,7 +1463,7 @@
       pendingTransfers.forEach((tr, tIdx) => {
         const senderText = tr.senderFio ? `👤 Yuboruvchi: <b>${escHtml(tr.senderFio)}</b> | ` : '';
         html += `
-          <div class="dir-card" id="pend-env-${tIdx}" style="border-color:rgba(239, 108, 0, 0.45); margin-bottom:10px;">
+          <div class="dir-card" id="pend-env-${tIdx}" style="border-color:var(--warning-text); margin-bottom:10px;">
             <div class="dir-card-header" style="cursor:default;">
               <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
                 <input type="checkbox" class="env-chk-input pend-env-chk" value="${escHtml(tr.id)}" data-idx="${tIdx}" checked onchange="updateSelectAllPendState()">
@@ -1359,7 +1491,6 @@
       box.innerHTML = html;
     }
 
-    /* Maslahatchining Konvert menyusi: barcha hisobotlar + bo'sh konvertlarni Maslahatchi va Boshqaruvchiga berish */
     function renderAdvisorEnvelopeSection() {
       const container = document.getElementById('advisorEnvelopeContent');
       if (!container || !currentUser) return;
@@ -1370,7 +1501,6 @@
         ? myEnvelopeSummary.stats
         : { totalGiven: 0, pending: 0, inHandFree: 0, approvedAssigned: 0, dispatched: 0, delivered: 0 };
 
-      /* Har bir holat bo'yicha jami summalarni hisoblash */
       let totalGivenSum = 0;
       let inHandFreeSum = 0;
       let dispatchedSum = 0;
@@ -1414,7 +1544,6 @@
           `</div>`;
       }
 
-      /* Bo'sh konvertlarni yuborish uchun qabul qiluvchilar: Boshqaruvchi + boshqa Maslahatchilar */
       const recipients = [];
       if (directoryData.boshqaruvchi) {
         recipients.push({
@@ -1509,8 +1638,7 @@
         ${recipientsHtml}
       `;
     }
-
-          function toggleSelectAllPendingEnvelopes(isChecked) {
+    function toggleSelectAllPendingEnvelopes(isChecked) {
       document.querySelectorAll('.pend-env-chk').forEach(chk => {
         if (!chk.disabled) chk.checked = isChecked;
       });
@@ -2748,6 +2876,7 @@
       return null;
     }
 
+    /* TUZATILGAN LOKATSIYA OLISH FUNKSIYASI (2-marta va undan keyin ham qotib qolmaydi) */
     function getLocation() {
       const btn = document.getElementById('locBtn');
       const oldHtml = '<i class="fi fi-rr-marker"></i> Lokatsiyani olish';
@@ -2786,7 +2915,6 @@
         showNotice(msg || "Geolokatsiyani aniqlab bo'lmadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
       }
 
-      /* Har qanday holatda ham tugma "Aniqlanmoqda..." bo'lib qotib qolmasligi uchun umumiy taymer */
       hardTimeout = setTimeout(() => {
         onFail("Geolokatsiyani aniqlash vaqti tugadi. Telefoningizda GPS yoqilganligini tekshiring yoki manzilni qo'lda yozing.");
       }, 14000);
@@ -2814,13 +2942,11 @@
 
       if (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) {
         try {
-          /* Telegram API 5 soniya ichida javob bermasa, avtomatik brauzer GPS ga o'tadi */
           tgWatchdog = setTimeout(() => {
             tgWatchdog = null;
             fallbackBrowserGeo(onSuccess, onFail);
           }, 5000);
 
-          /* 2-marta bosilganda init() ni qayta chaqirmaymiz */
           if (tg.LocationManager.isInited) {
             runTgLocationRequest();
           } else {
@@ -2861,7 +2987,7 @@
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 }
       );
     }
-    
+
     function saveOpenCardDraftState() {
       if (!expandedRecordKey || !allRecords.length) return;
       allRecords.forEach((r, idx) => {
@@ -3752,7 +3878,7 @@
 
           amountInputHtml = `
             <label>Miqdor (Konvert tanlash)</label>
-            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:rgba(36, 129, 204, 0.55);" onclick="openSelectEnvelopeForRecord(${idx})">
+            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:var(--accent-color);" onclick="openSelectEnvelopeForRecord(${idx})">
             ${envStatusNote}
           `;
         } else {
@@ -3798,7 +3924,7 @@
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi:</span> ${escHtml(r.sender)}</div>` : ''}
             ${advisorInfoRow}
             ${delivererInfoRow}
-            ${!hideAmountFromVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--danger-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b></div>` : ''}
+            ${!hideAmountFromVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--pink-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b></div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${escHtml(r.phone || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${escHtml(r.reason || '-')}</div>
