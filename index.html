@@ -2165,7 +2165,7 @@
                   : '';
                 return `
                   <div class="rep-rec-item">
-                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text);">${escHtml(rItem.amount)}</b></div>
+                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text); white-space:nowrap;">${escHtml(rItem.amount)}</b></div>
                     <div style="color:var(--hint-color);">✅ Tasdiqladi: <b>${escHtml(rItem.approver || adv.fio)}</b>${delivLine}</div>
                   </div>
                 `;
