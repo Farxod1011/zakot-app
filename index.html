@@ -578,12 +578,34 @@
       border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; text-align: left;
     }
     .give-env-input { width: 82px !important; padding: 8px 10px !important; text-align: center; font-weight: 600; }
+
+    /* ARIZAGA BIR NECHTA KONVERT TANLASH STEPPER DIZAYNI */
     .pick-env-item {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
       background: var(--card-inner-bg); border: 1px solid var(--border-color);
-      border-radius: 10px; padding: 12px 13px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; transition: all 0.15s;
     }
-    .pick-env-item:active { background: var(--info-bg); border-color: var(--accent-color); }
+    .pick-env-item.active-pick {
+      border-color: var(--accent-color); background: var(--banner-bg);
+    }
+    .step-ctrl {
+      display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+    }
+    .step-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border-color);
+      background: var(--card-bg); color: var(--text-color); font-size: 16px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer; user-select: none;
+    }
+    .step-btn:active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+    .step-val-input {
+      width: 46px !important; height: 30px !important; padding: 4px !important;
+      text-align: center; font-size: 13.5px; font-weight: 700; border-radius: 8px;
+    }
+    .pick-total-box {
+      background: var(--card-inner-bg); border: 1px dashed var(--accent-color);
+      border-radius: 10px; padding: 9px 11px; margin-bottom: 10px; text-align: center;
+      font-size: 13px; font-weight: 600; color: var(--text-color);
+    }
 
     .empty-state { text-align: center; color: var(--hint-color); padding: 40px 10px; font-size: 14px; font-weight: 500; }
 
@@ -973,15 +995,23 @@
     </div>
   </div>
 
-  <!-- 7-MODAL: ARIZAGA KONVERT TANLASH OYNASI -->
+  <!-- 7-MODAL: ARIZAGA BIR NECHTA KONVERT TANLASH OYNASI -->
   <div id="pickEnvelopeModal" class="custom-modal">
-    <div class="modal-box" style="max-width:350px;">
-      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvertni tanlang</div>
-      <div class="modal-text" id="pickEnvelopeDescText" style="margin-bottom:12px; font-size:12.5px; color:var(--hint-color);">
-        Ushbu arizani tasdiqlash uchun konvertni tanlang:
+    <div class="modal-box" style="max-width:365px;">
+      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert biriktirish</div>
+      <div class="modal-text" id="pickEnvelopeDescText" style="margin-bottom:10px; font-size:12.5px; color:var(--hint-color);">
+        Arizaga biriktiriladigan konvertlar sonini belgilang:
       </div>
-      <div id="pickEnvelopeListContainer" style="max-height:260px; overflow-y:auto; margin-bottom:10px;"></div>
-      <button type="button" class="modal-btn modal-btn-cancel" onclick="closePickEnvelopeModal()">Yopish</button>
+      <div id="pickEnvelopeListContainer" style="max-height:245px; overflow-y:auto; margin-bottom:10px;"></div>
+
+      <div id="pickEnvelopeTotalBar" class="pick-total-box" style="display:none;">
+        Tanlandi: <span id="pickTotalCountText">0</span> dona — <span id="pickTotalSumText" style="color:var(--amount-text);">0 so'm</span>
+      </div>
+
+      <div class="modal-btn-row" style="margin-top:8px;">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closePickEnvelopeModal()">Yopish</button>
+        <button type="button" class="modal-btn" id="confirmPickEnvBtn" onclick="confirmPickedEnvelopes()">Biriktirish</button>
+      </div>
     </div>
   </div>
 
@@ -989,7 +1019,7 @@
   <div id="bulkEnvConfirmModal" class="custom-modal">
     <div class="modal-box" style="max-width:365px;">
       <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvert biriktirish</div>
-      <div id="bulkSelectedEnvBadge" style="margin-bottom:10px; font-size:14px; font-weight:700; color:var(--success-text);"></div>
+      <div id="bulkSelectedEnvBadge" style="margin-bottom:10px; font-size:13.5px; font-weight:700; color:var(--success-text); line-height:1.4;"></div>
 
       <div id="bulkEnvRecordsSection" style="text-align:left; border-top:1px dashed var(--border-color); padding-top:10px;">
         <div style="font-size:12.5px; font-weight:600; color:var(--accent-color); margin-bottom:8px;">
@@ -1049,6 +1079,7 @@
     let pickingEnvelopeRecordIdx = null;
     let bulkApprovingRecordIndices = null;
     let pendingBulkEnvelopeAmount = "";
+    let pendingBulkEnvelopeBreakdown = "";
     let pendingBulkEnvelopeIndices = [];
     let singleAcceptDebounceTimer = null;
     let appRefreshTimer = null;
@@ -1101,6 +1132,39 @@
     function formatSumText(num) {
       const n = Number(num) || 0;
       return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+    }
+
+    function parseBreakdownMapJS(breakdownStr, fallbackAmountStr) {
+      const map = {};
+      const raw = String(breakdownStr || "").trim();
+      if (raw) {
+        raw.split(',').forEach(part => {
+          const p = part.trim();
+          if (!p) return;
+          const m = p.match(/^(.+?)\s*[x×*]\s*(\d+)$/i);
+          if (m) {
+            const unit = parseInt(String(m[1]).replace(/\D/g, ''), 10) || 0;
+            const cnt = parseInt(m[2], 10) || 0;
+            if (unit > 0 && cnt > 0) {
+              const std = formatSumText(unit);
+              map[std] = (map[std] || 0) + cnt;
+            }
+          } else {
+            const unit2 = parseInt(p.replace(/\D/g, ''), 10) || 0;
+            if (unit2 > 0) {
+              const std2 = formatSumText(unit2);
+              map[std2] = (map[std2] || 0) + 1;
+            }
+          }
+        });
+      }
+      if (Object.keys(map).length === 0 && fallbackAmountStr) {
+        const fbUnit = parseInt(String(fallbackAmountStr).replace(/\D/g, ''), 10) || 0;
+        if (fbUnit > 0) {
+          map[formatSumText(fbUnit)] = 1;
+        }
+      }
+      return map;
     }
 
     function getNormalizedAdvisorEnvStats(adv) {
@@ -2163,9 +2227,12 @@
                 const delivLine = (type === 'dispatched' || type === 'delivered')
                   ? ` | 🚚 Yetqazuvchi: <b style="color:var(--warning-text);">${escHtml(rItem.deliverer || rItem.sender || '-')}</b>`
                   : '';
+                const bdNote = (rItem.envelopeBreakdown && (Number(rItem.envelopeCount) > 1 || String(rItem.envelopeBreakdown).indexOf(',') !== -1))
+                  ? ` <span style="color:var(--hint-color); font-size:11px;">(${escHtml(String(rItem.envelopeBreakdown).replace(/x/g, '×'))})</span>`
+                  : '';
                 return `
                   <div class="rep-rec-item">
-                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text); white-space:nowrap;">${escHtml(rItem.amount)}</b></div>
+                    <div>👤 Oluvchi: <b>${escHtml(rItem.fio)}</b> — <b style="color:var(--amount-text); white-space:nowrap;">${escHtml(rItem.amount)}</b>${bdNote}</div>
                     <div style="color:var(--hint-color);">✅ Tasdiqladi: <b>${escHtml(rItem.approver || adv.fio)}</b>${delivLine}</div>
                   </div>
                 `;
@@ -2520,87 +2587,220 @@
       });
     }
 
+    /* ARIZAGA BIR NECHTA KONVERT TANLASH OYNASI FUNKSIYALARI */
     function openSelectEnvelopeForRecord(recIdx) {
       pickingEnvelopeRecordIdx = recIdx;
       bulkApprovingRecordIndices = null;
-      populateEnvelopePickerModal("Ushbu arizani tasdiqlash uchun konvertni tanlang:");
+      populateEnvelopePickerModal("Arizaga biriktiriladigan konvertlar sonini belgilang:", recIdx);
     }
 
     function openBulkEnvelopePickerModal(indices) {
       pickingEnvelopeRecordIdx = null;
       bulkApprovingRecordIndices = indices;
-      populateEnvelopePickerModal(`Tanlangan ${indices.length} ta arizani tasdiqlash uchun konvertni tanlang:`);
+      populateEnvelopePickerModal(`Tanlangan ${indices.length} ta arizani tasdiqlash uchun konvertlar sonini belgilang:`, null);
     }
 
-    function populateEnvelopePickerModal(customTitleText) {
+    function populateEnvelopePickerModal(customTitleText, recIdx) {
       const container = document.getElementById('pickEnvelopeListContainer');
       const descEl = document.getElementById('pickEnvelopeDescText');
+      const totalBar = document.getElementById('pickEnvelopeTotalBar');
+      const confirmBtn = document.getElementById('confirmPickEnvBtn');
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
 
+      let currentBreakdownMap = {};
+      let backendHeldMap = {};
+
+      if (recIdx !== null && recIdx !== undefined && allRecords[recIdx]) {
+        const rec = allRecords[recIdx];
+        const amountEl = document.getElementById(`eamount-${recIdx}`);
+        const envSel = amountEl ? amountEl.getAttribute('data-env-selected') === '1' : Boolean(rec.hasEnvelope);
+        const domBreakdown = amountEl ? (amountEl.getAttribute('data-env-breakdown') || "") : "";
+        const domAmount = amountEl ? amountEl.value : (rec.amount || "");
+
+        if (envSel) {
+          currentBreakdownMap = parseBreakdownMapJS(domBreakdown || rec.envelopeBreakdown, domAmount);
+        }
+        if (rec.status === "Tasdiqlangan" || rec.status === "Berib yuborilgan" || rec.status === "Yetqazilgan") {
+          backendHeldMap = parseBreakdownMapJS(rec.envelopeBreakdown, rec.envelopeAmount || rec.amount);
+        }
+      }
+
       if (isManager) {
-        if (descEl) descEl.innerText = customTitleText || "Arizani tasdiqlash uchun yaratilgan konvert shablonlaridan birini tanlang:";
+        if (descEl) descEl.innerText = customTitleText || "Arizaga biriktiriladigan konvertlar sonini belgilang:";
         const templates = getEnvelopeTemplatesList();
+        const mergedAmounts = new Set(templates.map(t => t.amount));
+        Object.keys(currentBreakdownMap).forEach(k => mergedAmounts.add(k));
+
+        const sortedAmounts = Array.from(mergedAmounts).sort((a, b) => {
+          return (parseInt(String(a).replace(/\D/g, ''), 10) || 0) - (parseInt(String(b).replace(/\D/g, ''), 10) || 0);
+        });
+
         let html = "";
-        templates.forEach(item => {
+        sortedAmounts.forEach((amtStr, pIdx) => {
+          const initCnt = currentBreakdownMap[amtStr] || 0;
           html += `
-            <div class="pick-env-item" onclick="selectEnvelopeForRecord('${escJsAttr(item.amount)}')">
-              <div style="text-align:left;">
-                <div style="font-size:14px; font-weight:600; color:var(--text-color);">
-                  <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
+            <div class="pick-env-item ${initCnt > 0 ? 'active-pick' : ''}" id="pick-row-${pIdx}">
+              <div style="text-align:left; min-width:0; flex:1;">
+                <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
+                  <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(amtStr)}
                 </div>
                 <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">Konvert shabloni</div>
               </div>
-              <span class="env-count-badge green-badge">Tanlash</span>
+              <div class="step-ctrl">
+                <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, -1)">−</button>
+                <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${initCnt}" data-idx="${pIdx}" data-amount="${escHtml(amtStr)}" data-max="999" oninput="onPickEnvInputChanged(${pIdx})">
+                <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
+              </div>
             </div>
           `;
         });
-        container.innerHTML = html;
-      } else {
-        if (descEl) descEl.innerText = customTitleText || "Ushbu arizani tasdiqlash uchun o'zingizda mavjud konvertlardan birini tanlang:";
-        const availList = (myEnvelopeSummary && myEnvelopeSummary.available)
-          ? myEnvelopeSummary.available.filter(a => a.freeCount > 0)
-          : [];
 
-        if (!availList.length) {
+        container.innerHTML = html;
+        if (totalBar) totalBar.style.display = "block";
+        if (confirmBtn) confirmBtn.style.display = "inline-block";
+        updatePickEnvelopeTotalBar();
+      } else {
+        if (descEl) descEl.innerText = customTitleText || "O'zingizda mavjud konvertlardan nechta biriktirishni belgilang:";
+        const rawAvail = (myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [];
+        const itemsToRender = [];
+
+        rawAvail.forEach(a => {
+          const freeC = Number(a.freeCount) || 0;
+          const heldC = Number(backendHeldMap[a.amount]) || 0;
+          const maxAllowed = freeC + heldC;
+          if (maxAllowed > 0) {
+            itemsToRender.push({
+              amount: a.amount,
+              maxAllowed: maxAllowed,
+              initCnt: Math.min(maxAllowed, currentBreakdownMap[a.amount] || 0)
+            });
+          }
+        });
+
+        if (!itemsToRender.length) {
           container.innerHTML = `
             <div class="empty-state" style="padding:20px 10px;">
               Sizda hozircha bo'sh konvertlar mavjud emas.<br><br>
               Agar sizga konvert yuborilgan bo'lsa, <b>«Konvert»</b> menyusiga o'tib <b>«Oldim»</b> tugmasini bosing.
             </div>
           `;
+          if (totalBar) totalBar.style.display = "none";
+          if (confirmBtn) confirmBtn.style.display = "none";
         } else {
           let html = "";
-          availList.forEach(item => {
+          itemsToRender.forEach((item, pIdx) => {
             html += `
-              <div class="pick-env-item" onclick="selectEnvelopeForRecord('${escJsAttr(item.amount)}')">
-                <div style="text-align:left;">
-                  <div style="font-size:14px; font-weight:600; color:var(--text-color);">
+              <div class="pick-env-item ${item.initCnt > 0 ? 'active-pick' : ''}" id="pick-row-${pIdx}">
+                <div style="text-align:left; min-width:0; flex:1;">
+                  <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
                     <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
                   </div>
-                  <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">O'zingizda mavjud</div>
+                  <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">Mavjud: ${item.maxAllowed} dona</div>
                 </div>
-                <span class="env-count-badge green-badge">${item.freeCount} dona</span>
+                <div class="step-ctrl">
+                  <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, -1)">−</button>
+                  <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${item.initCnt}" data-idx="${pIdx}" data-amount="${escHtml(item.amount)}" data-max="${item.maxAllowed}" oninput="onPickEnvInputChanged(${pIdx})">
+                  <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
+                </div>
               </div>
             `;
           });
           container.innerHTML = html;
+          if (totalBar) totalBar.style.display = "block";
+          if (confirmBtn) confirmBtn.style.display = "inline-block";
+          updatePickEnvelopeTotalBar();
         }
       }
 
       document.getElementById('pickEnvelopeModal').classList.add('show');
     }
 
-    function closePickEnvelopeModal() {
-      pickingEnvelopeRecordIdx = null;
-      bulkApprovingRecordIndices = null;
-      document.getElementById('pickEnvelopeModal').classList.remove('show');
+    function stepPickEnvCount(pIdx, delta) {
+      const inp = document.getElementById(`pick-inp-${pIdx}`);
+      if (!inp) return;
+      const maxAllowed = parseInt(inp.getAttribute('data-max') || '999', 10);
+      let cur = parseInt(inp.value, 10) || 0;
+      let next = cur + delta;
+      if (next < 0) next = 0;
+      if (next > maxAllowed) {
+        showNotice(`Ushbu konvertdan ko'pi bilan ${maxAllowed} dona tanlash mumkin!`);
+        next = maxAllowed;
+      }
+      inp.value = next;
+      const row = document.getElementById(`pick-row-${pIdx}`);
+      if (row) {
+        if (next > 0) row.classList.add('active-pick');
+        else row.classList.remove('active-pick');
+      }
+      updatePickEnvelopeTotalBar();
     }
 
-    function selectEnvelopeForRecord(amountStr) {
+    function onPickEnvInputChanged(pIdx) {
+      const inp = document.getElementById(`pick-inp-${pIdx}`);
+      if (!inp) return;
+      inp.value = inp.value.replace(/\D/g, '');
+      const maxAllowed = parseInt(inp.getAttribute('data-max') || '999', 10);
+      let val = parseInt(inp.value, 10) || 0;
+      if (val > maxAllowed) {
+        showNotice(`Ushbu konvertdan ko'pi bilan ${maxAllowed} dona tanlash mumkin!`);
+        val = maxAllowed;
+        inp.value = val;
+      }
+      const row = document.getElementById(`pick-row-${pIdx}`);
+      if (row) {
+        if (val > 0) row.classList.add('active-pick');
+        else row.classList.remove('active-pick');
+      }
+      updatePickEnvelopeTotalBar();
+    }
+
+    function updatePickEnvelopeTotalBar() {
+      let totalCnt = 0;
+      let totalSum = 0;
+      document.querySelectorAll('.pick-env-count-inp').forEach(inp => {
+        const cnt = parseInt(inp.value, 10) || 0;
+        const amtStr = inp.getAttribute('data-amount') || '';
+        const unitVal = parseInt(amtStr.replace(/\D/g, ''), 10) || 0;
+        if (cnt > 0 && unitVal > 0) {
+          totalCnt += cnt;
+          totalSum += (cnt * unitVal);
+        }
+      });
+      const cntEl = document.getElementById('pickTotalCountText');
+      const sumEl = document.getElementById('pickTotalSumText');
+      if (cntEl) cntEl.innerText = totalCnt;
+      if (sumEl) sumEl.innerText = formatSumText(totalSum);
+    }
+
+    function confirmPickedEnvelopes() {
+      const chosen = [];
+      let totalCnt = 0;
+      let totalSum = 0;
+
+      document.querySelectorAll('.pick-env-count-inp').forEach(inp => {
+        const cnt = parseInt(inp.value, 10) || 0;
+        const amtStr = inp.getAttribute('data-amount') || '';
+        const unitVal = parseInt(amtStr.replace(/\D/g, ''), 10) || 0;
+        if (cnt > 0 && unitVal > 0) {
+          chosen.push({ amount: amtStr, count: cnt, unitVal: unitVal });
+          totalCnt += cnt;
+          totalSum += (cnt * unitVal);
+        }
+      });
+
+      if (!chosen.length || totalCnt <= 0) {
+        showNotice("Iltimos, kamida 1 ta konvert sonini belgilang!");
+        return;
+      }
+
+      const totalSumFormatted = formatSumText(totalSum);
+      const breakdownStr = chosen.map(c => `${c.amount} x ${c.count}`).join(', ');
+      const displayBreakdown = chosen.map(c => `${c.amount} × ${c.count}`).join(', ');
+
       if (bulkApprovingRecordIndices && bulkApprovingRecordIndices.length > 0) {
         const indices = bulkApprovingRecordIndices.slice();
         closePickEnvelopeModal();
-        openBulkEnvConfirmModal(indices, amountStr);
+        openBulkEnvConfirmModal(indices, totalSumFormatted, breakdownStr);
         return;
       }
 
@@ -2611,29 +2811,40 @@
       const amountInput = document.getElementById(`eamount-${idx}`);
       const envNote = document.getElementById(`eenv-note-${idx}`);
       if (amountInput) {
-        amountInput.value = amountStr;
+        amountInput.value = totalSumFormatted;
         amountInput.setAttribute('data-env-selected', '1');
+        amountInput.setAttribute('data-env-breakdown', breakdownStr);
       }
       if (envNote) {
         envNote.style.color = "var(--success-text)";
-        envNote.innerHTML = `<i class="fi fi-rr-check-circle"></i> Konvert tanlandi: <b>${escHtml(amountStr)}</b>`;
+        const extraBd = (totalCnt > 1 || chosen.length > 1) ? ` <span style="color:var(--hint-color);">(${escHtml(displayBreakdown)})</span>` : '';
+        envNote.innerHTML = `<i class="fi fi-rr-check-circle"></i> Konvert tanlandi: <b>${escHtml(totalSumFormatted)}</b>${extraBd}`;
       }
 
       const cardEl = document.getElementById(`rec-card-${idx}`);
       const headerAmtEl = cardEl ? cardEl.querySelector('.acc-amount') : null;
       if (headerAmtEl) {
         headerAmtEl.classList.remove('no-amount', 'unattached-amount');
-        headerAmtEl.innerHTML = `<i class="fi fi-rr-coins"></i> ${escHtml(amountStr)}`;
+        headerAmtEl.innerHTML = `<i class="fi fi-rr-coins"></i> ${escHtml(totalSumFormatted)}`;
       }
 
       checkRecordChanged(idx);
     }
 
-    function openBulkEnvConfirmModal(indices, amountStr) {
+    function closePickEnvelopeModal() {
+      pickingEnvelopeRecordIdx = null;
+      bulkApprovingRecordIndices = null;
+      document.getElementById('pickEnvelopeModal').classList.remove('show');
+    }
+
+    function openBulkEnvConfirmModal(indices, amountStr, breakdownStr) {
       pendingBulkEnvelopeIndices = indices;
       pendingBulkEnvelopeAmount = amountStr;
+      pendingBulkEnvelopeBreakdown = breakdownStr || `${amountStr} x 1`;
 
-      document.getElementById('bulkSelectedEnvBadge').innerHTML = `✉️ Tanlangan konvert: ${escHtml(amountStr)}`;
+      const prettyBd = pendingBulkEnvelopeBreakdown.replace(/x/g, '×');
+      document.getElementById('bulkSelectedEnvBadge').innerHTML =
+        `✉️ Tanlangan jami: ${escHtml(amountStr)}<div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:2px;">(${escHtml(prettyBd)})</div>`;
       document.getElementById('bulkEnvRecordsSection').style.display = "block";
 
       let listHtml = "";
@@ -2659,6 +2870,7 @@
     function closeBulkEnvConfirmModal() {
       pendingBulkEnvelopeIndices = [];
       pendingBulkEnvelopeAmount = "";
+      pendingBulkEnvelopeBreakdown = "";
       document.getElementById('bulkEnvConfirmModal').classList.remove('show');
     }
 
@@ -2670,8 +2882,27 @@
       }
       const chosenIndices = checkedEls.map(el => Number(el.value));
       const amt = pendingBulkEnvelopeAmount;
+      const bd = pendingBulkEnvelopeBreakdown;
+
+      const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
+      if (!isManager) {
+        const perRecMap = parseBreakdownMapJS(bd, amt);
+        const availList = (myEnvelopeSummary && myEnvelopeSummary.available) ? myEnvelopeSummary.available : [];
+        const freeByAmt = {};
+        availList.forEach(a => { freeByAmt[a.amount] = Number(a.freeCount) || 0; });
+
+        for (const denom in perRecMap) {
+          const neededTotal = perRecMap[denom] * chosenIndices.length;
+          const haveFree = freeByAmt[denom] || 0;
+          if (neededTotal > haveFree) {
+            showNotice(`Tanlangan ${chosenIndices.length} ta ariza uchun jami ${neededTotal} dona «${denom}» konvert kerak, ammo sizda ${haveFree} dona bo'sh mavjud!`);
+            return;
+          }
+        }
+      }
+
       closeBulkEnvConfirmModal();
-      executeBulkStatusUpdate(chosenIndices, 'Tasdiqlangan', amt);
+      executeBulkStatusUpdate(chosenIndices, 'Tasdiqlangan', amt, bd);
     }
 
     function openAddEnvelopeModal() {
@@ -2876,7 +3107,6 @@
       return null;
     }
 
-    /* TUZATILGAN LOKATSIYA OLISH FUNKSIYASI (2-marta va undan keyin ham qotib qolmaydi) */
     function getLocation() {
       const btn = document.getElementById('locBtn');
       const oldHtml = '<i class="fi fi-rr-marker"></i> Lokatsiyani olish';
@@ -3008,6 +3238,7 @@
               reason: reasonEl ? reasonEl.value : undefined,
               amount: amountEl ? amountEl.value : undefined,
               envSelected: amountEl ? amountEl.getAttribute('data-env-selected') : undefined,
+              envBreakdown: amountEl ? amountEl.getAttribute('data-env-breakdown') : undefined,
               address: addrEl ? addrEl.value : undefined,
               deliverer: delivEl ? delivEl.value : undefined
             };
@@ -3344,6 +3575,7 @@
         reason: reasonVal,
         amount: finalAmount,
         envelopeAmount: "",
+        envelopeBreakdown: "",
         hasEnvelope: false,
         address: addressVal,
         status: "Yangi",
@@ -3501,16 +3733,16 @@
         if (missingEnv) {
           openBulkEnvelopePickerModal(indices);
         } else {
-          executeBulkStatusUpdate(indices, 'Tasdiqlangan', null);
+          executeBulkStatusUpdate(indices, 'Tasdiqlangan', null, null);
         }
       } else if (category === 'approved') {
-        executeBulkStatusUpdate(indices, 'Berib yuborilgan', null);
+        executeBulkStatusUpdate(indices, 'Berib yuborilgan', null, null);
       } else if (category === 'dispatched') {
-        executeBulkStatusUpdate(indices, 'Yetqazilgan', null);
+        executeBulkStatusUpdate(indices, 'Yetqazilgan', null, null);
       }
     }
 
-    function executeBulkStatusUpdate(indices, targetStatus, forcedEnvelopeAmount) {
+    function executeBulkStatusUpdate(indices, targetStatus, forcedEnvelopeAmount, forcedEnvelopeBreakdown) {
       if (!indices || !indices.length) return;
 
       const itemsPayload = [];
@@ -3530,6 +3762,10 @@
         if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
           finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
         }
+
+        let finalBreakdown = forcedEnvelopeBreakdown !== null && forcedEnvelopeBreakdown !== undefined
+          ? forcedEnvelopeBreakdown
+          : (amountInput ? cleanBackslashQuotes(amountInput.getAttribute('data-env-breakdown') || "") : (rec.envelopeBreakdown || ""));
 
         const chosenDeliverer = delivSelect
           ? delivSelect.value
@@ -3554,6 +3790,7 @@
           reason: updatedReason,
           amount: finalAmount,
           envelopeAmount: finalAmount,
+          envelopeBreakdown: finalBreakdown,
           address: updatedAddr,
           newStatus: targetStatus,
           hasEnvelope: true,
@@ -3572,6 +3809,7 @@
         rec.reason = updatedReason;
         rec.amount = finalAmount;
         rec.envelopeAmount = finalAmount;
+        rec.envelopeBreakdown = finalBreakdown;
         rec.address = updatedAddr;
         rec.status = targetStatus;
         rec.hasEnvelope = true;
@@ -3606,6 +3844,7 @@
       const reasonVal = (document.getElementById(`ereason-${idx}`)?.value || "").trim();
       const amountEl = document.getElementById(`eamount-${idx}`);
       const amountVal = (amountEl?.value || "").trim();
+      const breakdownVal = (amountEl?.getAttribute('data-env-breakdown') || "").trim();
       const addrVal = (document.getElementById(`eaddr-${idx}`)?.value || "").trim();
       const delivEl = document.getElementById(`edeliverer-${idx}`);
       const delivVal = (delivEl?.value || "").trim();
@@ -3620,6 +3859,7 @@
           manbaVal !== String(rec.manba || "").trim() ||
           reasonVal !== String(rec.reason || "").trim() ||
           amountVal !== String(rec.amount || "").trim() ||
+          breakdownVal !== String(rec.envelopeBreakdown || "").trim() ||
           addrVal !== String(rec.address || "").trim() ||
           (delivEl && delivVal !== origDeliverer) ||
           envSelected;
@@ -3758,6 +3998,7 @@
         r.status = cleanStatus;
         r.fio = cleanBackslashQuotes(r.fio);
         r.amount = cleanStatus === "Rad etilgan" ? "" : cleanBackslashQuotes(r.amount);
+        r.envelopeBreakdown = cleanStatus === "Rad etilgan" ? "" : cleanBackslashQuotes(r.envelopeBreakdown || "");
         r.manba = cleanBackslashQuotes(r.manba);
         r.reason = cleanBackslashQuotes(r.reason);
         r.address = cleanBackslashQuotes(r.address);
@@ -3815,6 +4056,7 @@
         }
 
         const effectiveAmountVal = savedDraft && savedDraft.amount !== undefined ? savedDraft.amount : r.amount;
+        const effectiveBreakdownVal = savedDraft && savedDraft.envBreakdown !== undefined ? savedDraft.envBreakdown : (r.envelopeBreakdown || "");
         const hasValidAmount = isAmountValid(effectiveAmountVal);
         const isEnvelopeAlreadyAttached = cleanStatus === "Rad etilgan"
           ? false
@@ -3870,21 +4112,23 @@
           ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-truck-side"></i> Konvertni yetqazuvchi:</span> <b>${escHtml(r.deliverer || extractCleanFioJS(r.sender))}</b></div>`
           : '';
 
+        const prettyBreakdownText = effectiveBreakdownVal ? ` <span style="color:var(--hint-color);">(${escHtml(effectiveBreakdownVal.replace(/x/g, '×'))})</span>` : '';
+
         let amountInputHtml = "";
         if (canManageRecord) {
           const envStatusNote = isEnvelopeAlreadyAttached
-            ? `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--success-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-check-circle"></i> Konvert biriktirilgan: <b>${escHtml(effectiveAmountVal)}</b></div>`
+            ? `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--success-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-check-circle"></i> Konvert biriktirilgan: <b>${escHtml(effectiveAmountVal)}</b>${prettyBreakdownText}</div>`
             : `<div id="eenv-note-${idx}" style="font-size:11.5px; color:var(--warning-text); font-weight:600; margin-top:2px;"><i class="fi fi-rr-envelope"></i> Tasdiqlash uchun ustiga bosib konvert tanlang</div>`;
 
           amountInputHtml = `
             <label>Miqdor (Konvert tanlash)</label>
-            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:var(--accent-color);" onclick="openSelectEnvelopeForRecord(${idx})">
+            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" readonly data-env-selected="${isEnvelopeAlreadyAttached ? '1' : '0'}" data-env-breakdown="${escHtml(effectiveBreakdownVal)}" placeholder="Ustiga bosib konvertni tanlang" style="cursor:pointer; border-color:var(--accent-color);" onclick="openSelectEnvelopeForRecord(${idx})">
             ${envStatusNote}
           `;
         } else {
           amountInputHtml = `
             <label>Miqdor</label>
-            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" data-env-selected="1" placeholder="Summani kiriting (masalan: 1 000 000 so'm)" oninput="checkRecordChanged(${idx})">
+            <input type="text" id="eamount-${idx}" value="${escHtml(effectiveAmountVal)}" data-env-selected="1" data-env-breakdown="${escHtml(effectiveBreakdownVal)}" placeholder="Summani kiriting (masalan: 1 000 000 so'm)" oninput="checkRecordChanged(${idx})">
           `;
         }
 
@@ -3924,7 +4168,7 @@
             ${!isVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-user"></i> Topuvchi:</span> ${escHtml(r.sender)}</div>` : ''}
             ${advisorInfoRow}
             ${delivererInfoRow}
-            ${!hideAmountFromVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--pink-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b></div>` : ''}
+            ${!hideAmountFromVolunteer ? `<div class="detail-row"><span class="detail-label"><i class="fi fi-rr-coins"></i> Summa:</span> <b style="${hasValidAmount ? '' : 'color:var(--pink-text);'}">${escHtml(hasValidAmount ? r.amount : 'Belgilanmagan')}</b>${prettyBreakdownText}</div>` : ''}
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-phone-call"></i> Telefon:</span> ${escHtml(r.phone || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-thumbtack"></i> Manba:</span> ${escHtml(r.manba || '-')}</div>
             <div class="detail-row"><span class="detail-label"><i class="fi fi-rr-document"></i> Sababi:</span> ${escHtml(r.reason || '-')}</div>
@@ -4042,6 +4286,7 @@
 
       let finalAmount = amountInput ? cleanBackslashQuotes(amountInput.value.trim()) : rec.amount;
       let envSelected = amountInput ? (amountInput.getAttribute('data-env-selected') === '1') : Boolean(rec.hasEnvelope);
+      let finalBreakdown = amountInput ? cleanBackslashQuotes(amountInput.getAttribute('data-env-breakdown') || "") : (rec.envelopeBreakdown || "");
 
       if (newStatus === "Tasdiqlangan") {
         if (!envSelected || !isAmountValid(finalAmount)) {
@@ -4055,6 +4300,7 @@
         finalAmount = "";
         envSelected = false;
         envelopeAmountPayload = "";
+        finalBreakdown = "";
       } else if (finalAmount && /^\d[\d\s]*$/.test(finalAmount)) {
         finalAmount = finalAmount.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
       }
@@ -4094,6 +4340,7 @@
         reason: updatedReason,
         amount: finalAmount,
         envelopeAmount: envelopeAmountPayload,
+        envelopeBreakdown: finalBreakdown,
         address: updatedAddr,
         newStatus: newStatus,
         hasEnvelope: finalHasEnv,
@@ -4113,6 +4360,7 @@
       rec.manba = updatedManba;
       rec.reason = updatedReason;
       rec.amount = finalAmount;
+      rec.envelopeBreakdown = finalBreakdown;
       rec.address = updatedAddr;
       rec.status = newStatus;
       rec.hasEnvelope = finalHasEnv;
