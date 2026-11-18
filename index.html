@@ -4180,6 +4180,22 @@
       `;
     }
 
+    `index.html` faylidagi **`buildNewRecsSummaryHtml`** funksiyasini quyidagi kodga almashtiring — bunda dastlab faqat yuqori qismi (`Arizalar hisoboti (...)` va `Jami: ...`) ko‘rinib turadi, ustiga bosilganda ochiladi va yana bosilganda yopiladi:
+
+let isNewRecsSummaryOpen = false;
+
+    function toggleNewRecsSummary() {
+      isNewRecsSummaryOpen = !isNewRecsSummaryOpen;
+      const bodyEl = document.getElementById('newRecsSummaryBody');
+      const arrowIcon = document.getElementById('newRecsSummaryArrow');
+      if (bodyEl) {
+        bodyEl.style.display = isNewRecsSummaryOpen ? 'flex' : 'none';
+      }
+      if (arrowIcon) {
+        arrowIcon.style.transform = isNewRecsSummaryOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+
     function buildNewRecsSummaryHtml(records) {
       const newRecs = (records || []).filter(r => normalizeStatusJS(r.status) === "Yangi");
       if (newRecs.length <= 5) return "";
@@ -4217,12 +4233,19 @@
       }
 
       return `
-        <div class="dir-card" style="padding:8px 10px; margin-bottom:9px; background:var(--card-bg);">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; font-size:11.5px; color:var(--hint-color); margin-bottom:5px; font-weight:600;">
-            <span style="display:inline-flex; align-items:center; gap:5px;"><i class="fi fi-rr-chart-pie-alt" style="color:var(--accent-color)"></i> Arizalar hisoboti (${newRecs.length} ta)</span>
-            <span style="color:var(--amount-text); font-weight:700; white-space:nowrap;">Jami: ${formatSumText(totalSum)}</span>
+        <div class="dir-card" style="padding:9px 12px; margin-bottom:9px; background:var(--card-bg); cursor:pointer;" onclick="toggleNewRecsSummary()">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--hint-color); font-weight:600;">
+            <span style="display:inline-flex; align-items:center; gap:5px;">
+              <i class="fi fi-rr-chart-pie-alt" style="color:var(--accent-color)"></i> Arizalar hisoboti (${newRecs.length} ta)
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px; color:var(--amount-text); font-weight:700; white-space:nowrap;">
+              Jami: ${formatSumText(totalSum)}
+              <i id="newRecsSummaryArrow" class="fi fi-rr-angle-small-down" style="color:var(--hint-color); transition:transform 0.2s; transform:${isNewRecsSummaryOpen ? 'rotate(180deg)' : 'rotate(0deg)'};"></i>
+            </span>
           </div>
-          <div class="adv-chip-list" style="gap:4px;">${chipsHtml}</div>
+          <div id="newRecsSummaryBody" class="adv-chip-list" style="display:${isNewRecsSummaryOpen ? 'flex' : 'none'}; gap:4px; margin-top:8px; padding-top:7px; border-top:1px dashed var(--border-color);">
+            ${chipsHtml}
+          </div>
         </div>
       `;
     }
