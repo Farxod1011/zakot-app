@@ -4180,6 +4180,53 @@
       `;
     }
 
+    function buildNewRecsSummaryHtml(records) {
+      const newRecs = (records || []).filter(r => normalizeStatusJS(r.status) === "Yangi");
+      if (newRecs.length <= 5) return "";
+
+      const byAmount = {};
+      let unassignedCount = 0;
+      let totalSum = 0;
+
+      newRecs.forEach(r => {
+        const recKey = getRecordUniqueKey(r);
+        const savedDraft = draftInputsCache[recKey] || null;
+        const amtRaw = savedDraft && savedDraft.amount !== undefined ? savedDraft.amount : r.amount;
+        const unitVal = parseInt(String(amtRaw || "").replace(/\D/g, ''), 10) || 0;
+
+        if (unitVal > 0) {
+          if (!byAmount[unitVal]) {
+            byAmount[unitVal] = { unitVal: unitVal, label: formatSumText(unitVal), count: 0, sum: 0 };
+          }
+          byAmount[unitVal].count++;
+          byAmount[unitVal].sum += unitVal;
+          totalSum += unitVal;
+        } else {
+          unassignedCount++;
+        }
+      });
+
+      const sortedItems = Object.values(byAmount).sort((a, b) => a.unitVal - b.unitVal);
+
+      let chipsHtml = sortedItems.map(item =>
+        `<span class="adv-chip" style="padding:3px 7px; font-size:11px;">💰 ${escHtml(item.label)}: <b>${item.count} ta</b> (<b style="color:var(--amount-text); white-space:nowrap;">${formatSumText(item.sum)}</b>)</span>`
+      ).join('');
+
+      if (unassignedCount > 0) {
+        chipsHtml += `<span class="adv-chip" style="padding:3px 7px; font-size:11px; color:var(--pink-text);">Belgilanmagan: <b>${unassignedCount} ta</b></span>`;
+      }
+
+      return `
+        <div class="dir-card" style="padding:8px 10px; margin-bottom:9px; background:var(--card-bg);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; font-size:11.5px; color:var(--hint-color); margin-bottom:5px; font-weight:600;">
+            <span>📊 Arizalar hisoboti (${newRecs.length} ta)</span>
+            <span style="color:var(--amount-text); font-weight:700; white-space:nowrap;">Jami: ${formatSumText(totalSum)}</span>
+          </div>
+          <div class="adv-chip-list" style="gap:4px;">${chipsHtml}</div>
+        </div>
+      `;
+    }
+    
     function buildBulkBarHtml(category, manageableCount) {
       if (manageableCount <= 1) return "";
       const btnLabels = {
@@ -4472,7 +4519,7 @@
       const listDeliveredEl = document.getElementById('list-delivered');
 
       listAllEl.innerHTML = htmls.newRecs
-        ? (buildBulkBarHtml('newRecs', manageableCounts.newRecs) + htmls.newRecs)
+        ? (buildNewRecsSummaryHtml(records) + buildBulkBarHtml('newRecs', manageableCounts.newRecs) + htmls.newRecs)
         : '<div class="empty-state">Yangi arizalar mavjud emas</div>';
 
       listApprovedEl.innerHTML = htmls.approved
