@@ -336,15 +336,16 @@
       font-weight: 600; box-shadow: 0 2px 8px rgba(31, 110, 117, 0.3);
     }
 
-    .tab-btn.compact-plus:not(.active) { padding: 8px 11px; gap: 0; }
-    .tab-btn.compact-plus:not(.active) .add-tab-text { display: none; }
-    .tab-btn.compact-users:not(.active) { padding: 8px 11px; gap: 5px; }
-    .tab-btn.compact-users:not(.active) .users-tab-text { display: none; }
+    /* Yangi konvert kelmagan (has-requests yo'q) paytdagina yozuvni yashiramiz */
+    .tab-btn.compact-plus:not(.active):not(.has-requests) { padding: 8px 11px; gap: 0; }
+    .tab-btn.compact-plus:not(.active):not(.has-requests) .add-tab-text { display: none; }
+    .tab-btn.compact-users:not(.active):not(.has-requests) { padding: 8px 11px; gap: 5px; }
+    .tab-btn.compact-users:not(.active):not(.has-requests) .users-tab-text { display: none; }
     .tab-btn.compact-tab:not(.active) { padding: 8px 11px; gap: 5px; }
     .tab-btn.compact-tab:not(.active) .tab-text-label { display: none; }
 
     .tab-btn.has-requests:not(.active) {
-      background: var(--pink-bg); border-color: var(--pink-text); color: var(--pink-text);
+      background: var(--pink-bg); border-color: var(--pink-text); color: var(--pink-text); font-weight: 600;
     }
     .tab-btn.has-requests:not(.active) .badge { background: var(--pink-text); color: #ffffff; }
     .tab-btn.has-requests.active {
@@ -468,7 +469,6 @@
       font-size: 12.5px; font-weight: 700; color: var(--amount-text); background: var(--amount-bg);
       padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;
     }
-    /* Yangi / Konvert biriktirilmagan yoki miqdorsiz arizalar uchun Pushti-qizil nishon */
     .acc-amount.no-amount,
     .acc-amount.unattached-amount {
       background: var(--pink-bg) !important;
@@ -559,7 +559,9 @@
     .adv-sub-block { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
     .adv-sub-title { font-size: 11px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 5px; }
     .adv-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
-    .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); }
+    .adv-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 7px; padding: 5px 9px; font-size: 11.5px; color: var(--text-color); transition: border-color 0.15s; }
+    .adv-chip.clickable-chip { cursor: pointer; }
+    .adv-chip.clickable-chip:active { border-color: var(--accent-color); background: var(--banner-bg); }
 
     .rep-rec-row, .rep-rec-item {
       background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;
@@ -613,6 +615,10 @@
       display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
       backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999;
       align-items: center; justify-content: center; padding: 20px;
+    }
+    /* Xabar va tasdiqlash oynalari doim ochiq turgan boshqa oynalar ustida chiqishi uchun */
+    #msgModal, #confirmModal {
+      z-index: 20000 !important;
     }
     .custom-modal.show { display: flex; }
     .modal-box {
@@ -1035,6 +1041,25 @@
     </div>
   </div>
 
+  <!-- 9-MODAL: KONVERTNI MAYDALASH (BO'LISH) OYNASI -->
+  <div id="splitEnvelopeModal" class="custom-modal">
+    <div class="modal-box" style="max-width:350px;">
+      <div class="modal-title"><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> Konvertni bo'lish</div>
+      <div class="modal-text" id="splitSourceEnvLabel" style="margin-bottom:8px; font-size:13.5px; color:var(--accent-color); font-weight:700;"></div>
+      <div style="font-size:13px; color:var(--text-color); margin-bottom:10px; font-weight:500;">
+        Qaysi summaga bo'lmoqchisiz?
+      </div>
+      <div class="form-group" style="margin-bottom:8px;">
+        <input type="text" id="splitTargetAmountInput" inputmode="numeric" placeholder="Masalan: 1 000 000" oninput="formatNumberInput(this); updateSplitPreviewText()">
+      </div>
+      <div id="splitPreviewBox" style="font-size:12px; color:var(--success-text); font-weight:600; min-height:18px; margin-bottom:6px;"></div>
+      <div class="modal-btn-row">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSplitEnvelopeModal()">Bekor qilish</button>
+        <button type="button" class="modal-btn" id="confirmSplitEnvBtn" onclick="confirmSplitEnvelope()">Bo'lish</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -1081,6 +1106,7 @@
     let pendingBulkEnvelopeAmount = "";
     let pendingBulkEnvelopeBreakdown = "";
     let pendingBulkEnvelopeIndices = [];
+    let splittingSourceEnvelope = null;
     let singleAcceptDebounceTimer = null;
     let appRefreshTimer = null;
     let activeReportDetailType = null;
@@ -1091,6 +1117,7 @@
     let expandedDirAdvisorId = null;
     let selectedRecordKeys = new Set();
     let selectionModeByCategory = { newRecs: false, approved: false, dispatched: false };
+    let selectionHideTimers = { newRecs: null, approved: null, dispatched: null };
     let longPressTimer = null;
     let longPressTriggered = false;
     let draftInputsCache = {};
@@ -1490,16 +1517,39 @@
       container.innerHTML = html;
     }
 
+    function updateEnvelopeTabPlacement() {
+      const tabBar = document.querySelector('.tab-bar');
+      const tabEnvBtn = document.getElementById('tabEnvelopeBtn');
+      const tabUsersBtn = document.getElementById('tabUsersBtn');
+      if (!tabBar || !tabEnvBtn || !currentUser) return;
+
+      const isManager = isAdminUser || currentUser.role === "Boshqaruvchi";
+      const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
+      if (!isManager && !isAdvisor) return;
+
+      const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
+
+      if (pendingTransfers.length > 0) {
+        tabEnvBtn.classList.add('has-requests');
+        if (tabBar.firstElementChild !== tabEnvBtn) {
+          tabBar.insertBefore(tabEnvBtn, tabBar.firstElementChild);
+        }
+      } else {
+        tabEnvBtn.classList.remove('has-requests');
+        if (isManager) {
+          if (tabUsersBtn) tabBar.insertBefore(tabEnvBtn, tabUsersBtn);
+        } else if (isAdvisor) {
+          tabBar.appendChild(tabEnvBtn);
+        }
+      }
+    }
+
     function renderIncomingEnvelopesBox() {
       const box = document.getElementById('incomingEnvelopesBox');
-      const tabEnvBtn = document.getElementById('tabEnvelopeBtn');
       if (!box) return;
 
       const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
-      if (tabEnvBtn) {
-        if (pendingTransfers.length > 0) tabEnvBtn.classList.add('has-requests');
-        else tabEnvBtn.classList.remove('has-requests');
-      }
+      updateEnvelopeTabPlacement();
 
       if (!pendingTransfers.length) {
         box.innerHTML = "";
@@ -1592,9 +1642,10 @@
             const delivCnt = Number(d.deliveredCount) || 0;
             const outPendCnt = Number(d.outPendingCount) || 0;
             const outPendText = outPendCnt > 0 ? ` | <span style="color:var(--warning-text);">⏳ Yuborilgan: ${outPendCnt}</span>` : '';
+            const canSplit = freeCnt > 0 && unitVal > 1000;
 
             return `
-              <div class="adv-chip" style="display:flex; flex-direction:column; gap:4px; padding:8px 10px;">
+              <div class="adv-chip ${canSplit ? 'clickable-chip' : ''}" style="display:flex; flex-direction:column; gap:4px; padding:8px 10px;" ${canSplit ? `onclick="openSplitEnvelopeModal('${escJsAttr(d.amount)}', ${freeCnt})"` : ''}>
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
                   <span><i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> <b>${escHtml(d.amount)}</b> (Jami: <b>${accCnt} dona</b>${outPendText})</span>
                   <span class="env-count-badge green-badge" style="padding:3px 8px; font-size:11.5px;">Bo'sh: ${freeCnt} dona</span>
@@ -1626,8 +1677,7 @@
       }
 
       (directoryData.advisors || []).forEach(adv => {
-        const isSelf = (String(adv.chatId) === String(currentUser.chatId)) ||
-                       (adv.fio && currentUser.fio && adv.fio.toLowerCase() === currentUser.fio.toLowerCase());
+        const isSelf = (adv.fio && currentUser.fio && adv.fio.toLowerCase() === currentUser.fio.toLowerCase());
         if (!isSelf) {
           recipients.push({
             chatId: adv.chatId,
@@ -1693,7 +1743,7 @@
           </div>
         </div>
 
-        <div class="dir-section-title">✉️ Konvertlarim ro'yxati</div>
+        <div class="dir-section-title">✉️ Konvertlarim ro'yxati <span style="font-weight:500; text-transform:none;">(Maydalash uchun ustiga bosing)</span></div>
         <div class="dir-card" style="padding:10px 12px; margin-bottom:14px;">
           ${denomHtml}
         </div>
@@ -1702,6 +1752,99 @@
         ${recipientsHtml}
       `;
     }
+    /* KONVERTNI MAYDALASH (BO'LISH) FUNKSIYALARI */
+    function openSplitEnvelopeModal(sourceAmountStr, freeCount) {
+      const unitVal = parseInt(String(sourceAmountStr || "").replace(/\D/g, ''), 10) || 0;
+      if (freeCount <= 0 || unitVal <= 1000) return;
+
+      splittingSourceEnvelope = { amount: sourceAmountStr, unitVal: unitVal, freeCount: freeCount };
+      document.getElementById('splitSourceEnvLabel').innerText = `Tanlangan konvert: ${sourceAmountStr}`;
+      document.getElementById('splitTargetAmountInput').value = "";
+      document.getElementById('splitPreviewBox').innerText = "";
+      const btn = document.getElementById('confirmSplitEnvBtn');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "Bo'lish";
+      }
+      document.getElementById('splitEnvelopeModal').classList.add('show');
+    }
+
+    function closeSplitEnvelopeModal() {
+      splittingSourceEnvelope = null;
+      document.getElementById('splitEnvelopeModal').classList.remove('show');
+    }
+
+    function updateSplitPreviewText() {
+      const previewEl = document.getElementById('splitPreviewBox');
+      if (!previewEl || !splittingSourceEnvelope) return;
+
+      const rawTarget = document.getElementById('splitTargetAmountInput').value.trim();
+      const targetUnit = parseInt(rawTarget.replace(/\D/g, ''), 10) || 0;
+      const sourceUnit = splittingSourceEnvelope.unitVal;
+
+      if (!targetUnit || targetUnit <= 0) {
+        previewEl.innerText = "";
+        return;
+      }
+      if (targetUnit >= sourceUnit) {
+        previewEl.style.color = "var(--danger-text)";
+        previewEl.innerText = "Bo'linadigan summa konvert summasidan kichik bo'lishi kerak!";
+        return;
+      }
+
+      const mainCount = Math.floor(sourceUnit / targetUnit);
+      const remainderUnit = sourceUnit % targetUnit;
+      previewEl.style.color = "var(--success-text)";
+
+      if (remainderUnit === 0) {
+        previewEl.innerText = `Natija: ${mainCount} dona × ${formatSumText(targetUnit)}`;
+      } else {
+        previewEl.innerText = `Natija: ${mainCount} dona × ${formatSumText(targetUnit)} va 1 dona × ${formatSumText(remainderUnit)}`;
+      }
+    }
+
+    function confirmSplitEnvelope() {
+      if (!splittingSourceEnvelope) return;
+
+      const rawTarget = document.getElementById('splitTargetAmountInput').value.trim();
+      const targetUnit = parseInt(rawTarget.replace(/\D/g, ''), 10) || 0;
+      const sourceUnit = splittingSourceEnvelope.unitVal;
+
+      if (!targetUnit || targetUnit <= 0) {
+        showNotice("Iltimos, bo'linadigan summani kiriting!");
+        return;
+      }
+      if (targetUnit >= sourceUnit) {
+        showNotice("Bo'linadigan summa konvertning o'z summasidan kichik bo'lishi kerak!");
+        return;
+      }
+
+      const btn = document.getElementById('confirmSplitEnvBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Bo'linmoqda...";
+      }
+
+      const sourceAmt = splittingSourceEnvelope.amount;
+      const targetAmtFormatted = formatSumText(targetUnit);
+
+      sendPost({
+        action: "SPLIT_ADVISOR_ENVELOPE",
+        chatId: chatId,
+        advisorFio: currentUser ? currentUser.fio : "",
+        sourceAmount: sourceAmt,
+        targetAmount: targetAmtFormatted
+      }).then(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "Bo'lish";
+        }
+        closeSplitEnvelopeModal();
+        showNotice(`«${sourceAmt}» konvert muvaffaqiyatli maydalandi!`);
+        scheduleAppRefresh('tab-envelopes', 1300);
+      });
+    }
+
     function toggleSelectAllPendingEnvelopes(isChecked) {
       document.querySelectorAll('.pend-env-chk').forEach(chk => {
         if (!chk.disabled) chk.checked = isChecked;
@@ -1713,6 +1856,14 @@
       const selectAllEl = document.getElementById('selectAllPendEnv');
       if (!selectAllEl || !allChks.length) return;
       selectAllEl.checked = allChks.every(c => c.checked);
+    }
+
+    function checkRemainingPendingEnvelopesUI() {
+      const remainingActive = Array.from(document.querySelectorAll('.pend-env-chk')).filter(c => !c.disabled);
+      if (remainingActive.length === 0 && myEnvelopeSummary) {
+        myEnvelopeSummary.pendingTransfers = [];
+        updateEnvelopeTabPlacement();
+      }
     }
 
     function acceptSelectedEnvelopes() {
@@ -1732,6 +1883,8 @@
           card.style.pointerEvents = "none";
         }
       });
+
+      checkRemainingPendingEnvelopesUI();
 
       const bulkBtn = document.getElementById('bulkAcceptEnvBtn');
       if (bulkBtn) {
@@ -1769,6 +1922,8 @@
           }
         });
 
+        checkRemainingPendingEnvelopesUI();
+
         const bulkRejBtn = document.getElementById('bulkRejectEnvBtn');
         if (bulkRejBtn) {
           bulkRejBtn.disabled = true;
@@ -1799,6 +1954,7 @@
         chk.disabled = true;
       }
       updateSelectAllPendState();
+      checkRemainingPendingEnvelopesUI();
 
       sendPost({
         action: "ACCEPT_ADVISOR_ENVELOPE",
@@ -1825,6 +1981,7 @@
         chk.disabled = true;
       }
       updateSelectAllPendState();
+      checkRemainingPendingEnvelopesUI();
 
       sendPost({
         action: "REJECT_ADVISOR_ENVELOPE",
@@ -1857,7 +2014,7 @@
       if (allowTransfer && directoryData.advisors.length > 1) {
         let opts = "";
         directoryData.advisors.forEach(a => {
-          const isCurrent = (String(a.chatId) === String(v.advisorId)) || (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase());
+          const isCurrent = (a.fio.toLowerCase() === String(v.advisorFio || "").toLowerCase()) || (!v.advisorFio && String(a.chatId) === String(v.advisorId));
           opts += `<option value="${escHtml(a.chatId)}" data-fio="${escHtml(a.fio)}" ${isCurrent ? 'selected' : ''}>${a.fio} (${getInitialsJS(a.fio)})</option>`;
         });
         transferSelectHtml = `
@@ -2026,7 +2183,7 @@
         return;
       }
 
-      const otherAdvisors = directoryData.advisors.filter(a => String(a.chatId) !== String(adv.chatId));
+      const otherAdvisors = directoryData.advisors.filter(a => a.fio.toLowerCase() !== adv.fio.toLowerCase());
       if (otherAdvisors.length === 0) {
         showNotice("Ushbu Maslahatchiga biriktirilgan Topuvchilar bor! Ularni o'tkazish uchun tizimda kamida yana bitta tasdiqlangan Maslahatchi bo'lishi kerak.");
         return;
@@ -2606,6 +2763,7 @@
       const totalBar = document.getElementById('pickEnvelopeTotalBar');
       const confirmBtn = document.getElementById('confirmPickEnvBtn');
       const isManager = isAdminUser || (currentUser && currentUser.role === "Boshqaruvchi");
+      const bulkCount = (bulkApprovingRecordIndices && bulkApprovingRecordIndices.length > 0) ? bulkApprovingRecordIndices.length : 1;
 
       let currentBreakdownMap = {};
       let backendHeldMap = {};
@@ -2648,8 +2806,8 @@
               </div>
               <div class="step-ctrl">
                 <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, -1)">−</button>
-                <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${initCnt}" data-idx="${pIdx}" data-amount="${escHtml(amtStr)}" data-max="999" oninput="onPickEnvInputChanged(${pIdx})">
-                <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
+                <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${initCnt}" data-idx="${pIdx}" data-amount="${escHtml(amtStr)}" data-max="999" data-total-free="999" oninput="onPickEnvInputChanged(${pIdx})">
+                <button type="button" id="pick-plus-${pIdx}" class="step-btn" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
               </div>
             </div>
           `;
@@ -2667,12 +2825,14 @@
         rawAvail.forEach(a => {
           const freeC = Number(a.freeCount) || 0;
           const heldC = Number(backendHeldMap[a.amount]) || 0;
-          const maxAllowed = freeC + heldC;
-          if (maxAllowed > 0) {
+          const totalFreeForThis = freeC + heldC;
+          if (totalFreeForThis > 0) {
+            const maxPerRec = bulkCount > 1 ? Math.floor(totalFreeForThis / bulkCount) : totalFreeForThis;
             itemsToRender.push({
               amount: a.amount,
-              maxAllowed: maxAllowed,
-              initCnt: Math.min(maxAllowed, currentBreakdownMap[a.amount] || 0)
+              totalFree: totalFreeForThis,
+              maxAllowed: maxPerRec,
+              initCnt: Math.min(maxPerRec, currentBreakdownMap[a.amount] || 0)
             });
           }
         });
@@ -2689,18 +2849,23 @@
         } else {
           let html = "";
           itemsToRender.forEach((item, pIdx) => {
+            const hidePlus = item.initCnt >= item.maxAllowed ? 'visibility:hidden; pointer-events:none;' : '';
+            const subNote = (bulkCount > 1 && item.maxAllowed === 0)
+              ? `Mavjud: ${item.totalFree} dona (${bulkCount} ta arizaga yetmaydi)`
+              : `Mavjud: ${item.totalFree} dona`;
+
             html += `
               <div class="pick-env-item ${item.initCnt > 0 ? 'active-pick' : ''}" id="pick-row-${pIdx}">
                 <div style="text-align:left; min-width:0; flex:1;">
                   <div style="font-size:13.5px; font-weight:600; color:var(--text-color);">
                     <i class="fi fi-rr-envelope" style="color:var(--accent-color)"></i> ${escHtml(item.amount)}
                   </div>
-                  <div style="font-size:11.5px; color:var(--success-text); font-weight:600;">Mavjud: ${item.maxAllowed} dona</div>
+                  <div style="font-size:11.5px; color:${item.maxAllowed === 0 ? 'var(--warning-text)' : 'var(--success-text)'}; font-weight:600;">${escHtml(subNote)}</div>
                 </div>
                 <div class="step-ctrl">
                   <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, -1)">−</button>
-                  <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${item.initCnt}" data-idx="${pIdx}" data-amount="${escHtml(item.amount)}" data-max="${item.maxAllowed}" oninput="onPickEnvInputChanged(${pIdx})">
-                  <button type="button" class="step-btn" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
+                  <input type="tel" id="pick-inp-${pIdx}" class="step-val-input pick-env-count-inp" inputmode="numeric" value="${item.initCnt}" data-idx="${pIdx}" data-amount="${escHtml(item.amount)}" data-max="${item.maxAllowed}" data-total-free="${item.totalFree}" oninput="onPickEnvInputChanged(${pIdx})">
+                  <button type="button" id="pick-plus-${pIdx}" class="step-btn" style="${hidePlus}" onclick="stepPickEnvCount(${pIdx}, 1)">+</button>
                 </div>
               </div>
             `;
@@ -2715,24 +2880,47 @@
       document.getElementById('pickEnvelopeModal').classList.add('show');
     }
 
+    function updateStepPlusBtnVisibility(pIdx) {
+      const inp = document.getElementById(`pick-inp-${pIdx}`);
+      const plusBtn = document.getElementById(`pick-plus-${pIdx}`);
+      if (!inp || !plusBtn) return;
+      const maxAllowed = parseInt(inp.getAttribute('data-max') || '999', 10);
+      const cur = parseInt(inp.value, 10) || 0;
+      if (cur >= maxAllowed) {
+        plusBtn.style.visibility = 'hidden';
+        plusBtn.style.pointerEvents = 'none';
+      } else {
+        plusBtn.style.visibility = 'visible';
+        plusBtn.style.pointerEvents = 'auto';
+      }
+    }
+
     function stepPickEnvCount(pIdx, delta) {
       const inp = document.getElementById(`pick-inp-${pIdx}`);
       if (!inp) return;
       const maxAllowed = parseInt(inp.getAttribute('data-max') || '999', 10);
+      const totalFree = parseInt(inp.getAttribute('data-total-free') || '999', 10);
+      const amtStr = inp.getAttribute('data-amount') || '';
+      const bulkCount = (bulkApprovingRecordIndices && bulkApprovingRecordIndices.length > 0) ? bulkApprovingRecordIndices.length : 1;
+
       let cur = parseInt(inp.value, 10) || 0;
       let next = cur + delta;
       if (next < 0) next = 0;
-      if (next > maxAllowed) {
-        showNotice(`Ushbu konvertdan ko'pi bilan ${maxAllowed} dona tanlash mumkin!`);
-        next = maxAllowed;
-      }
+      if (next > maxAllowed) next = maxAllowed;
+
       inp.value = next;
       const row = document.getElementById(`pick-row-${pIdx}`);
       if (row) {
         if (next > 0) row.classList.add('active-pick');
         else row.classList.remove('active-pick');
       }
+
+      updateStepPlusBtnVisibility(pIdx);
       updatePickEnvelopeTotalBar();
+
+      if (delta > 0 && bulkCount > 1 && next === maxAllowed && maxAllowed > 0 && totalFree < 999) {
+        showNotice(`Sizda ${totalFree} dona «${amtStr}» konvert mavjud. Tanlangan ${bulkCount} ta arizaning har biriga ${maxAllowed} donadan to'g'ri keladi.`);
+      }
     }
 
     function onPickEnvInputChanged(pIdx) {
@@ -2742,7 +2930,6 @@
       const maxAllowed = parseInt(inp.getAttribute('data-max') || '999', 10);
       let val = parseInt(inp.value, 10) || 0;
       if (val > maxAllowed) {
-        showNotice(`Ushbu konvertdan ko'pi bilan ${maxAllowed} dona tanlash mumkin!`);
         val = maxAllowed;
         inp.value = val;
       }
@@ -2751,6 +2938,7 @@
         if (val > 0) row.classList.add('active-pick');
         else row.classList.remove('active-pick');
       }
+      updateStepPlusBtnVisibility(pIdx);
       updatePickEnvelopeTotalBar();
     }
 
@@ -2844,7 +3032,7 @@
 
       const prettyBd = pendingBulkEnvelopeBreakdown.replace(/x/g, '×');
       document.getElementById('bulkSelectedEnvBadge').innerHTML =
-        `✉️ Tanlangan jami: ${escHtml(amountStr)}<div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:2px;">(${escHtml(prettyBd)})</div>`;
+        `✉️ Har bir arizaga: ${escHtml(amountStr)}<div style="font-size:11.5px; color:var(--hint-color); font-weight:500; margin-top:2px;">(${escHtml(prettyBd)})</div>`;
       document.getElementById('bulkEnvRecordsSection').style.display = "block";
 
       let listHtml = "";
@@ -3323,7 +3511,6 @@
         if (expDirCard) expDirCard.classList.add('expanded');
       }
 
-      const tabBar = document.querySelector('.tab-bar');
       const tabAddBtn = document.getElementById('tabAddBtn');
       const tabEnvelopeBtn = document.getElementById('tabEnvelopeBtn');
       const tabMyBtn = document.getElementById('tabMyBtn');
@@ -3336,10 +3523,12 @@
       const isAdvisor = !isAdminUser && currentUser.role === "Maslahatchi";
       const isStaff = isManager || isAdvisor;
 
+      const pendingTransfers = (myEnvelopeSummary && myEnvelopeSummary.pendingTransfers) ? myEnvelopeSummary.pendingTransfers : [];
+      const hasPendingEnvelopes = pendingTransfers.length > 0;
+
       renderIncomingEnvelopesBox();
 
       if (isManager) {
-        if (tabBar && tabUsersBtn) tabBar.insertBefore(tabEnvelopeBtn, tabUsersBtn);
         tabEnvelopeBtn.style.display = "inline-flex";
         if (managerEnvView) managerEnvView.style.display = "block";
         if (advisorEnvView) advisorEnvView.style.display = "none";
@@ -3354,7 +3543,6 @@
         renderEnvelopes(allEnvelopes);
         openEnvelopeSubTab(activeEnvelopeSubTab || 'advisors');
       } else if (isAdvisor) {
-        if (tabBar) tabBar.appendChild(tabEnvelopeBtn);
         tabEnvelopeBtn.style.display = "inline-flex";
         if (managerEnvView) managerEnvView.style.display = "none";
         if (advisorEnvView) advisorEnvView.style.display = "block";
@@ -3377,6 +3565,8 @@
         if (activeTabId === 'tab-users') activeTabId = null;
       }
 
+      updateEnvelopeTabPlacement();
+
       if (isStaff) {
         myTabLabel.innerText = "Arizalar";
         tabAddBtn.classList.add('compact-plus');
@@ -3395,7 +3585,12 @@
         const currentBtnObj = document.querySelector(`[onclick*="${activeTabId}"]`) || (isStaff ? tabMyBtn : tabAddBtn);
         openTab(activeTabId, currentBtnObj, true);
       } else {
-        if (isStaff) {
+        if (isStaff && hasPendingEnvelopes) {
+          openTab('tab-envelopes', tabEnvelopeBtn, true);
+          setTimeout(() => {
+            tabEnvelopeBtn.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+          }, 50);
+        } else if (isStaff) {
           openTab('tab-my', tabMyBtn, true);
         } else {
           openTab('tab-add', tabAddBtn, true);
@@ -3671,11 +3866,13 @@
     }
 
     function toggleSelectAllCategory(category, isChecked) {
-      selectionModeByCategory[category] = isChecked;
+      if (isChecked) {
+        selectionModeByCategory[category] = true;
+      }
       const containerId = category === 'newRecs' ? 'list-all' : (category === 'approved' ? 'list-approved' : 'list-dispatched');
       const listEl = document.getElementById(containerId);
-      if (listEl) {
-        if (isChecked) listEl.classList.add('selection-mode-active');
+      if (listEl && isChecked) {
+        listEl.classList.add('selection-mode-active');
       }
 
       document.querySelectorAll(`.rec-chk-cat-${category}`).forEach(chk => {
@@ -3703,13 +3900,34 @@
       const checkedChks = allChks.filter(c => c.checked);
       const selAllEl = document.getElementById(`sel-all-chk-${category}`);
       if (selAllEl && allChks.length > 0) {
-        selAllEl.checked = (checkedChks.length === allChks.length);
+        selAllEl.checked = (checkedChks.length === allChks.length && checkedChks.length > 0);
       }
       const countSpan = document.getElementById(`bulk-cnt-${category}`);
       if (countSpan) countSpan.innerText = checkedChks.length;
 
       const actBtn = document.getElementById(`bulk-btn-${category}`);
       if (actBtn) actBtn.disabled = (checkedChks.length === 0);
+
+      /* Tanlanganlar 0 bo'lib qolganda 10 soniyadan keyin chekbokslarni avtomatik yashirish */
+      if (checkedChks.length > 0) {
+        if (selectionHideTimers[category]) {
+          clearTimeout(selectionHideTimers[category]);
+          selectionHideTimers[category] = null;
+        }
+      } else if (selectionModeByCategory[category]) {
+        if (!selectionHideTimers[category]) {
+          selectionHideTimers[category] = setTimeout(() => {
+            selectionHideTimers[category] = null;
+            const nowChecked = Array.from(document.querySelectorAll(`.rec-chk-cat-${category}:checked`)).filter(c => !c.disabled);
+            if (nowChecked.length === 0) {
+              selectionModeByCategory[category] = false;
+              const containerId = category === 'newRecs' ? 'list-all' : (category === 'approved' ? 'list-approved' : 'list-dispatched');
+              const listEl = document.getElementById(containerId);
+              if (listEl) listEl.classList.remove('selection-mode-active');
+            }
+          }, 10000);
+        }
+      }
     }
 
     function triggerBulkCategoryAction(category) {
@@ -3814,6 +4032,14 @@
         rec.status = targetStatus;
         rec.hasEnvelope = true;
         rec.deliverer = chosenDeliverer;
+      });
+
+      ['newRecs', 'approved', 'dispatched'].forEach(cat => {
+        selectionModeByCategory[cat] = false;
+        if (selectionHideTimers[cat]) {
+          clearTimeout(selectionHideTimers[cat]);
+          selectionHideTimers[cat] = null;
+        }
       });
 
       renderRecords(allRecords);
@@ -4041,9 +4267,7 @@
         const isOwnManagerRecord = isManager && (
           r.ownerRole === "Admin" ||
           r.ownerRole === "Boshqaruvchi" ||
-          (r.ownerChatId && String(r.ownerChatId) === String(chatId)) ||
-          (r.sheetName && r.sheetName.indexOf(chatId) !== -1) ||
-          (currentUser && currentUser.fio && r.sender && r.sender.toLowerCase().indexOf(currentUser.fio.toLowerCase()) !== -1)
+          (currentUser && currentUser.fio && r.sender && extractCleanFioJS(r.sender).toLowerCase() === currentUser.fio.toLowerCase())
         );
 
         const canManageRecord = isAdvisor || isOwnManagerRecord;
