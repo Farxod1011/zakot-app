@@ -4182,27 +4182,58 @@
 
     let isNewRecsSummaryOpen = false;
 
-    function toggleNewRecsSummary() {
-      isNewRecsSummaryOpen = !isNewRecsSummaryOpen;
-      const bodyEl = document.getElementById('newRecsSummaryBody');
-      const arrowIcon = document.getElementById('newRecsSummaryArrow');
+    let summaryOpenByCategory = {
+      newRecs: false,
+      approved: false,
+      rejected: false,
+      dispatched: false,
+      delivered: false
+    };
+
+    function toggleCategorySummary(category) {
+      summaryOpenByCategory[category] = !summaryOpenByCategory[category];
+      const isOpen = summaryOpenByCategory[category];
+      const bodyEl = document.getElementById(`recSummaryBody-${category}`);
+      const arrowIcon = document.getElementById(`recSummaryArrow-${category}`);
       if (bodyEl) {
-        bodyEl.style.display = isNewRecsSummaryOpen ? 'flex' : 'none';
+        bodyEl.style.display = isOpen ? 'flex' : 'none';
       }
       if (arrowIcon) {
-        arrowIcon.style.transform = isNewRecsSummaryOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+        arrowIcon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
       }
     }
 
-    function buildNewRecsSummaryHtml(records) {
-      const newRecs = (records || []).filter(r => normalizeStatusJS(r.status) === "Yangi");
-      if (newRecs.length <= 5) return "";
+    function buildCategorySummaryHtml(records, category) {
+      const isVolunteer = !isAdminUser && (currentUser && currentUser.role === "Ko'ngilli");
+      if (isVolunteer && (category === 'approved' || category === 'dispatched' || category === 'delivered')) {
+        return "";
+      }
+
+      const statusMap = {
+        newRecs: "Yangi",
+        approved: "Tasdiqlangan",
+        rejected: "Rad etilgan",
+        dispatched: "Berib yuborilgan",
+        delivered: "Yetqazilgan"
+      };
+
+      const titleMap = {
+        newRecs: "Arizalar hisoboti",
+        approved: "Tasdiqlanganlar hisoboti",
+        rejected: "Rad etilganlar hisoboti",
+        dispatched: "Berib yuborilganlar hisoboti",
+        delivered: "Yetqazilganlar hisoboti"
+      };
+
+      const targetStatus = statusMap[category];
+      const catRecs = (records || []).filter(r => normalizeStatusJS(r.status) === targetStatus);
+      if (catRecs.length === 0) return "";
 
       const byAmount = {};
       let unassignedCount = 0;
       let totalSum = 0;
 
-      newRecs.forEach(r => {
+      catRecs.forEach(r => {
         const recKey = getRecordUniqueKey(r);
         const savedDraft = draftInputsCache[recKey] || null;
         const amtRaw = savedDraft && savedDraft.amount !== undefined ? savedDraft.amount : r.amount;
@@ -4227,21 +4258,24 @@
       ).join('');
 
       if (unassignedCount > 0) {
-        chipsHtml += `<span class="adv-chip" style="padding:3px 7px; font-size:11px; color:var(--pink-text);">Belgilanmagan: <b>${unassignedCount} ta</b></span>`;
+        const unassignedLabel = category === 'rejected' ? "Rad etilgan" : "Belgilanmagan";
+        chipsHtml += `<span class="adv-chip" style="padding:3px 7px; font-size:11px; color:var(--pink-text);">${unassignedLabel}: <b>${unassignedCount} ta</b></span>`;
       }
 
+      const isOpen = Boolean(summaryOpenByCategory[category]);
+
       return `
-        <div class="dir-card" style="padding:9px 12px; margin-bottom:9px; background:var(--card-bg); cursor:pointer;" onclick="toggleNewRecsSummary()">
+        <div class="dir-card" style="padding:9px 12px; margin-bottom:9px; background:var(--card-bg); cursor:pointer;" onclick="toggleCategorySummary('${category}')">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--hint-color); font-weight:600;">
             <span style="display:inline-flex; align-items:center; gap:5px;">
-              <i class="fi fi-rr-chart-pie-alt" style="color:var(--accent-color)"></i> Arizalar hisoboti (${newRecs.length} ta)
+              <i class="fi fi-rr-chart-pie-alt" style="color:var(--accent-color)"></i> ${titleMap[category]} (${catRecs.length} ta)
             </span>
             <span style="display:inline-flex; align-items:center; gap:5px; color:var(--amount-text); font-weight:700; white-space:nowrap;">
               Jami: ${formatSumText(totalSum)}
-              <i id="newRecsSummaryArrow" class="fi fi-rr-angle-small-down" style="color:var(--hint-color); transition:transform 0.2s; transform:${isNewRecsSummaryOpen ? 'rotate(180deg)' : 'rotate(0deg)'};"></i>
+              <i id="recSummaryArrow-${category}" class="fi fi-rr-angle-small-down" style="color:var(--hint-color); transition:transform 0.2s; transform:${isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};"></i>
             </span>
           </div>
-          <div id="newRecsSummaryBody" class="adv-chip-list" style="display:${isNewRecsSummaryOpen ? 'flex' : 'none'}; gap:4px; margin-top:8px; padding-top:7px; border-top:1px dashed var(--border-color);">
+          <div id="recSummaryBody-${category}" class="adv-chip-list" style="display:${isOpen ? 'flex' : 'none'}; gap:4px; margin-top:8px; padding-top:7px; border-top:1px dashed var(--border-color);">
             ${chipsHtml}
           </div>
         </div>
@@ -4540,21 +4574,25 @@
       const listDeliveredEl = document.getElementById('list-delivered');
 
       listAllEl.innerHTML = htmls.newRecs
-        ? (buildNewRecsSummaryHtml(records) + buildBulkBarHtml('newRecs', manageableCounts.newRecs) + htmls.newRecs)
+        ? (buildCategorySummaryHtml(records, 'newRecs') + buildBulkBarHtml('newRecs', manageableCounts.newRecs) + htmls.newRecs)
         : '<div class="empty-state">Yangi arizalar mavjud emas</div>';
 
       listApprovedEl.innerHTML = htmls.approved
-        ? (buildBulkBarHtml('approved', manageableCounts.approved) + htmls.approved)
+        ? (buildCategorySummaryHtml(records, 'approved') + buildBulkBarHtml('approved', manageableCounts.approved) + htmls.approved)
         : '<div class="empty-state">Tasdiqlangan arizalar mavjud emas</div>';
 
-      listRejectedEl.innerHTML = htmls.rejected || '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
+      listRejectedEl.innerHTML = htmls.rejected
+        ? (buildCategorySummaryHtml(records, 'rejected') + htmls.rejected)
+        : '<div class="empty-state">Rad etilgan arizalar mavjud emas</div>';
 
       listDispatchedEl.innerHTML = htmls.dispatched
-        ? (buildBulkBarHtml('dispatched', manageableCounts.dispatched) + htmls.dispatched)
+        ? (buildCategorySummaryHtml(records, 'dispatched') + buildBulkBarHtml('dispatched', manageableCounts.dispatched) + htmls.dispatched)
         : '<div class="empty-state">Berib yuborilgan arizalar mavjud emas</div>';
 
-      listDeliveredEl.innerHTML = htmls.delivered || '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
-
+      listDeliveredEl.innerHTML = htmls.delivered
+        ? (buildCategorySummaryHtml(records, 'delivered') + htmls.delivered)
+        : '<div class="empty-state">Yetqazilgan arizalar mavjud emas</div>';
+      
       ['newRecs', 'approved', 'dispatched'].forEach(cat => {
         const cId = cat === 'newRecs' ? 'list-all' : (cat === 'approved' ? 'list-approved' : 'list-dispatched');
         const el = document.getElementById(cId);
