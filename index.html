@@ -4209,7 +4209,7 @@
       const sortedItems = Object.values(byAmount).sort((a, b) => a.unitVal - b.unitVal);
 
       let chipsHtml = sortedItems.map(item =>
-        `<span class="adv-chip" style="padding:3px 7px; font-size:11px;">💰 ${escHtml(item.label)}: <b>${item.count} ta</b> (<b style="color:var(--amount-text); white-space:nowrap;">${formatSumText(item.sum)}</b>)</span>`
+        `<span class="adv-chip" style="padding:3px 7px; font-size:11px;"><i class="fi fi-rr-coins" style="color:var(--accent-color)"></i> ${escHtml(item.label)}: <b>${item.count} ta</b> (<b style="color:var(--amount-text); white-space:nowrap;">${formatSumText(item.sum)}</b>)</span>`
       ).join('');
 
       if (unassignedCount > 0) {
@@ -4219,7 +4219,7 @@
       return `
         <div class="dir-card" style="padding:8px 10px; margin-bottom:9px; background:var(--card-bg);">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; font-size:11.5px; color:var(--hint-color); margin-bottom:5px; font-weight:600;">
-            <span>📊 Arizalar hisoboti (${newRecs.length} ta)</span>
+            <span style="display:inline-flex; align-items:center; gap:5px;"><i class="fi fi-rr-chart-pie-alt" style="color:var(--accent-color)"></i> Arizalar hisoboti (${newRecs.length} ta)</span>
             <span style="color:var(--amount-text); font-weight:700; white-space:nowrap;">Jami: ${formatSumText(totalSum)}</span>
           </div>
           <div class="adv-chip-list" style="gap:4px;">${chipsHtml}</div>
