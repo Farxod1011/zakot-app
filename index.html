@@ -1519,6 +1519,7 @@
 
     function updateEnvelopeTabPlacement() {
       const tabBar = document.querySelector('.tab-bar');
+      const tabAddBtn = document.getElementById('tabAddBtn');
       const tabEnvBtn = document.getElementById('tabEnvelopeBtn');
       const tabUsersBtn = document.getElementById('tabUsersBtn');
       if (!tabBar || !tabEnvBtn || !currentUser) return;
@@ -1531,8 +1532,9 @@
 
       if (pendingTransfers.length > 0) {
         tabEnvBtn.classList.add('has-requests');
-        if (tabBar.firstElementChild !== tabEnvBtn) {
-          tabBar.insertBefore(tabEnvBtn, tabBar.firstElementChild);
+        /* "+" (tabAddBtn) menyusidan keyin chiqarish */
+        if (tabAddBtn && tabAddBtn.nextElementSibling !== tabEnvBtn) {
+          tabBar.insertBefore(tabEnvBtn, tabAddBtn.nextSibling);
         }
       } else {
         tabEnvBtn.classList.remove('has-requests');
@@ -1589,11 +1591,11 @@
                   <div class="dir-sub">${senderText}🗓 ${escHtml(tr.date || '-')}</div>
                 </div>
               </div>
-              <div class="dir-actions" style="gap:5px;">
-                <button type="button" class="btn-act btn-approve" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+              <div class="dir-actions" style="flex-direction:column; align-items:stretch; gap:6px;">
+                <button type="button" class="btn-act btn-approve" style="flex:0 0 auto; width:100%; min-width:96px; padding:7px 10px; font-size:12px;" onclick="acceptIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                   <i class="fi fi-rr-check"></i> Oldim
                 </button>
-                <button type="button" class="btn-act btn-reject" style="min-width:auto; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
+                <button type="button" class="btn-act btn-reject" style="flex:0 0 auto; width:100%; min-width:96px; padding:7px 10px; font-size:12px;" onclick="rejectIncomingEnvelope('${escJsAttr(tr.id)}', ${tIdx})">
                   <i class="fi fi-rr-cross-small"></i> Olmadim
                 </button>
               </div>
